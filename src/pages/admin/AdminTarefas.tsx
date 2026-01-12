@@ -410,7 +410,7 @@ export default function AdminTarefas() {
 
                         <Select
                           value={task.status}
-                          onValueChange={(value) => updateTaskStatus(task.id, value)}
+                          onValueChange={(value) => updateTaskStatus(task.id, value as "pending" | "in_progress" | "completed" | "cancelled")}
                           disabled={isUpdating}
                         >
                           <SelectTrigger className="w-[140px] h-8 text-xs bg-secondary">
