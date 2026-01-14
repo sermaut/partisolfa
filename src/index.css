@@ -121,6 +121,10 @@
     scroll-behavior: smooth;
   }
 
+  #lovable-badge {
+    display: none !important
+  }
+  
   body {
     @apply bg-background text-foreground antialiased;
     font-family: 'Inter', sans-serif;
