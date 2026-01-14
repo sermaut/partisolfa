@@ -15,6 +15,7 @@ import TarefaDetalhe from "./pages/TarefaDetalhe";
 import TermosUso from "./pages/TermosUso";
 import PoliticaPrivacidade from "./pages/PoliticaPrivacidade";
 import AvisoLegal from "./pages/AvisoLegal";
+import Servicos from "./pages/Servicos";
 import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminTarefas from "./pages/admin/AdminTarefas";
 import AdminDepositos from "./pages/admin/AdminDepositos";
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/termos-uso" element={<TermosUso />} />
             <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
             <Route path="/aviso-legal" element={<AvisoLegal />} />
+            <Route path="/servicos" element={<Servicos />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/admin/tarefas" element={<AdminTarefas />} />
             <Route path="/admin/depositos" element={<AdminDepositos />} />
