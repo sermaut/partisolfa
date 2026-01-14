@@ -12,13 +12,19 @@ import {
   FileMusic,
   Wallet,
   History,
-  Bell
+  Bell,
+  TrendingUp,
+  PieChart,
+  BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { UsageChart } from '@/components/dashboard/UsageChart';
+import { ServiceDistributionChart } from '@/components/dashboard/ServiceDistributionChart';
+import { StatusDistributionChart } from '@/components/dashboard/StatusDistributionChart';
 
 interface Task {
   id: string;
@@ -54,8 +60,10 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [allTasks, setAllTasks] = useState<Task[]>([]);
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [totalCreditsUsed, setTotalCreditsUsed] = useState(0);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -70,7 +78,7 @@ export default function Dashboard() {
 
   const fetchData = async () => {
     try {
-      // Fetch tasks
+      // Fetch recent tasks (limited)
       const { data: tasksData, error: tasksError } = await supabase
         .from('tasks')
         .select('*')
@@ -79,6 +87,19 @@ export default function Dashboard() {
 
       if (tasksError) throw tasksError;
       setTasks(tasksData || []);
+
+      // Fetch all tasks for statistics
+      const { data: allTasksData, error: allTasksError } = await supabase
+        .from('tasks')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (allTasksError) throw allTasksError;
+      setAllTasks(allTasksData || []);
+
+      // Calculate total credits used
+      const total = (allTasksData || []).reduce((sum, task) => sum + (task.credits_used || 0), 0);
+      setTotalCreditsUsed(total);
 
       // Fetch notifications
       const { data: notifData, error: notifError } = await supabase
@@ -129,8 +150,9 @@ export default function Dashboard() {
     );
   }
 
-  const pendingTasks = tasks.filter(t => t.status === 'pending').length;
-  const completedTasks = tasks.filter(t => t.status === 'completed').length;
+  const pendingTasks = allTasks.filter(t => t.status === 'pending').length;
+  const inProgressTasks = allTasks.filter(t => t.status === 'in_progress').length;
+  const completedTasks = allTasks.filter(t => t.status === 'completed').length;
 
   return (
     <Layout showFooter={false}>
@@ -150,21 +172,21 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="glass-card rounded-xl p-6"
+            className="glass-card rounded-xl p-4 md:p-6"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                <Wallet className="w-6 h-6 text-primary" />
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                <Wallet className="w-5 h-5 md:w-6 md:h-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Saldo</p>
-                <p className="text-2xl font-display font-bold text-primary">
-                  {profile?.credits?.toFixed(1)} <span className="text-sm font-normal">créditos</span>
+                <p className="text-xs md:text-sm text-muted-foreground">Saldo</p>
+                <p className="text-lg md:text-2xl font-display font-bold text-primary">
+                  {profile?.credits?.toFixed(1)}
                 </p>
               </div>
             </div>
@@ -173,16 +195,50 @@ export default function Dashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="glass-card rounded-xl p-6"
+            transition={{ delay: 0.15 }}
+            className="glass-card rounded-xl p-4 md:p-6"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-warning/20 flex items-center justify-center">
-                <Clock className="w-6 h-6 text-warning" />
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent/20 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-accent" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Pendentes</p>
-                <p className="text-2xl font-display font-bold">{pendingTasks}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Total Gasto</p>
+                <p className="text-lg md:text-2xl font-display font-bold">{totalCreditsUsed.toFixed(1)}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="glass-card rounded-xl p-4 md:p-6"
+          >
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-warning/20 flex items-center justify-center">
+                <Clock className="w-5 h-5 md:w-6 md:h-6 text-warning" />
+              </div>
+              <div>
+                <p className="text-xs md:text-sm text-muted-foreground">Pendentes</p>
+                <p className="text-lg md:text-2xl font-display font-bold">{pendingTasks + inProgressTasks}</p>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="glass-card rounded-xl p-4 md:p-6"
+          >
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-success/20 flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-success" />
+              </div>
+              <div>
+                <p className="text-xs md:text-sm text-muted-foreground">Concluídas</p>
+                <p className="text-lg md:text-2xl font-display font-bold">{completedTasks}</p>
               </div>
             </div>
           </motion.div>
@@ -191,42 +247,57 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="glass-card rounded-xl p-6"
+            className="glass-card rounded-xl p-4 md:p-6 col-span-2 md:col-span-1"
           >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-success/20 flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-success" />
+            <div className="flex items-center gap-3 md:gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-destructive/20 flex items-center justify-center">
+                <Bell className="w-5 h-5 md:w-6 md:h-6 text-destructive" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">Concluídas</p>
-                <p className="text-2xl font-display font-bold">{completedTasks}</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="glass-card rounded-xl p-6"
-          >
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center">
-                <Bell className="w-6 h-6 text-accent" />
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Notificações</p>
-                <p className="text-2xl font-display font-bold">{notifications.length}</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Notificações</p>
+                <p className="text-lg md:text-2xl font-display font-bold">{notifications.length}</p>
               </div>
             </div>
           </motion.div>
         </div>
 
+        {/* Charts Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
+        >
+          <div className="glass-card rounded-xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp className="w-5 h-5 text-primary" />
+              <h3 className="font-display font-semibold">Uso de Créditos</h3>
+            </div>
+            <UsageChart tasks={allTasks} />
+          </div>
+
+          <div className="glass-card rounded-xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <PieChart className="w-5 h-5 text-primary" />
+              <h3 className="font-display font-semibold">Distribuição de Serviços</h3>
+            </div>
+            <ServiceDistributionChart tasks={allTasks} />
+          </div>
+
+          <div className="glass-card rounded-xl p-6">
+            <div className="flex items-center gap-2 mb-4">
+              <BarChart3 className="w-5 h-5 text-primary" />
+              <h3 className="font-display font-semibold">Estado das Solicitações</h3>
+            </div>
+            <StatusDistributionChart tasks={allTasks} />
+          </div>
+        </motion.div>
+
         {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.4 }}
           className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
         >
           <Button 
@@ -265,7 +336,7 @@ export default function Dashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6 }}
+            transition={{ delay: 0.45 }}
             className="mb-8"
           >
             <h2 className="font-display text-xl font-semibold mb-4">Notificações</h2>
@@ -301,7 +372,7 @@ export default function Dashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 0.5 }}
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-display text-xl font-semibold">Solicitações Recentes</h2>
