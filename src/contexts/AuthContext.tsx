@@ -2,22 +2,25 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-interface Profile {
+export interface Profile {
   id: string;
   user_id: string;
   full_name: string;
   email: string;
   credits: number;
+  phone: string | null;
+  avatar_url: string | null;
   created_at: string;
   updated_at: string;
 }
 
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
   isAdmin: boolean;
   isLoading: boolean;
+  isProfileComplete: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
@@ -32,6 +35,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+
+  const isProfileComplete = !!(profile?.phone && profile?.avatar_url);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -144,6 +149,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         isAdmin,
         isLoading,
+        isProfileComplete,
         signUp,
         signIn,
         signOut,

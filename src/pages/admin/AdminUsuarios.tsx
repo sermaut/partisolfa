@@ -6,10 +6,12 @@ import {
   Users,
   Search,
   CreditCard,
-  Mail,
   Calendar,
   Edit,
-  Loader2
+  Loader2,
+  Trash2,
+  Phone,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -25,6 +27,17 @@ import {
   DialogFooter,
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface Profile {
   id: string;
@@ -32,6 +45,8 @@ interface Profile {
   full_name: string;
   email: string;
   credits: number;
+  phone: string | null;
+  avatar_url: string | null;
   created_at: string;
 }
 
@@ -46,6 +61,8 @@ export default function AdminUsuarios() {
   const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
   const [editCredits, setEditCredits] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
+  const [deleteProfile, setDeleteProfile] = useState<Profile | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!authLoading) {
@@ -142,6 +159,90 @@ export default function AdminUsuarios() {
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (!deleteProfile) return;
+
+    setIsDeleting(true);
+    try {
+      // Delete user's tasks and associated files
+      const { data: userTasks } = await supabase
+        .from('tasks')
+        .select('id')
+        .eq('user_id', deleteProfile.user_id);
+
+      if (userTasks && userTasks.length > 0) {
+        const taskIds = userTasks.map(t => t.id);
+        
+        // Get task files to delete from storage
+        const { data: taskFiles } = await supabase
+          .from('task_files')
+          .select('file_path, is_result')
+          .in('task_id', taskIds);
+
+        if (taskFiles) {
+          for (const file of taskFiles) {
+            const bucket = file.is_result ? 'result-files' : 'task-files';
+            await supabase.storage.from(bucket).remove([file.file_path]);
+          }
+        }
+
+        // Delete task files records
+        await supabase.from('task_files').delete().in('task_id', taskIds);
+        
+        // Delete tasks
+        await supabase.from('tasks').delete().eq('user_id', deleteProfile.user_id);
+      }
+
+      // Delete user's deposits and associated files
+      const { data: userDeposits } = await supabase
+        .from('deposits')
+        .select('proof_file_path')
+        .eq('user_id', deleteProfile.user_id);
+
+      if (userDeposits) {
+        for (const deposit of userDeposits) {
+          await supabase.storage.from('deposit-proofs').remove([deposit.proof_file_path]);
+        }
+      }
+
+      await supabase.from('deposits').delete().eq('user_id', deleteProfile.user_id);
+
+      // Delete user's notifications
+      await supabase.from('notifications').delete().eq('user_id', deleteProfile.user_id);
+
+      // Delete user roles
+      await supabase.from('user_roles').delete().eq('user_id', deleteProfile.user_id);
+
+      // Delete avatar if exists
+      if (deleteProfile.avatar_url) {
+        const avatarPath = deleteProfile.avatar_url.split('/avatars/')[1];
+        if (avatarPath) {
+          await supabase.storage.from('avatars').remove([avatarPath]);
+        }
+      }
+
+      // Delete profile
+      await supabase.from('profiles').delete().eq('id', deleteProfile.id);
+
+      toast({
+        title: 'Usuário eliminado',
+        description: 'O usuário e todos os seus dados foram eliminados com sucesso.',
+      });
+
+      setDeleteProfile(null);
+      fetchProfiles();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível eliminar o usuário.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const filteredProfiles = profiles.filter((profile) => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
@@ -228,9 +329,12 @@ export default function AdminUsuarios() {
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-display font-bold text-lg">
-                        {profile.full_name.charAt(0).toUpperCase()}
-                      </div>
+                      <Avatar className="w-12 h-12">
+                        <AvatarImage src={profile.avatar_url || undefined} />
+                        <AvatarFallback className="bg-primary/20 text-primary font-display font-bold">
+                          {profile.full_name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
                       <div>
                         <h3 className="font-semibold">{profile.full_name}</h3>
                         <p className="text-sm text-muted-foreground truncate max-w-[160px]">
@@ -238,14 +342,24 @@ export default function AdminUsuarios() {
                         </p>
                       </div>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8"
-                      onClick={() => openEditDialog(profile)}
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => openEditDialog(profile)}
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => setDeleteProfile(profile)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-3 text-sm">
@@ -257,6 +371,12 @@ export default function AdminUsuarios() {
                       <Calendar className="w-4 h-4" />
                       <span>{formatDate(profile.created_at)}</span>
                     </div>
+                    {profile.phone && (
+                      <div className="flex items-center gap-2 text-muted-foreground col-span-2">
+                        <Phone className="w-4 h-4" />
+                        <span>{profile.phone}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}
@@ -277,9 +397,12 @@ export default function AdminUsuarios() {
           {selectedProfile && (
             <div className="space-y-6">
               <div className="flex items-center gap-3 p-4 bg-secondary/50 rounded-lg">
-                <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary font-display font-bold text-lg">
-                  {selectedProfile.full_name.charAt(0).toUpperCase()}
-                </div>
+                <Avatar className="w-12 h-12">
+                  <AvatarImage src={selectedProfile.avatar_url || undefined} />
+                  <AvatarFallback className="bg-primary/20 text-primary font-display font-bold">
+                    {selectedProfile.full_name.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
                 <div>
                   <p className="font-semibold">{selectedProfile.full_name}</p>
                   <p className="text-sm text-muted-foreground">{selectedProfile.email}</p>
@@ -321,6 +444,47 @@ export default function AdminUsuarios() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteProfile} onOpenChange={(open) => !open && setDeleteProfile(null)}>
+        <AlertDialogContent className="bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Eliminar Usuário
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem a certeza que deseja eliminar o usuário <strong>{deleteProfile?.full_name}</strong>?
+              <br /><br />
+              Esta acção irá eliminar permanentemente:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Perfil do usuário</li>
+                <li>Todas as solicitações</li>
+                <li>Todos os depósitos</li>
+                <li>Todas as notificações</li>
+                <li>Todos os ficheiros associados</li>
+              </ul>
+              <br />
+              <strong className="text-destructive">Esta acção não pode ser desfeita.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteUser}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4 mr-2" />
+              )}
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 }

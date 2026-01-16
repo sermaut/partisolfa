@@ -3,7 +3,8 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "@/contexts/AuthContext";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { ProfileCompletionModal } from "@/components/ProfileCompletionModal";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -27,6 +28,52 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+function ProfileCompletionWrapper() {
+  const { user, profile, isLoading, isProfileComplete, refreshProfile } = useAuth();
+
+  // Show modal if user is logged in but profile is incomplete
+  const showModal = !isLoading && user && profile && !isProfileComplete;
+
+  if (!showModal) return null;
+
+  return (
+    <ProfileCompletionModal
+      open={true}
+      userId={user.id}
+      userName={profile.full_name}
+      onComplete={refreshProfile}
+    />
+  );
+}
+
+const AppContent = () => (
+  <>
+    <ProfileCompletionWrapper />
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/registar" element={<Register />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/nova-solicitacao" element={<NovaSolicitacao />} />
+      <Route path="/deposito" element={<Deposito />} />
+      <Route path="/historico" element={<Historico />} />
+      <Route path="/tarefa/:id" element={<TarefaDetalhe />} />
+      <Route path="/termos-uso" element={<TermosUso />} />
+      <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
+      <Route path="/aviso-legal" element={<AvisoLegal />} />
+      <Route path="/servicos" element={<Servicos />} />
+      <Route path="/notificacoes" element={<Notificacoes />} />
+      <Route path="/solicitacoes" element={<SolicitacoesRecentes />} />
+      <Route path="/perfil" element={<Perfil />} />
+      <Route path="/admin" element={<AdminDashboard />} />
+      <Route path="/admin/tarefas" element={<AdminTarefas />} />
+      <Route path="/admin/depositos" element={<AdminDepositos />} />
+      <Route path="/admin/usuarios" element={<AdminUsuarios />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  </>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <AuthProvider>
@@ -34,28 +81,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/registar" element={<Register />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/nova-solicitacao" element={<NovaSolicitacao />} />
-            <Route path="/deposito" element={<Deposito />} />
-            <Route path="/historico" element={<Historico />} />
-            <Route path="/tarefa/:id" element={<TarefaDetalhe />} />
-            <Route path="/termos-uso" element={<TermosUso />} />
-            <Route path="/politica-privacidade" element={<PoliticaPrivacidade />} />
-            <Route path="/aviso-legal" element={<AvisoLegal />} />
-            <Route path="/servicos" element={<Servicos />} />
-            <Route path="/notificacoes" element={<Notificacoes />} />
-            <Route path="/solicitacoes" element={<SolicitacoesRecentes />} />
-            <Route path="/perfil" element={<Perfil />} />
-            <Route path="/admin" element={<AdminDashboard />} />
-            <Route path="/admin/tarefas" element={<AdminTarefas />} />
-            <Route path="/admin/depositos" element={<AdminDepositos />} />
-            <Route path="/admin/usuarios" element={<AdminUsuarios />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <AppContent />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

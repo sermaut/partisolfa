@@ -7,10 +7,11 @@ import {
   Clock, 
   CheckCircle, 
   XCircle,
-  Download,
   Eye,
   Loader2,
-  FileImage
+  FileImage,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
@@ -33,6 +34,16 @@ import {
 } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface Deposit {
   id: string;
@@ -69,6 +80,8 @@ export default function AdminDepositos() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [adminNotes, setAdminNotes] = useState('');
   const [proofUrl, setProofUrl] = useState<string | null>(null);
+  const [deleteDeposit, setDeleteDeposit] = useState<Deposit | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!authLoading) {
@@ -206,6 +219,43 @@ export default function AdminDepositos() {
     }
   };
 
+  const handleDeleteDeposit = async () => {
+    if (!deleteDeposit) return;
+
+    setIsDeleting(true);
+    try {
+      // Delete proof file from storage
+      await supabase.storage
+        .from('deposit-proofs')
+        .remove([deleteDeposit.proof_file_path]);
+
+      // Delete deposit record
+      const { error } = await supabase
+        .from('deposits')
+        .delete()
+        .eq('id', deleteDeposit.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Depósito eliminado',
+        description: 'O registo do depósito foi eliminado com sucesso.',
+      });
+
+      setDeleteDeposit(null);
+      fetchDeposits();
+    } catch (error) {
+      console.error('Error deleting deposit:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível eliminar o depósito.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('pt-AO', {
       day: '2-digit',
@@ -320,6 +370,15 @@ export default function AdminDepositos() {
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           Ver detalhes
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => setDeleteDeposit(deposit)}
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
@@ -461,6 +520,40 @@ export default function AdminDepositos() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!deleteDeposit} onOpenChange={(open) => !open && setDeleteDeposit(null)}>
+        <AlertDialogContent className="bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Eliminar Depósito
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem a certeza que deseja eliminar este depósito de <strong>{deleteDeposit?.amount_kz.toLocaleString()} Kz</strong>?
+              <br /><br />
+              Esta acção irá eliminar permanentemente o registo do depósito e o ficheiro comprovativo.
+              <br /><br />
+              <strong className="text-destructive">Esta acção não pode ser desfeita.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteDeposit}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Trash2 className="w-4 h-4 mr-2" />
+              )}
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Layout>
   );
 }
