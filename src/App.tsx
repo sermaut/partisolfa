@@ -8,6 +8,8 @@ import { ProfileCompletionModal } from "@/components/ProfileCompletionModal";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import RecuperarSenha from "./pages/RecuperarSenha";
+import RedefinirSenha from "./pages/RedefinirSenha";
 import Dashboard from "./pages/Dashboard";
 import NovaSolicitacao from "./pages/NovaSolicitacao";
 import Deposito from "./pages/Deposito";
@@ -53,6 +55,8 @@ const AppContent = () => (
       <Route path="/" element={<Index />} />
       <Route path="/login" element={<Login />} />
       <Route path="/registar" element={<Register />} />
+      <Route path="/recuperar-senha" element={<RecuperarSenha />} />
+      <Route path="/redefinir-senha" element={<RedefinirSenha />} />
       <Route path="/dashboard" element={<Dashboard />} />
       <Route path="/nova-solicitacao" element={<NovaSolicitacao />} />
       <Route path="/deposito" element={<Deposito />} />
