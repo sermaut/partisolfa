@@ -82,29 +82,35 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           created_at: string
           credits: number
           email: string
           full_name: string
           id: string
+          phone: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           credits?: number
           email: string
           full_name: string
           id?: string
+          phone?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           credits?: number
           email?: string
           full_name?: string
           id?: string
+          phone?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -153,11 +159,14 @@ export type Database = {
       }
       tasks: {
         Row: {
+          cancellation_reason: string | null
           created_at: string
           credits_used: number
           description: string | null
           id: string
           recommendations: string | null
+          result_comment: string | null
+          result_format: string | null
           service_type: Database["public"]["Enums"]["service_type"]
           status: Database["public"]["Enums"]["task_status"]
           title: string
@@ -165,11 +174,14 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          cancellation_reason?: string | null
           created_at?: string
           credits_used?: number
           description?: string | null
           id?: string
           recommendations?: string | null
+          result_comment?: string | null
+          result_format?: string | null
           service_type: Database["public"]["Enums"]["service_type"]
           status?: Database["public"]["Enums"]["task_status"]
           title: string
@@ -177,11 +189,14 @@ export type Database = {
           user_id: string
         }
         Update: {
+          cancellation_reason?: string | null
           created_at?: string
           credits_used?: number
           description?: string | null
           id?: string
           recommendations?: string | null
+          result_comment?: string | null
+          result_format?: string | null
           service_type?: Database["public"]["Enums"]["service_type"]
           status?: Database["public"]["Enums"]["task_status"]
           title?: string

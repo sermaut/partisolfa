@@ -10,7 +10,9 @@ import {
   Image, 
   FileAudio,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  FileText,
+  Headphones
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -20,6 +22,7 @@ import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const ACCEPTED_FILE_TYPES = {
   audio: ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/x-wav'],
@@ -28,6 +31,7 @@ const ACCEPTED_FILE_TYPES = {
 };
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
+const MAX_FILES = 10;
 
 interface UploadedFile {
   file: File;
@@ -45,6 +49,8 @@ export default function NovaSolicitacao() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [recommendations, setRecommendations] = useState('');
+  const [resultFormat, setResultFormat] = useState<'pdf' | 'audio' | 'both'>('both');
+  const [resultComment, setResultComment] = useState('');
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,6 +66,16 @@ export default function NovaSolicitacao() {
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
     if (!selectedFiles) return;
+
+    const remainingSlots = MAX_FILES - files.length;
+    if (selectedFiles.length > remainingSlots) {
+      toast({
+        title: 'Limite de ficheiros',
+        description: `Pode adicionar no máximo mais ${remainingSlots} ficheiro(s). Limite total: ${MAX_FILES}.`,
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const newFiles: UploadedFile[] = [];
 
@@ -153,6 +169,8 @@ export default function NovaSolicitacao() {
           recommendations,
           service_type: serviceType,
           credits_used: 1,
+          result_format: resultFormat,
+          result_comment: resultComment || null,
         })
         .select()
         .single();
@@ -255,7 +273,7 @@ export default function NovaSolicitacao() {
                 <button
                   type="button"
                   onClick={() => setServiceType('aperfeicoamento')}
-                  className={`glass-card rounded-xl p-6 text-left transition-all ${
+                  className={`glass-card rounded-xl p-6 text-left transition-all relative ${
                     serviceType === 'aperfeicoamento'
                       ? 'ring-2 ring-primary border-primary'
                       : 'hover:border-primary/50'
@@ -349,23 +367,91 @@ export default function NovaSolicitacao() {
               />
             </div>
 
+            {/* Result Format Selection */}
+            <div className="space-y-4">
+              <Label className="text-base">Formato do Resultado *</Label>
+              <p className="text-sm text-muted-foreground">
+                Como deseja receber o resultado da sua solicitação?
+              </p>
+              <RadioGroup
+                value={resultFormat}
+                onValueChange={(value) => setResultFormat(value as 'pdf' | 'audio' | 'both')}
+                className="grid grid-cols-1 md:grid-cols-3 gap-4"
+              >
+                <div className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
+                  resultFormat === 'pdf' ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
+                }`}>
+                  <Label htmlFor="format-pdf" className="flex items-center gap-3 cursor-pointer">
+                    <RadioGroupItem value="pdf" id="format-pdf" />
+                    <div className="flex items-center gap-2">
+                      <FileText className="w-5 h-5 text-warning" />
+                      <span className="font-medium">Partitura PDF</span>
+                    </div>
+                  </Label>
+                </div>
+
+                <div className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
+                  resultFormat === 'audio' ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
+                }`}>
+                  <Label htmlFor="format-audio" className="flex items-center gap-3 cursor-pointer">
+                    <RadioGroupItem value="audio" id="format-audio" />
+                    <div className="flex items-center gap-2">
+                      <Headphones className="w-5 h-5 text-primary" />
+                      <span className="font-medium">Áudio</span>
+                    </div>
+                  </Label>
+                </div>
+
+                <div className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
+                  resultFormat === 'both' ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
+                }`}>
+                  <Label htmlFor="format-both" className="flex items-center gap-3 cursor-pointer">
+                    <RadioGroupItem value="both" id="format-both" />
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-success" />
+                      <span className="font-medium">Ambos</span>
+                    </div>
+                  </Label>
+                </div>
+              </RadioGroup>
+
+              {/* Result Comment (Optional) */}
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="resultComment">Comentário adicional sobre o resultado (opcional)</Label>
+                <Textarea
+                  id="resultComment"
+                  placeholder="Especifique detalhes adicionais sobre como deseja receber o resultado..."
+                  value={resultComment}
+                  onChange={(e) => setResultComment(e.target.value)}
+                  className="bg-secondary border-border min-h-[80px]"
+                />
+              </div>
+            </div>
+
             {/* File Upload */}
             <div className="space-y-4">
-              <Label>Ficheiros *</Label>
+              <div className="flex items-center justify-between">
+                <Label>Ficheiros *</Label>
+                <span className="text-sm text-muted-foreground">
+                  {files.length}/{MAX_FILES} ficheiros
+                </span>
+              </div>
               <p className="text-sm text-muted-foreground">
-                Formatos aceites: MP3, WAV (áudio), JPG, PNG (imagem), PDF (documento). Máximo 20MB por ficheiro.
+                Formatos aceites: MP3, WAV (áudio), JPG, PNG (imagem), PDF (documento). Máximo 20MB por ficheiro. Até {MAX_FILES} ficheiros.
               </p>
               
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                className="glass-card rounded-xl p-8 border-dashed border-2 border-border hover:border-primary/50 transition-colors cursor-pointer text-center"
-              >
-                <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <p className="font-medium">Clique para selecionar ficheiros</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  ou arraste e solte aqui
-                </p>
-              </div>
+              {files.length < MAX_FILES && (
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className="glass-card rounded-xl p-8 border-dashed border-2 border-border hover:border-primary/50 transition-colors cursor-pointer text-center"
+                >
+                  <Upload className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="font-medium">Clique para selecionar ficheiros</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    ou arraste e solte aqui
+                  </p>
+                </div>
+              )}
 
               <input
                 ref={fileInputRef}
@@ -432,7 +518,7 @@ export default function NovaSolicitacao() {
                 <div className="text-right">
                   <p className="text-2xl font-display font-bold text-primary">1 crédito</p>
                   <p className="text-sm text-muted-foreground">
-                    Saldo atual: {profile?.credits?.toFixed(1)} créditos
+                    Saldo actual: {profile?.credits?.toFixed(1)} créditos
                   </p>
                 </div>
               </div>
