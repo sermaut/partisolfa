@@ -242,7 +242,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "user"
       deposit_status: "pending" | "approved" | "rejected"
-      service_type: "aperfeicoamento" | "arranjo"
+      service_type: "aperfeicoamento" | "arranjo" | "acc"
       task_status: "pending" | "in_progress" | "completed" | "cancelled"
     }
     CompositeTypes: {
@@ -373,7 +373,7 @@ export const Constants = {
     Enums: {
       app_role: ["admin", "user"],
       deposit_status: ["pending", "approved", "rejected"],
-      service_type: ["aperfeicoamento", "arranjo"],
+      service_type: ["aperfeicoamento", "arranjo", "acc"],
       task_status: ["pending", "in_progress", "completed", "cancelled"],
     },
   },
