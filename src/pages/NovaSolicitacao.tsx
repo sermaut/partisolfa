@@ -45,16 +45,26 @@ export default function NovaSolicitacao() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [serviceType, setServiceType] = useState<'aperfeicoamento' | 'arranjo' | null>(null);
+const [serviceType, setServiceType] = useState<'aperfeicoamento' | 'arranjo' | 'acc' | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [recommendations, setRecommendations] = useState('');
-  const [resultFormat, setResultFormat] = useState<'pdf' | 'audio' | 'both'>('both');
+  const [accPurpose, setAccPurpose] = useState('');
+  const [resultFormat, setResultFormat] = useState<'pdf' | 'audio' | 'image'>('pdf');
   const [resultComment, setResultComment] = useState('');
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const hasEnoughCredits = (profile?.credits || 0) >= 1;
+  // Get credits cost based on service type
+  const getServiceCredits = () => {
+    if (serviceType === 'aperfeicoamento') return 1.5;
+    if (serviceType === 'arranjo') return 2;
+    if (serviceType === 'acc') return 2;
+    return 0;
+  };
+
+  const serviceCost = getServiceCredits();
+  const hasEnoughCredits = (profile?.credits || 0) >= serviceCost && serviceCost > 0;
 
   const getFileType = (mimeType: string): 'audio' | 'image' | 'document' | null => {
     if (ACCEPTED_FILE_TYPES.audio.includes(mimeType)) return 'audio';
@@ -138,10 +148,30 @@ export default function NovaSolicitacao() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!serviceType || !title || files.length === 0) {
+if (!serviceType || !title || files.length === 0) {
       toast({
         title: 'Campos obrigatórios',
         description: 'Por favor, preencha todos os campos e anexe pelo menos um ficheiro.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // ACC service requires purpose description
+    if (serviceType === 'acc' && !accPurpose.trim()) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Por favor, descreva a finalidade do acompanhamento.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    // ACC service only allows audio result
+    if (serviceType === 'acc' && resultFormat !== 'audio') {
+      toast({
+        title: 'Formato inválido',
+        description: 'O serviço de ACCs só permite resultado em áudio.',
         variant: 'destructive',
       });
       return;
@@ -160,15 +190,19 @@ export default function NovaSolicitacao() {
 
     try {
       // Create the task
+      const taskDescription = serviceType === 'acc' 
+        ? `${description || ''}\n\nFinalidade do ACC: ${accPurpose}`.trim()
+        : description;
+
       const { data: task, error: taskError } = await supabase
         .from('tasks')
         .insert({
           user_id: user!.id,
           title,
-          description,
+          description: taskDescription,
           recommendations,
           service_type: serviceType,
-          credits_used: 1,
+          credits_used: serviceCost,
           result_format: resultFormat,
           result_comment: resultComment || null,
         })
@@ -203,10 +237,10 @@ export default function NovaSolicitacao() {
         });
       }
 
-      // Deduct credit
+      // Deduct credits
       await supabase
         .from('profiles')
-        .update({ credits: (profile?.credits || 0) - 1 })
+        .update({ credits: (profile?.credits || 0) - serviceCost })
         .eq('user_id', user!.id);
 
       await refreshProfile();
@@ -248,14 +282,14 @@ export default function NovaSolicitacao() {
             Envie os ficheiros e informações para o seu serviço musical.
           </p>
 
-          {!hasEnoughCredits && (
+          {!hasEnoughCredits && serviceType && (
             <div className="glass-card rounded-xl p-4 mb-6 border-warning/50 bg-warning/10">
               <div className="flex items-center gap-3">
                 <AlertCircle className="w-5 h-5 text-warning" />
                 <div>
                   <p className="font-medium text-warning">Saldo insuficiente</p>
                   <p className="text-sm text-muted-foreground">
-                    Você precisa de pelo menos 1 crédito para criar uma solicitação.{' '}
+                    Você precisa de {serviceCost} créditos para este serviço.{' '}
                     <Button variant="link" className="p-0 h-auto text-primary" onClick={() => navigate('/deposito')}>
                       Depositar créditos
                     </Button>
@@ -269,17 +303,19 @@ export default function NovaSolicitacao() {
             {/* Service Type Selection */}
             <div className="space-y-4">
               <Label className="text-base">Tipo de Serviço *</Label>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <button
                   type="button"
-                  onClick={() => setServiceType('aperfeicoamento')}
+                  onClick={() => {
+                    setServiceType('aperfeicoamento');
+                  }}
                   className={`glass-card rounded-xl p-6 text-left transition-all relative ${
                     serviceType === 'aperfeicoamento'
                       ? 'ring-2 ring-primary border-primary'
                       : 'hover:border-primary/50'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col gap-3">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                       serviceType === 'aperfeicoamento' ? 'bg-primary' : 'bg-primary/20'
                     }`}>
@@ -292,6 +328,7 @@ export default function NovaSolicitacao() {
                       <p className="text-sm text-muted-foreground">
                         Melhoria de partituras e músicas
                       </p>
+                      <p className="text-sm font-medium text-primary mt-2">1.5 créditos</p>
                     </div>
                   </div>
                   {serviceType === 'aperfeicoamento' && (
@@ -301,14 +338,16 @@ export default function NovaSolicitacao() {
 
                 <button
                   type="button"
-                  onClick={() => setServiceType('arranjo')}
+                  onClick={() => {
+                    setServiceType('arranjo');
+                  }}
                   className={`glass-card rounded-xl p-6 text-left transition-all relative ${
                     serviceType === 'arranjo'
                       ? 'ring-2 ring-primary border-primary'
                       : 'hover:border-primary/50'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex flex-col gap-3">
                     <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
                       serviceType === 'arranjo' ? 'bg-primary' : 'bg-primary/20'
                     }`}>
@@ -321,9 +360,43 @@ export default function NovaSolicitacao() {
                       <p className="text-sm text-muted-foreground">
                         Criação de arranjos personalizados
                       </p>
+                      <p className="text-sm font-medium text-primary mt-2">2 créditos</p>
                     </div>
                   </div>
                   {serviceType === 'arranjo' && (
+                    <CheckCircle className="absolute top-4 right-4 w-5 h-5 text-primary" />
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setServiceType('acc');
+                    setResultFormat('audio');
+                  }}
+                  className={`glass-card rounded-xl p-6 text-left transition-all relative ${
+                    serviceType === 'acc'
+                      ? 'ring-2 ring-primary border-primary'
+                      : 'hover:border-primary/50'
+                  }`}
+                >
+                  <div className="flex flex-col gap-3">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                      serviceType === 'acc' ? 'bg-primary' : 'bg-primary/20'
+                    }`}>
+                      <Headphones className={`w-6 h-6 ${
+                        serviceType === 'acc' ? 'text-primary-foreground' : 'text-primary'
+                      }`} />
+                    </div>
+                    <div>
+                      <p className="font-semibold">Criação de ACCs</p>
+                      <p className="text-sm text-muted-foreground">
+                        Acompanhamentos em áudio
+                      </p>
+                      <p className="text-sm font-medium text-primary mt-2">2 créditos</p>
+                    </div>
+                  </div>
+                  {serviceType === 'acc' && (
                     <CheckCircle className="absolute top-4 right-4 w-5 h-5 text-primary" />
                   )}
                 </button>
@@ -367,53 +440,87 @@ export default function NovaSolicitacao() {
               />
             </div>
 
-            {/* Result Format Selection */}
+            {/* ACC Purpose - Only shown for ACC service */}
+            {serviceType === 'acc' && (
+              <div className="space-y-2">
+                <Label htmlFor="accPurpose">Finalidade do Acompanhamento *</Label>
+                <Textarea
+                  id="accPurpose"
+                  placeholder="Ex: Acompanhamento para flauta em ensaio, para fanfarra em apresentação, para guitarra solo..."
+                  value={accPurpose}
+                  onChange={(e) => setAccPurpose(e.target.value)}
+                  className="bg-secondary border-border min-h-[100px]"
+                  required
+                />
+                <p className="text-sm text-muted-foreground">
+                  Descreva para que instrumento(s) ou finalidade pretende os acompanhamentos. 
+                  Receberá 3 versões de acompanhamento distintas.
+                </p>
+              </div>
+            )}
+
+            {/* Result Format Selection - Disabled for ACC service */}
             <div className="space-y-4">
               <Label className="text-base">Formato do Resultado *</Label>
               <p className="text-sm text-muted-foreground">
-                Como deseja receber o resultado da sua solicitação?
+                {serviceType === 'acc' 
+                  ? 'O serviço de ACCs entrega exclusivamente em formato áudio (3 acompanhamentos distintos).'
+                  : 'Como deseja receber o resultado da sua solicitação?'
+                }
               </p>
-              <RadioGroup
-                value={resultFormat}
-                onValueChange={(value) => setResultFormat(value as 'pdf' | 'audio' | 'both')}
-                className="grid grid-cols-1 md:grid-cols-3 gap-4"
-              >
-                <div className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
-                  resultFormat === 'pdf' ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
-                }`}>
-                  <Label htmlFor="format-pdf" className="flex items-center gap-3 cursor-pointer">
-                    <RadioGroupItem value="pdf" id="format-pdf" />
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-5 h-5 text-warning" />
-                      <span className="font-medium">Partitura PDF</span>
-                    </div>
-                  </Label>
-                </div>
-
-                <div className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
-                  resultFormat === 'audio' ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
-                }`}>
-                  <Label htmlFor="format-audio" className="flex items-center gap-3 cursor-pointer">
-                    <RadioGroupItem value="audio" id="format-audio" />
+              {serviceType === 'acc' ? (
+                <div className="glass-card rounded-xl p-4 ring-2 ring-primary border-primary">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded-full bg-primary" />
                     <div className="flex items-center gap-2">
                       <Headphones className="w-5 h-5 text-primary" />
-                      <span className="font-medium">Áudio</span>
+                      <span className="font-medium">Áudio (obrigatório)</span>
                     </div>
-                  </Label>
+                  </div>
                 </div>
+              ) : (
+                <RadioGroup
+                  value={resultFormat}
+                  onValueChange={(value) => setResultFormat(value as 'pdf' | 'audio' | 'image')}
+                  className="grid grid-cols-1 md:grid-cols-3 gap-4"
+                >
+                  <div className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
+                    resultFormat === 'pdf' ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
+                  }`}>
+                    <Label htmlFor="format-pdf" className="flex items-center gap-3 cursor-pointer">
+                      <RadioGroupItem value="pdf" id="format-pdf" />
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-5 h-5 text-warning" />
+                        <span className="font-medium">Partitura PDF</span>
+                      </div>
+                    </Label>
+                  </div>
 
-                <div className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
-                  resultFormat === 'both' ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
-                }`}>
-                  <Label htmlFor="format-both" className="flex items-center gap-3 cursor-pointer">
-                    <RadioGroupItem value="both" id="format-both" />
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="w-5 h-5 text-success" />
-                      <span className="font-medium">Ambos</span>
-                    </div>
-                  </Label>
-                </div>
-              </RadioGroup>
+                  <div className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
+                    resultFormat === 'audio' ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
+                  }`}>
+                    <Label htmlFor="format-audio" className="flex items-center gap-3 cursor-pointer">
+                      <RadioGroupItem value="audio" id="format-audio" />
+                      <div className="flex items-center gap-2">
+                        <Headphones className="w-5 h-5 text-primary" />
+                        <span className="font-medium">Áudio</span>
+                      </div>
+                    </Label>
+                  </div>
+
+                  <div className={`glass-card rounded-xl p-4 cursor-pointer transition-all ${
+                    resultFormat === 'image' ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
+                  }`}>
+                    <Label htmlFor="format-image" className="flex items-center gap-3 cursor-pointer">
+                      <RadioGroupItem value="image" id="format-image" />
+                      <div className="flex items-center gap-2">
+                        <Image className="w-5 h-5 text-success" />
+                        <span className="font-medium">Partitura Imagem</span>
+                      </div>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              )}
 
               {/* Result Comment (Optional) */}
               <div className="space-y-2 mt-4">
@@ -507,22 +614,24 @@ export default function NovaSolicitacao() {
             </div>
 
             {/* Cost Info */}
-            <div className="glass-card rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Custo do serviço</p>
-                  <p className="text-sm text-muted-foreground">
-                    Será debitado do seu saldo
-                  </p>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-display font-bold text-primary">1 crédito</p>
-                  <p className="text-sm text-muted-foreground">
-                    Saldo actual: {profile?.credits?.toFixed(1)} créditos
-                  </p>
+            {serviceType && (
+              <div className="glass-card rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-medium">Custo do serviço</p>
+                    <p className="text-sm text-muted-foreground">
+                      Será debitado do seu saldo
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-2xl font-display font-bold text-primary">{serviceCost} créditos</p>
+                    <p className="text-sm text-muted-foreground">
+                      Saldo actual: {profile?.credits?.toFixed(1)} créditos
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
 
             {/* Submit Button */}
             <Button
@@ -530,7 +639,7 @@ export default function NovaSolicitacao() {
               variant="premium"
               size="lg"
               className="w-full"
-              disabled={isSubmitting || !hasEnoughCredits || !serviceType || !title || files.length === 0}
+              disabled={isSubmitting || !hasEnoughCredits || !serviceType || !title || files.length === 0 || (serviceType === 'acc' && !accPurpose.trim())}
             >
               {isSubmitting ? 'A enviar...' : 'Enviar Solicitação'}
             </Button>

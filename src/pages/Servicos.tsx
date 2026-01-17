@@ -10,7 +10,8 @@ import {
   Sparkles,
   Layers,
   Wand2,
-  Users
+  Users,
+  Headphones
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
@@ -28,7 +29,7 @@ const services = [
       'Revisão de notação musical',
       'Optimização para execução',
     ],
-    price: '1 crédito',
+    price: '1.5 créditos',
     delivery: '3-5 dias úteis',
     popular: false,
   },
@@ -47,6 +48,22 @@ const services = [
     price: '2 créditos',
     delivery: '5-7 dias úteis',
     popular: true,
+  },
+  {
+    id: 'acc',
+    title: 'Criação de ACCs',
+    description: 'Produzimos acompanhamentos em áudio personalizados para prática, ensaios ou apresentações, com 3 versões distintas entregues.',
+    icon: Headphones,
+    features: [
+      'Entrega exclusiva em formato áudio',
+      '3 acompanhamentos distintos incluídos',
+      'Ideal para flauta, fanfarra, guitarra',
+      'Personalizado para a sua finalidade',
+      'Perfeito para ensaios e prática',
+    ],
+    price: '2 créditos',
+    delivery: '5-7 dias úteis',
+    popular: false,
   },
 ];
 
@@ -93,7 +110,7 @@ export default function Servicos() {
         </motion.div>
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-20">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
           {services.map((service, index) => {
             const Icon = service.icon;
             return (
