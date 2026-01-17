@@ -74,10 +74,8 @@ export default function Index() {
               variants={fadeInUp}
               className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
             >
-              Transforme a sua{' '}
+              Transforma a sua{' '}
               <span className="text-gradient-gold">música</span>
-              <br />
-              em obra-prima
             </motion.h1>
 
             <motion.p 
