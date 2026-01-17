@@ -20,7 +20,10 @@ import {
   FileText,
   Headphones,
   Search,
-  Filter
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
@@ -104,6 +107,8 @@ const resultFormatLabels: Record<string, string> = {
   image: 'Partitura Imagem',
 };
 
+const ITEMS_PER_PAGE = 10;
+
 const MAX_RESULT_FILES = 10;
 
 export default function AdminTarefas() {
@@ -117,6 +122,7 @@ export default function AdminTarefas() {
   const [statusFilter, setStatusFilter] = useState<string>('pending');
   const [serviceFilter, setServiceFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [taskFiles, setTaskFiles] = useState<TaskFile[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -126,6 +132,11 @@ export default function AdminTarefas() {
   const [cancellationReason, setCancellationReason] = useState('');
   const [taskToCancel, setTaskToCancel] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, serviceFilter, statusFilter]);
 
   // Filtered tasks based on search and service filter
   const filteredTasks = useMemo(() => {
@@ -151,6 +162,48 @@ export default function AdminTarefas() {
       return true;
     });
   }, [tasks, serviceFilter, searchQuery]);
+
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredTasks.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedTasks = filteredTasks.slice(startIndex, endIndex);
+
+  // Generate page numbers to display
+  const getPageNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 3) {
+        for (let i = 1; i <= 4; i++) {
+          pages.push(i);
+        }
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 2) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 3; i <= totalPages; i++) {
+          pages.push(i);
+        }
+      } else {
+        pages.push(1);
+        pages.push('...');
+        pages.push(currentPage - 1);
+        pages.push(currentPage);
+        pages.push(currentPage + 1);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+    
+    return pages;
+  };
 
   useEffect(() => {
     if (!authLoading) {
@@ -569,9 +622,16 @@ export default function AdminTarefas() {
             </div>
 
             {/* Results count */}
-            <div className="text-sm text-muted-foreground">
-              {filteredTasks.length} tarefa{filteredTasks.length !== 1 ? 's' : ''} encontrada{filteredTasks.length !== 1 ? 's' : ''}
-              {(searchQuery || serviceFilter !== 'all') && ' com os filtros aplicados'}
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-muted-foreground">
+                {filteredTasks.length} tarefa{filteredTasks.length !== 1 ? 's' : ''} encontrada{filteredTasks.length !== 1 ? 's' : ''}
+                {(searchQuery || serviceFilter !== 'all') && ' com os filtros aplicados'}
+              </div>
+              {totalPages > 1 && (
+                <div className="text-sm text-muted-foreground">
+                  Página {currentPage} de {totalPages}
+                </div>
+              )}
             </div>
           </div>
 
@@ -599,7 +659,7 @@ export default function AdminTarefas() {
             </div>
           ) : (
             <div className="space-y-4">
-              {filteredTasks.map((task) => {
+              {paginatedTasks.map((task) => {
                 const status = statusConfig[task.status as keyof typeof statusConfig];
                 const StatusIcon = status.icon;
 
@@ -680,6 +740,69 @@ export default function AdminTarefas() {
                   </div>
                 );
               })}
+            </div>
+          )}
+
+          {/* Pagination Controls */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                className="h-9 w-9"
+              >
+                <ChevronsLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="h-9 w-9"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+
+              <div className="flex items-center gap-1">
+                {getPageNumbers().map((page, index) => (
+                  typeof page === 'number' ? (
+                    <Button
+                      key={index}
+                      variant={currentPage === page ? 'default' : 'outline'}
+                      size="icon"
+                      onClick={() => setCurrentPage(page)}
+                      className="h-9 w-9"
+                    >
+                      {page}
+                    </Button>
+                  ) : (
+                    <span key={index} className="px-2 text-muted-foreground">
+                      {page}
+                    </span>
+                  )
+                ))}
+              </div>
+
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="h-9 w-9"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                className="h-9 w-9"
+              >
+                <ChevronsRight className="h-4 w-4" />
+              </Button>
             </div>
           )}
         </motion.div>
