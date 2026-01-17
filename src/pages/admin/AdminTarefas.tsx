@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -18,7 +18,9 @@ import {
   File,
   Trash2,
   FileText,
-  Headphones
+  Headphones,
+  Search,
+  Filter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
@@ -52,6 +54,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 interface Task {
   id: string;
@@ -89,15 +92,16 @@ const statusConfig = {
   cancelled: { label: 'Cancelada', class: 'status-cancelled', icon: AlertCircle },
 };
 
-const serviceLabels = {
+const serviceLabels: Record<string, string> = {
   aperfeicoamento: 'Aperfeiçoamento',
   arranjo: 'Arranjo Musical',
+  acc: 'Criação de ACCs',
 };
 
-const resultFormatLabels = {
+const resultFormatLabels: Record<string, string> = {
   pdf: 'Partitura PDF',
   audio: 'Áudio',
-  both: 'Partitura PDF e Áudio',
+  image: 'Partitura Imagem',
 };
 
 const MAX_RESULT_FILES = 10;
@@ -111,6 +115,8 @@ export default function AdminTarefas() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>('pending');
+  const [serviceFilter, setServiceFilter] = useState<string>('all');
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [taskFiles, setTaskFiles] = useState<TaskFile[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -120,6 +126,31 @@ export default function AdminTarefas() {
   const [cancellationReason, setCancellationReason] = useState('');
   const [taskToCancel, setTaskToCancel] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  // Filtered tasks based on search and service filter
+  const filteredTasks = useMemo(() => {
+    return tasks.filter((task) => {
+      // Service filter
+      if (serviceFilter !== 'all' && task.service_type !== serviceFilter) {
+        return false;
+      }
+      
+      // Search filter
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        const matchesTitle = task.title.toLowerCase().includes(query);
+        const matchesDescription = task.description?.toLowerCase().includes(query);
+        const matchesUserName = task.profiles?.full_name.toLowerCase().includes(query);
+        const matchesEmail = task.profiles?.email.toLowerCase().includes(query);
+        
+        if (!matchesTitle && !matchesDescription && !matchesUserName && !matchesEmail) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  }, [tasks, serviceFilter, searchQuery]);
 
   useEffect(() => {
     if (!authLoading) {
@@ -480,34 +511,95 @@ export default function AdminTarefas() {
             Voltar ao painel
           </Button>
 
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <h1 className="font-display text-3xl font-bold">
-              Gerir <span className="text-gradient-gold">Tarefas</span>
-            </h1>
+          <div className="flex flex-col gap-4 mb-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <h1 className="font-display text-3xl font-bold">
+                Gerir <span className="text-gradient-gold">Tarefas</span>
+              </h1>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px] bg-secondary">
-                <SelectValue placeholder="Filtrar por estado" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Todas</SelectItem>
-                <SelectItem value="pending">Pendentes</SelectItem>
-                <SelectItem value="in_progress">Em Progresso</SelectItem>
-                <SelectItem value="completed">Concluídas</SelectItem>
-                <SelectItem value="cancelled">Canceladas</SelectItem>
-              </SelectContent>
-            </Select>
+              <div className="flex flex-wrap items-center gap-3">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-[160px] bg-secondary">
+                    <SelectValue placeholder="Estado" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos Estados</SelectItem>
+                    <SelectItem value="pending">Pendentes</SelectItem>
+                    <SelectItem value="in_progress">Em Progresso</SelectItem>
+                    <SelectItem value="completed">Concluídas</SelectItem>
+                    <SelectItem value="cancelled">Canceladas</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select value={serviceFilter} onValueChange={setServiceFilter}>
+                  <SelectTrigger className="w-[160px] bg-secondary">
+                    <SelectValue placeholder="Serviço" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Todos Serviços</SelectItem>
+                    <SelectItem value="aperfeicoamento">Aperfeiçoamento</SelectItem>
+                    <SelectItem value="arranjo">Arranjo Musical</SelectItem>
+                    <SelectItem value="acc">Criação de ACCs</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Pesquisar por título, descrição, nome do usuário ou e-mail..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 bg-secondary border-border"
+              />
+              {searchQuery && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7"
+                  onClick={() => setSearchQuery('')}
+                >
+                  <X className="w-4 h-4" />
+                </Button>
+              )}
+            </div>
+
+            {/* Results count */}
+            <div className="text-sm text-muted-foreground">
+              {filteredTasks.length} tarefa{filteredTasks.length !== 1 ? 's' : ''} encontrada{filteredTasks.length !== 1 ? 's' : ''}
+              {(searchQuery || serviceFilter !== 'all') && ' com os filtros aplicados'}
+            </div>
           </div>
 
-          {tasks.length === 0 ? (
+          {filteredTasks.length === 0 ? (
             <div className="glass-card rounded-xl p-12 text-center">
               <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">Nenhuma tarefa encontrada</h3>
-              <p className="text-muted-foreground">Não existem tarefas com o estado selecionado.</p>
+              <p className="text-muted-foreground">
+                {searchQuery || serviceFilter !== 'all' 
+                  ? 'Tente ajustar os filtros de pesquisa.'
+                  : 'Não existem tarefas com o estado selecionado.'}
+              </p>
+              {(searchQuery || serviceFilter !== 'all') && (
+                <Button 
+                  variant="outline" 
+                  className="mt-4"
+                  onClick={() => {
+                    setSearchQuery('');
+                    setServiceFilter('all');
+                  }}
+                >
+                  Limpar filtros
+                </Button>
+              )}
             </div>
           ) : (
             <div className="space-y-4">
-              {tasks.map((task) => {
+              {filteredTasks.map((task) => {
                 const status = statusConfig[task.status as keyof typeof statusConfig];
                 const StatusIcon = status.icon;
 
@@ -518,6 +610,8 @@ export default function AdminTarefas() {
                         <div className="w-12 h-12 rounded-xl bg-gradient-gold/20 flex items-center justify-center flex-shrink-0">
                           {task.service_type === 'arranjo' ? (
                             <FileMusic className="w-6 h-6 text-primary" />
+                          ) : task.service_type === 'acc' ? (
+                            <Headphones className="w-6 h-6 text-primary" />
                           ) : (
                             <Music className="w-6 h-6 text-primary" />
                           )}
@@ -525,7 +619,7 @@ export default function AdminTarefas() {
                         <div>
                           <h3 className="font-semibold">{task.title}</h3>
                           <p className="text-sm text-muted-foreground">
-                            {serviceLabels[task.service_type as keyof typeof serviceLabels]} • {formatDate(task.created_at)}
+                            {serviceLabels[task.service_type] || task.service_type} • {formatDate(task.created_at)}
                           </p>
                           <p className="text-sm text-primary mt-1">
                             {task.profiles?.full_name} ({task.profiles?.email})
@@ -630,7 +724,7 @@ export default function AdminTarefas() {
           {selectedTask && (
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4 text-sm">
-                <div><p className="text-muted-foreground">Serviço</p><p className="font-medium">{serviceLabels[selectedTask.service_type as keyof typeof serviceLabels]}</p></div>
+                <div><p className="text-muted-foreground">Serviço</p><p className="font-medium">{serviceLabels[selectedTask.service_type] || selectedTask.service_type}</p></div>
                 <div><p className="text-muted-foreground">Data</p><p className="font-medium">{formatDate(selectedTask.created_at)}</p></div>
                 <div><p className="text-muted-foreground">Usuário</p><p className="font-medium">{selectedTask.profiles?.full_name}</p></div>
                 <div><p className="text-muted-foreground">E-mail</p><p className="font-medium">{selectedTask.profiles?.email}</p></div>
@@ -642,8 +736,8 @@ export default function AdminTarefas() {
                   <div className="flex items-center gap-2">
                     {selectedTask.result_format === 'pdf' && <FileText className="w-5 h-5 text-warning" />}
                     {selectedTask.result_format === 'audio' && <Headphones className="w-5 h-5 text-primary" />}
-                    {selectedTask.result_format === 'both' && <CheckCircle className="w-5 h-5 text-success" />}
-                    <span className="font-medium">{resultFormatLabels[selectedTask.result_format as keyof typeof resultFormatLabels]}</span>
+                    {selectedTask.result_format === 'image' && <Image className="w-5 h-5 text-success" />}
+                    <span className="font-medium">{resultFormatLabels[selectedTask.result_format] || selectedTask.result_format}</span>
                   </div>
                   {selectedTask.result_comment && <p className="text-sm mt-2 text-muted-foreground">{selectedTask.result_comment}</p>}
                 </div>
