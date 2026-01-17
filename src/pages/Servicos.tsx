@@ -30,7 +30,7 @@ const services = [
       'Optimização para execução',
     ],
     price: '1.5 créditos',
-    delivery: '3-5 dias úteis',
+    delivery: 'Até 3 dias',
     popular: false,
   },
   {
@@ -46,7 +46,7 @@ const services = [
       'Ficheiro de áudio demonstrativo',
     ],
     price: '2 créditos',
-    delivery: '5-7 dias úteis',
+    delivery: 'Até 3 dias',
     popular: true,
   },
   {
@@ -62,7 +62,7 @@ const services = [
       'Perfeito para ensaios e prática',
     ],
     price: '2 créditos',
-    delivery: '5-7 dias úteis',
+    delivery: 'Até 3 dias',
     popular: false,
   },
 ];

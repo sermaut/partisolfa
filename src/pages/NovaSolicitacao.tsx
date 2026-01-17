@@ -279,7 +279,8 @@ if (!serviceType || !title || files.length === 0) {
             Nova <span className="text-gradient-gold">Solicitação</span>
           </h1>
           <p className="text-muted-foreground mb-8">
-            Envie os ficheiros e informações para o seu serviço musical.
+            Envie os ficheiros e informações para o seu serviço musical. 
+            <span className="text-primary font-medium"> Prazo máximo de entrega: 3 dias.</span>
           </p>
 
           {!hasEnoughCredits && serviceType && (
