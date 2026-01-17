@@ -25,7 +25,7 @@ import { useToast } from '@/hooks/use-toast';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 const ACCEPTED_FILE_TYPES = {
-  audio: ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/x-wav'],
+  audio: ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/aac', 'audio/x-aac'],
   image: ['image/jpeg', 'image/jpg', 'image/png'],
   document: ['application/pdf'],
 };
@@ -544,7 +544,7 @@ if (!serviceType || !title || files.length === 0) {
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">
-                Formatos aceites: MP3, WAV (áudio), JPG, PNG (imagem), PDF (documento). Máximo 20MB por ficheiro. Até {MAX_FILES} ficheiros.
+                Formatos aceites: MP3, WAV, AAC (áudio), JPG, PNG (imagem), PDF (documento). Máximo 20MB por ficheiro. Até {MAX_FILES} ficheiros.
               </p>
               
               {files.length < MAX_FILES && (
@@ -564,7 +564,7 @@ if (!serviceType || !title || files.length === 0) {
                 ref={fileInputRef}
                 type="file"
                 multiple
-                accept=".mp3,.wav,.jpg,.jpeg,.png,.pdf"
+                accept=".mp3,.wav,.aac,.jpg,.jpeg,.png,.pdf"
                 onChange={handleFileSelect}
                 className="hidden"
               />
