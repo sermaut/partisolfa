@@ -236,7 +236,7 @@ export default function Deposito() {
               <Calculator className="w-5 h-5 text-primary" />
               <p className="text-sm">
                 <span className="font-semibold text-primary">{KZ_PER_CREDIT} Kz = 1 crédito</span>
-                {' '}• Cada serviço consome 1 crédito
+                {' '}• Serviços: 1.5 a 2 créditos
               </p>
             </div>
           </div>
