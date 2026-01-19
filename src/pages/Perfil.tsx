@@ -7,7 +7,11 @@ import {
   Mail,
   Camera,
   Loader2,
-  CreditCard
+  CreditCard,
+  Gift,
+  Copy,
+  Check,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,8 +31,11 @@ export default function Perfil() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+  const [referralCount, setReferralCount] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -40,8 +47,54 @@ export default function Perfil() {
       setFullName(profile.full_name || '');
       setPhone((profile as any).phone || '');
       setAvatarUrl((profile as any).avatar_url || null);
+      fetchReferralData();
     }
   }, [profile, user, authLoading, navigate]);
+
+  const fetchReferralData = async () => {
+    if (!user) return;
+
+    try {
+      // Fetch referral code
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('referral_code')
+        .eq('user_id', user.id)
+        .single();
+
+      if (profileData?.referral_code) {
+        setReferralCode(profileData.referral_code);
+      }
+
+      // Fetch referral count
+      const { count } = await supabase
+        .from('referrals')
+        .select('*', { count: 'exact', head: true })
+        .eq('referrer_id', user.id);
+
+      setReferralCount(count || 0);
+    } catch (error) {
+      console.error('Error fetching referral data:', error);
+    }
+  };
+
+  const getReferralLink = () => {
+    if (!referralCode) return '';
+    return `${window.location.origin}/registar?ref=${referralCode}`;
+  };
+
+  const copyReferralLink = () => {
+    const link = getReferralLink();
+    if (link) {
+      navigator.clipboard.writeText(link);
+      setCopiedLink(true);
+      toast({
+        title: 'Link copiado!',
+        description: 'O link de convite foi copiado para a área de transferência.',
+      });
+      setTimeout(() => setCopiedLink(false), 2000);
+    }
+  };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -298,6 +351,57 @@ export default function Perfil() {
                 'Guardar Alterações'
               )}
             </Button>
+          </div>
+
+          {/* Referral Section */}
+          <div className="glass-card rounded-xl p-6 mt-6 space-y-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
+                <Gift className="w-5 h-5 text-primary" />
+              </div>
+              <div>
+                <p className="font-semibold">Convide Amigos</p>
+                <p className="text-sm text-muted-foreground">Ganhe 300 Kz (2 créditos) por cada convite</p>
+              </div>
+            </div>
+
+            <div className="bg-secondary/50 rounded-lg p-4">
+              <p className="text-xs text-muted-foreground mb-2">O seu link de convite:</p>
+              <div className="flex items-center gap-2">
+                <Input
+                  value={getReferralLink()}
+                  readOnly
+                  className="bg-background border-border text-sm font-mono"
+                />
+                <Button
+                  variant="glass"
+                  size="icon"
+                  onClick={copyReferralLink}
+                  className="shrink-0"
+                >
+                  {copiedLink ? (
+                    <Check className="w-4 h-4 text-success" />
+                  ) : (
+                    <Copy className="w-4 h-4" />
+                  )}
+                </Button>
+              </div>
+            </div>
+
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <Users className="w-5 h-5 text-primary" />
+                <div>
+                  <p className="text-sm font-medium">Pessoas convidadas</p>
+                  <p className="text-2xl font-display font-bold text-primary">{referralCount}</p>
+                </div>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Quando alguém se regista com o seu link e completa o primeiro depósito, 
+              você recebe automaticamente <span className="text-primary font-semibold">300 Kz (2 créditos)</span> de bónus!
+            </p>
           </div>
         </motion.div>
       </div>

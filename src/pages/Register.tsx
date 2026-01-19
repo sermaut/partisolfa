@@ -1,23 +1,34 @@
-import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Music2, Mail, Lock, Eye, EyeOff, User } from 'lucide-react';
+import { Music2, Mail, Lock, Eye, EyeOff, User, Gift } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 export default function Register() {
+  const [searchParams] = useSearchParams();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [referralCode, setReferralCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Check for referral code in URL
+  useEffect(() => {
+    const refCode = searchParams.get('ref');
+    if (refCode) {
+      setReferralCode(refCode.toUpperCase());
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,6 +53,27 @@ export default function Register() {
 
     setIsLoading(true);
 
+    // If referral code provided, validate it exists
+    let referrerUserId: string | null = null;
+    if (referralCode.trim()) {
+      const { data: referrerProfile, error: refError } = await supabase
+        .from('profiles')
+        .select('user_id')
+        .eq('referral_code', referralCode.trim().toUpperCase())
+        .single();
+
+      if (refError || !referrerProfile) {
+        toast({
+          title: 'Código de convite inválido',
+          description: 'O código de convite inserido não é válido.',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
+      }
+      referrerUserId = referrerProfile.user_id;
+    }
+
     const { error } = await signUp(email, password, fullName);
 
     if (error) {
@@ -50,13 +82,35 @@ export default function Register() {
         description: error.message || 'Ocorreu um erro. Por favor, tente novamente.',
         variant: 'destructive',
       });
-    } else {
-      toast({
-        title: 'Conta criada com sucesso!',
-        description: 'Bem-vindo à PARTISOLFA. Recebeu 1.5 créditos de bónus!',
-      });
-      navigate('/dashboard');
+      setIsLoading(false);
+      return;
     }
+
+    // If referral code was valid, update the new user's profile and create referral record
+    if (referrerUserId) {
+      // Get the newly created user
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (user) {
+        // Update profile with referred_by
+        await supabase
+          .from('profiles')
+          .update({ referred_by: referrerUserId })
+          .eq('user_id', user.id);
+
+        // Create referral record
+        await supabase.from('referrals').insert({
+          referrer_id: referrerUserId,
+          referred_id: user.id,
+        });
+      }
+    }
+
+    toast({
+      title: 'Conta criada com sucesso!',
+      description: 'Bem-vindo à PARTISOLFA. Recebeu 1.5 créditos de bónus!',
+    });
+    navigate('/dashboard');
 
     setIsLoading(false);
   };
@@ -208,6 +262,27 @@ export default function Register() {
                   required
                 />
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="referralCode">
+                Código de Convite <span className="text-muted-foreground">(opcional)</span>
+              </Label>
+              <div className="relative">
+                <Gift className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+                <Input
+                  id="referralCode"
+                  type="text"
+                  placeholder="Ex: ABC12345"
+                  value={referralCode}
+                  onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                  className="pl-10 bg-secondary border-border uppercase"
+                  maxLength={8}
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Se foi convidado por alguém, insira o código de convite.
+              </p>
             </div>
 
             <p className="text-xs text-muted-foreground">
