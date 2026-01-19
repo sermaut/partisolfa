@@ -33,6 +33,25 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    // Validação de campos
+    if (!fullName.trim()) {
+      toast({
+        title: 'Campo obrigatório',
+        description: 'Por favor, insira o seu nome completo.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!email.trim()) {
+      toast({
+        title: 'Campo obrigatório',
+        description: 'Por favor, insira o seu e-mail.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast({
         title: 'Erro',
@@ -53,66 +72,109 @@ export default function Register() {
 
     setIsLoading(true);
 
-    // If referral code provided, validate it exists
-    let referrerUserId: string | null = null;
-    if (referralCode.trim()) {
-      const { data: referrerProfile, error: refError } = await supabase
-        .from('profiles')
-        .select('user_id')
-        .eq('referral_code', referralCode.trim().toUpperCase())
-        .single();
+    try {
+      // If referral code provided, validate it exists
+      let referrerUserId: string | null = null;
+      if (referralCode.trim()) {
+        const { data: referrerProfile, error: refError } = await supabase
+          .from('profiles')
+          .select('user_id')
+          .eq('referral_code', referralCode.trim().toUpperCase())
+          .maybeSingle();
 
-      if (refError || !referrerProfile) {
+        if (refError) {
+          console.error('Erro ao validar código de convite:', refError);
+          toast({
+            title: 'Erro de validação',
+            description: 'Não foi possível validar o código de convite. Tente novamente.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+
+        if (!referrerProfile) {
+          toast({
+            title: 'Código de convite inválido',
+            description: 'O código de convite inserido não existe.',
+            variant: 'destructive',
+          });
+          setIsLoading(false);
+          return;
+        }
+        referrerUserId = referrerProfile.user_id;
+      }
+
+      // Criar conta
+      const { error } = await signUp(email, password, fullName);
+
+      if (error) {
+        let errorMessage = 'Ocorreu um erro. Por favor, tente novamente.';
+        
+        if (error.message?.includes('already registered') || error.message?.includes('already exists')) {
+          errorMessage = 'Este e-mail já está registado. Tente fazer login ou use outro e-mail.';
+        } else if (error.message?.includes('Invalid email')) {
+          errorMessage = 'O formato do e-mail é inválido.';
+        } else if (error.message?.includes('Password')) {
+          errorMessage = 'A palavra-passe não cumpre os requisitos de segurança.';
+        } else if (error.message) {
+          errorMessage = error.message;
+        }
+
         toast({
-          title: 'Código de convite inválido',
-          description: 'O código de convite inserido não é válido.',
+          title: 'Erro ao criar conta',
+          description: errorMessage,
           variant: 'destructive',
         });
         setIsLoading(false);
         return;
       }
-      referrerUserId = referrerProfile.user_id;
-    }
 
-    const { error } = await signUp(email, password, fullName);
+      // Aguardar um momento para garantir que o utilizador foi criado
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-    if (error) {
+      // If referral code was valid, update the new user's profile and create referral record
+      if (referrerUserId) {
+        const { data: { user: newUser } } = await supabase.auth.getUser();
+        
+        if (newUser) {
+          // Update profile with referred_by
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({ referred_by: referrerUserId })
+            .eq('user_id', newUser.id);
+
+          if (updateError) {
+            console.error('Erro ao atualizar perfil com referral:', updateError);
+          }
+
+          // Create referral record
+          const { error: referralError } = await supabase.from('referrals').insert({
+            referrer_id: referrerUserId,
+            referred_id: newUser.id,
+          });
+
+          if (referralError) {
+            console.error('Erro ao criar registo de referral:', referralError);
+          }
+        }
+      }
+
       toast({
-        title: 'Erro ao criar conta',
-        description: error.message || 'Ocorreu um erro. Por favor, tente novamente.',
+        title: 'Conta criada com sucesso!',
+        description: 'Bem-vindo à PARTISOLFA. Recebeu 1.5 créditos de bónus!',
+      });
+      navigate('/dashboard');
+    } catch (error) {
+      console.error('Erro inesperado no registo:', error);
+      toast({
+        title: 'Erro inesperado',
+        description: 'Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.',
         variant: 'destructive',
       });
+    } finally {
       setIsLoading(false);
-      return;
     }
-
-    // If referral code was valid, update the new user's profile and create referral record
-    if (referrerUserId) {
-      // Get the newly created user
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (user) {
-        // Update profile with referred_by
-        await supabase
-          .from('profiles')
-          .update({ referred_by: referrerUserId })
-          .eq('user_id', user.id);
-
-        // Create referral record
-        await supabase.from('referrals').insert({
-          referrer_id: referrerUserId,
-          referred_id: user.id,
-        });
-      }
-    }
-
-    toast({
-      title: 'Conta criada com sucesso!',
-      description: 'Bem-vindo à PARTISOLFA. Recebeu 1.5 créditos de bónus!',
-    });
-    navigate('/dashboard');
-
-    setIsLoading(false);
   };
 
   return (
