@@ -19,6 +19,7 @@ export interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   isAdmin: boolean;
+  isCollaborator: boolean;
   isLoading: boolean;
   isProfileComplete: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
@@ -34,6 +35,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isCollaborator, setIsCollaborator] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const isProfileComplete = !!(profile?.phone && profile?.avatar_url);
@@ -50,14 +52,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setProfile(profileData);
 
       // Check if user is admin
-      const { data: roleData } = await supabase
+      const { data: adminRole } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', userId)
         .eq('role', 'admin')
         .single();
 
-      setIsAdmin(!!roleData);
+      setIsAdmin(!!adminRole);
+
+      // Check if user is collaborator
+      const { data: collaboratorRole } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .eq('role', 'collaborator')
+        .single();
+
+      setIsCollaborator(!!collaboratorRole);
     } catch (error) {
       console.error('Error fetching profile:', error);
     }
@@ -84,6 +96,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } else {
           setProfile(null);
           setIsAdmin(false);
+          setIsCollaborator(false);
         }
         setIsLoading(false);
       }
@@ -139,6 +152,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setSession(null);
     setProfile(null);
     setIsAdmin(false);
+    setIsCollaborator(false);
   };
 
   return (
@@ -148,6 +162,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         session,
         profile,
         isAdmin,
+        isCollaborator,
         isLoading,
         isProfileComplete,
         signUp,

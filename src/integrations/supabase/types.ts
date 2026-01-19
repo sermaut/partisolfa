@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      collaborator_withdrawals: {
+        Row: {
+          admin_notes: string | null
+          amount_kz: number
+          collaborator_id: string
+          created_at: string
+          id: string
+          processed_at: string | null
+          processed_by: string | null
+          status: Database["public"]["Enums"]["withdrawal_status"]
+          updated_at: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount_kz: number
+          collaborator_id: string
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          updated_at?: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount_kz?: number
+          collaborator_id?: string
+          created_at?: string
+          id?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: Database["public"]["Enums"]["withdrawal_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       deposits: {
         Row: {
           admin_notes: string | null
@@ -160,6 +196,47 @@ export type Database = {
         }
         Relationships: []
       }
+      task_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          collaborator_id: string
+          created_at: string
+          id: string
+          responded_at: string | null
+          status: string
+          task_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          collaborator_id: string
+          created_at?: string
+          id?: string
+          responded_at?: string | null
+          status?: string
+          task_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          collaborator_id?: string
+          created_at?: string
+          id?: string
+          responded_at?: string | null
+          status?: string
+          task_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_assignments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       task_files: {
         Row: {
           created_at: string
@@ -283,12 +360,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_collaborator: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "user"
+      app_role: "admin" | "user" | "collaborator"
       deposit_status: "pending" | "approved" | "rejected"
       service_type: "aperfeicoamento" | "arranjo" | "acc"
       task_status: "pending" | "in_progress" | "completed" | "cancelled"
+      withdrawal_status: "pending" | "approved" | "rejected"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -416,10 +495,11 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "user"],
+      app_role: ["admin", "user", "collaborator"],
       deposit_status: ["pending", "approved", "rejected"],
       service_type: ["aperfeicoamento", "arranjo", "acc"],
       task_status: ["pending", "in_progress", "completed", "cancelled"],
+      withdrawal_status: ["pending", "approved", "rejected"],
     },
   },
 } as const
