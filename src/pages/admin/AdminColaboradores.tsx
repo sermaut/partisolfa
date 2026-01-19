@@ -11,7 +11,13 @@ import {
   Loader2,
   Wallet,
   ArrowUpDown,
-  Ban
+  Ban,
+  ChevronDown,
+  ChevronUp,
+  ClipboardList,
+  Music,
+  FileMusic,
+  Headphones
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -46,6 +52,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
+import { format } from 'date-fns';
+import { pt } from 'date-fns/locale';
+
+interface TaskAssignmentInfo {
+  id: string;
+  task_id: string;
+  status: string;
+  assigned_at: string;
+  task_title: string;
+  task_service: string;
+}
 
 interface Collaborator {
   id: string;
@@ -56,6 +78,7 @@ interface Collaborator {
   phone: string | null;
   avatar_url: string | null;
   created_at: string;
+  tasks?: TaskAssignmentInfo[];
 }
 
 interface UserProfile {
@@ -64,6 +87,19 @@ interface UserProfile {
   full_name: string;
   email: string;
 }
+
+const serviceConfig = {
+  aperfeicoamento: { label: 'Aperfeiçoamento', icon: Music },
+  arranjo: { label: 'Arranjo Musical', icon: FileMusic },
+  acc: { label: 'Criação de ACCs', icon: Headphones },
+};
+
+const taskStatusConfig = {
+  pending: { label: 'Pendente', class: 'bg-yellow-500/20 text-yellow-500' },
+  accepted: { label: 'Aceite', class: 'bg-green-500/20 text-green-500' },
+  rejected: { label: 'Rejeitada', class: 'bg-red-500/20 text-red-500' },
+  cancelled: { label: 'Cancelada', class: 'bg-muted text-muted-foreground' },
+};
 
 export default function AdminColaboradores() {
   const { user, isAdmin, isLoading: authLoading } = useAuth();
@@ -74,6 +110,7 @@ export default function AdminColaboradores() {
   const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [expandedCollaborators, setExpandedCollaborators] = useState<Set<string>>(new Set());
   
   // Add collaborator dialog
   const [showAddDialog, setShowAddDialog] = useState(false);
@@ -90,6 +127,18 @@ export default function AdminColaboradores() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingCollaborator, setDeletingCollaborator] = useState<Collaborator | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const toggleCollaboratorExpanded = (userId: string) => {
+    setExpandedCollaborators(prev => {
+      const next = new Set(prev);
+      if (next.has(userId)) {
+        next.delete(userId);
+      } else {
+        next.add(userId);
+      }
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!authLoading) {
@@ -122,7 +171,51 @@ export default function AdminColaboradores() {
           .order('full_name');
 
         if (profilesError) throw profilesError;
-        setCollaborators(profiles || []);
+
+        // Fetch task assignments for all collaborators
+        const { data: allAssignments, error: assignmentsError } = await supabase
+          .from('task_assignments')
+          .select('id, task_id, collaborator_id, status, assigned_at')
+          .in('collaborator_id', userIds)
+          .order('assigned_at', { ascending: false });
+
+        if (assignmentsError) throw assignmentsError;
+
+        // Fetch task details for all assignments
+        const taskIds = [...new Set((allAssignments || []).map(a => a.task_id))];
+        let tasksMap: Record<string, { title: string; service_type: string }> = {};
+        
+        if (taskIds.length > 0) {
+          const { data: tasks } = await supabase
+            .from('tasks')
+            .select('id, title, service_type')
+            .in('id', taskIds);
+          
+          if (tasks) {
+            tasksMap = tasks.reduce((acc, t) => {
+              acc[t.id] = { title: t.title, service_type: t.service_type };
+              return acc;
+            }, {} as Record<string, { title: string; service_type: string }>);
+          }
+        }
+
+        // Map assignments to collaborators
+        const collaboratorsWithTasks = (profiles || []).map(profile => {
+          const collaboratorAssignments = (allAssignments || [])
+            .filter(a => a.collaborator_id === profile.user_id)
+            .map(a => ({
+              id: a.id,
+              task_id: a.task_id,
+              status: a.status,
+              assigned_at: a.assigned_at,
+              task_title: tasksMap[a.task_id]?.title || 'Tarefa',
+              task_service: tasksMap[a.task_id]?.service_type || 'aperfeicoamento',
+            }));
+          
+          return { ...profile, tasks: collaboratorAssignments };
+        });
+
+        setCollaborators(collaboratorsWithTasks);
       } else {
         setCollaborators([]);
       }
@@ -365,63 +458,131 @@ export default function AdminColaboradores() {
             </div>
           ) : (
             <div className="grid gap-4">
-              {filteredCollaborators.map((collaborator) => (
-                <motion.div
-                  key={collaborator.id}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="bg-card rounded-xl border border-border p-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
-                >
-                  <div className="flex items-center gap-4">
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage src={collaborator.avatar_url || ''} />
-                      <AvatarFallback className="bg-primary/20 text-primary">
-                        {collaborator.full_name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-semibold">{collaborator.full_name}</p>
-                      <p className="text-sm text-muted-foreground">{collaborator.email}</p>
-                      {collaborator.phone && (
-                        <p className="text-sm text-muted-foreground">{collaborator.phone}</p>
-                      )}
-                    </div>
-                  </div>
+              {filteredCollaborators.map((collaborator) => {
+                const isExpanded = expandedCollaborators.has(collaborator.user_id);
+                const taskCount = collaborator.tasks?.length || 0;
+                
+                return (
+                  <motion.div
+                    key={collaborator.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="bg-card rounded-xl border border-border overflow-hidden"
+                  >
+                    <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <Avatar className="w-12 h-12">
+                          <AvatarImage src={collaborator.avatar_url || ''} />
+                          <AvatarFallback className="bg-primary/20 text-primary">
+                            {collaborator.full_name.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="font-semibold">{collaborator.full_name}</p>
+                          <p className="text-sm text-muted-foreground">{collaborator.email}</p>
+                          {collaborator.phone && (
+                            <p className="text-sm text-muted-foreground">{collaborator.phone}</p>
+                          )}
+                        </div>
+                      </div>
 
-                  <div className="flex items-center gap-4">
-                    <Badge variant="secondary" className="text-base px-3 py-1">
-                      <Wallet className="w-4 h-4 mr-2" />
-                      {collaborator.credits.toFixed(1)} créditos
-                    </Badge>
-                    
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setEditingCollaborator(collaborator);
-                          setNewCredits(collaborator.credits.toString());
-                          setShowEditDialog(true);
-                        }}
-                      >
-                        <ArrowUpDown className="w-4 h-4 mr-1" />
-                        Saldo
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-destructive hover:text-destructive"
-                        onClick={() => {
-                          setDeletingCollaborator(collaborator);
-                          setShowDeleteDialog(true);
-                        }}
-                      >
-                        <Ban className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-4">
+                        <Badge variant="secondary" className="text-base px-3 py-1">
+                          <Wallet className="w-4 h-4 mr-2" />
+                          {collaborator.credits.toFixed(1)} créditos
+                        </Badge>
+                        
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => toggleCollaboratorExpanded(collaborator.user_id)}
+                            className="gap-1"
+                          >
+                            <ClipboardList className="w-4 h-4" />
+                            {taskCount}
+                            {isExpanded ? (
+                              <ChevronUp className="w-4 h-4" />
+                            ) : (
+                              <ChevronDown className="w-4 h-4" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setEditingCollaborator(collaborator);
+                              setNewCredits(collaborator.credits.toString());
+                              setShowEditDialog(true);
+                            }}
+                          >
+                            <ArrowUpDown className="w-4 h-4 mr-1" />
+                            Saldo
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => {
+                              setDeletingCollaborator(collaborator);
+                              setShowDeleteDialog(true);
+                            }}
+                          >
+                            <Ban className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </motion.div>
-              ))}
+                    
+                    {/* Expandable Tasks Section */}
+                    {isExpanded && (
+                      <div className="px-4 pb-4 border-t border-border pt-4 bg-muted/30">
+                        {taskCount === 0 ? (
+                          <p className="text-sm text-muted-foreground text-center py-2">
+                            Nenhuma tarefa atribuída
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            <p className="text-sm font-medium text-muted-foreground mb-3">
+                              Tarefas Atribuídas ({taskCount})
+                            </p>
+                            {collaborator.tasks?.slice(0, 5).map((task) => {
+                              const ServiceIcon = serviceConfig[task.task_service as keyof typeof serviceConfig]?.icon || Music;
+                              const serviceLabel = serviceConfig[task.task_service as keyof typeof serviceConfig]?.label || 'Serviço';
+                              const statusInfo = taskStatusConfig[task.status as keyof typeof taskStatusConfig];
+                              
+                              return (
+                                <div
+                                  key={task.id}
+                                  className="flex items-center justify-between gap-4 p-3 bg-card rounded-lg border border-border"
+                                >
+                                  <div className="flex items-center gap-3">
+                                    <ServiceIcon className="w-4 h-4 text-primary" />
+                                    <div>
+                                      <p className="text-sm font-medium line-clamp-1">{task.task_title}</p>
+                                      <p className="text-xs text-muted-foreground">
+                                        {serviceLabel} • {format(new Date(task.assigned_at), "d MMM yyyy", { locale: pt })}
+                                      </p>
+                                    </div>
+                                  </div>
+                                  <Badge className={statusInfo?.class}>
+                                    {statusInfo?.label}
+                                  </Badge>
+                                </div>
+                              );
+                            })}
+                            {taskCount > 5 && (
+                              <p className="text-xs text-muted-foreground text-center pt-2">
+                                E mais {taskCount - 5} tarefa(s)...
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+                );
+              })}
             </div>
           )}
         </motion.div>

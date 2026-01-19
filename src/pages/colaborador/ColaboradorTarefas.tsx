@@ -148,7 +148,7 @@ export default function ColaboradorTarefas() {
   };
 
   const handleAccept = async () => {
-    if (!selectedAssignment) return;
+    if (!selectedAssignment || !user) return;
     
     setIsProcessing(true);
     try {
@@ -161,6 +161,29 @@ export default function ColaboradorTarefas() {
         .eq('id', selectedAssignment.id);
 
       if (error) throw error;
+
+      // Get collaborator name for notification
+      const { data: collaboratorProfile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', user.id)
+        .single();
+
+      // Send notification to admin
+      const { data: adminRoles } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
+
+      if (adminRoles && adminRoles.length > 0) {
+        const adminNotifications = adminRoles.map(admin => ({
+          user_id: admin.user_id,
+          title: 'Tarefa Aceite',
+          message: `O colaborador ${collaboratorProfile?.full_name || 'Colaborador'} aceitou a tarefa "${selectedAssignment.task?.title}".`,
+        }));
+
+        await supabase.from('notifications').insert(adminNotifications);
+      }
 
       toast({
         title: 'Tarefa aceite',
@@ -183,7 +206,7 @@ export default function ColaboradorTarefas() {
   };
 
   const handleReject = async () => {
-    if (!selectedAssignment) return;
+    if (!selectedAssignment || !user) return;
     
     setIsProcessing(true);
     try {
@@ -196,6 +219,29 @@ export default function ColaboradorTarefas() {
         .eq('id', selectedAssignment.id);
 
       if (error) throw error;
+
+      // Get collaborator name for notification
+      const { data: collaboratorProfile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('user_id', user.id)
+        .single();
+
+      // Send notification to admin
+      const { data: adminRoles } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
+
+      if (adminRoles && adminRoles.length > 0) {
+        const adminNotifications = adminRoles.map(admin => ({
+          user_id: admin.user_id,
+          title: 'Tarefa Rejeitada',
+          message: `O colaborador ${collaboratorProfile?.full_name || 'Colaborador'} rejeitou a tarefa "${selectedAssignment.task?.title}".`,
+        }));
+
+        await supabase.from('notifications').insert(adminNotifications);
+      }
 
       toast({
         title: 'Tarefa rejeitada',
@@ -216,6 +262,7 @@ export default function ColaboradorTarefas() {
       setIsProcessing(false);
     }
   };
+
 
   const pendingAssignments = assignments.filter(a => a.status === 'pending');
   const acceptedAssignments = assignments.filter(a => a.status === 'accepted');

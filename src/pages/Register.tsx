@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Music2, Mail, Lock, Eye, EyeOff, User, Gift } from 'lucide-react';
+import { Music2, Mail, Lock, Eye, EyeOff, User, Gift, CheckCircle, XCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -18,6 +18,13 @@ export default function Register() {
   const [referralCode, setReferralCode] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // Referral code validation states
+  const [isValidatingCode, setIsValidatingCode] = useState(false);
+  const [isCodeValid, setIsCodeValid] = useState<boolean | null>(null);
+  const [codeValidationMessage, setCodeValidationMessage] = useState('');
+  const [validatedReferrerId, setValidatedReferrerId] = useState<string | null>(null);
+  
   const { signUp } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -29,6 +36,61 @@ export default function Register() {
       setReferralCode(refCode.toUpperCase());
     }
   }, [searchParams]);
+
+  // Real-time referral code validation with debounce
+  const validateReferralCode = useCallback(async (code: string) => {
+    if (!code.trim()) {
+      setIsCodeValid(null);
+      setCodeValidationMessage('');
+      setValidatedReferrerId(null);
+      return;
+    }
+
+    if (code.length < 8) {
+      setIsCodeValid(null);
+      setCodeValidationMessage('');
+      setValidatedReferrerId(null);
+      return;
+    }
+
+    setIsValidatingCode(true);
+    try {
+      const { data: referrerProfile, error } = await supabase
+        .from('profiles')
+        .select('user_id, full_name')
+        .eq('referral_code', code.trim().toUpperCase())
+        .maybeSingle();
+
+      if (error) {
+        setIsCodeValid(false);
+        setCodeValidationMessage('Erro ao validar código');
+        setValidatedReferrerId(null);
+      } else if (referrerProfile) {
+        setIsCodeValid(true);
+        setCodeValidationMessage(`Convidado por ${referrerProfile.full_name}`);
+        setValidatedReferrerId(referrerProfile.user_id);
+      } else {
+        setIsCodeValid(false);
+        setCodeValidationMessage('Código não encontrado');
+        setValidatedReferrerId(null);
+      }
+    } catch (err) {
+      setIsCodeValid(false);
+      setCodeValidationMessage('Erro ao validar código');
+      setValidatedReferrerId(null);
+    } finally {
+      setIsValidatingCode(false);
+    }
+  }, []);
+
+  // Debounced validation effect
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      validateReferralCode(referralCode);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [referralCode, validateReferralCode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,36 +135,18 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      // If referral code provided, validate it exists
-      let referrerUserId: string | null = null;
-      if (referralCode.trim()) {
-        const { data: referrerProfile, error: refError } = await supabase
-          .from('profiles')
-          .select('user_id')
-          .eq('referral_code', referralCode.trim().toUpperCase())
-          .maybeSingle();
-
-        if (refError) {
-          console.error('Erro ao validar código de convite:', refError);
-          toast({
-            title: 'Erro de validação',
-            description: 'Não foi possível validar o código de convite. Tente novamente.',
-            variant: 'destructive',
-          });
-          setIsLoading(false);
-          return;
-        }
-
-        if (!referrerProfile) {
-          toast({
-            title: 'Código de convite inválido',
-            description: 'O código de convite inserido não existe.',
-            variant: 'destructive',
-          });
-          setIsLoading(false);
-          return;
-        }
-        referrerUserId = referrerProfile.user_id;
+      // Use the already validated referrer ID
+      const referrerUserId = validatedReferrerId;
+      
+      // If code was entered but validation failed, block submission
+      if (referralCode.trim() && isCodeValid === false) {
+        toast({
+          title: 'Código de convite inválido',
+          description: 'O código de convite inserido não existe.',
+          variant: 'destructive',
+        });
+        setIsLoading(false);
+        return;
       }
 
       // Criar conta
@@ -338,13 +382,36 @@ export default function Register() {
                   placeholder="Ex: ABC12345"
                   value={referralCode}
                   onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-                  className="pl-10 bg-secondary border-border uppercase"
+                  className={`pl-10 pr-10 bg-secondary border-border uppercase ${
+                    isCodeValid === true ? 'border-green-500' : 
+                    isCodeValid === false ? 'border-red-500' : ''
+                  }`}
                   maxLength={8}
                 />
+                {/* Validation status indicator */}
+                <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                  {isValidatingCode && (
+                    <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
+                  )}
+                  {!isValidatingCode && isCodeValid === true && (
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                  )}
+                  {!isValidatingCode && isCodeValid === false && (
+                    <XCircle className="w-5 h-5 text-red-500" />
+                  )}
+                </div>
               </div>
-              <p className="text-xs text-muted-foreground">
-                Se foi convidado por alguém, insira o código de convite.
-              </p>
+              {/* Validation message */}
+              {codeValidationMessage && (
+                <p className={`text-xs ${isCodeValid ? 'text-green-500' : 'text-red-500'}`}>
+                  {codeValidationMessage}
+                </p>
+              )}
+              {!codeValidationMessage && (
+                <p className="text-xs text-muted-foreground">
+                  Se foi convidado por alguém, insira o código de convite.
+                </p>
+              )}
             </div>
 
             <p className="text-xs text-muted-foreground">
