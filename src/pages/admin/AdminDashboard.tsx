@@ -9,7 +9,8 @@ import {
   ArrowRight,
   Clock,
   CheckCircle,
-  AlertCircle
+  AlertCircle,
+  Gift
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
@@ -23,6 +24,8 @@ interface Stats {
   completedTasks: number;
   pendingDeposits: number;
   totalUsers: number;
+  totalReferrals: number;
+  awardedReferrals: number;
 }
 
 export default function AdminDashboard() {
@@ -35,6 +38,8 @@ export default function AdminDashboard() {
     completedTasks: 0,
     pendingDeposits: 0,
     totalUsers: 0,
+    totalReferrals: 0,
+    awardedReferrals: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -88,12 +93,25 @@ export default function AdminDashboard() {
         .from('profiles')
         .select('*', { count: 'exact', head: true });
 
+      // Fetch total referrals count
+      const { count: totalReferrals } = await supabase
+        .from('referrals')
+        .select('*', { count: 'exact', head: true });
+
+      // Fetch awarded referrals count
+      const { count: awardedReferrals } = await supabase
+        .from('referrals')
+        .select('*', { count: 'exact', head: true })
+        .eq('bonus_awarded', true);
+
       setStats({
         pendingTasks: pendingTasks || 0,
         inProgressTasks: inProgressTasks || 0,
         completedTasks: completedTasks || 0,
         pendingDeposits: pendingDeposits || 0,
         totalUsers: totalUsers || 0,
+        totalReferrals: totalReferrals || 0,
+        awardedReferrals: awardedReferrals || 0,
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -181,7 +199,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick Links */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               to="/admin/tarefas"
               className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
@@ -235,6 +253,26 @@ export default function AdminDashboard() {
                     <h3 className="font-semibold">Usuários</h3>
                     <p className="text-sm text-muted-foreground">
                       {stats.totalUsers} usuários registados
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+            </Link>
+
+            <Link
+              to="/admin/referrals"
+              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-warning/20 flex items-center justify-center group-hover:bg-warning/30 transition-colors">
+                    <Gift className="w-6 h-6 text-warning" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Referências</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {stats.awardedReferrals}/{stats.totalReferrals} com bónus
                     </p>
                   </div>
                 </div>
