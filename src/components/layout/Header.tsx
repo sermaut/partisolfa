@@ -12,7 +12,8 @@ import {
   CreditCard,
   PlusCircle,
   LayoutDashboard,
-  History
+  History,
+  Users
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
@@ -31,7 +32,7 @@ import { Badge } from '@/components/ui/badge';
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
-  const { user, profile, isAdmin, signOut } = useAuth();
+  const { user, profile, isAdmin, isCollaborator, signOut } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -193,6 +194,18 @@ export function Header() {
                     </>
                   )}
                   
+                  {isCollaborator && (
+                    <>
+                      <DropdownMenuSeparator className="bg-border" />
+                      <DropdownMenuItem asChild>
+                        <Link to="/colaborador" className="cursor-pointer py-3 text-base">
+                          <Users className="w-5 h-5 mr-3" />
+                          Painel Colaborador
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  
                   <DropdownMenuSeparator className="bg-border" />
                   <DropdownMenuItem 
                     onClick={handleSignOut}
@@ -340,6 +353,17 @@ export function Header() {
                       >
                         <Settings className="w-5 h-5" />
                         Administração
+                      </Link>
+                    )}
+                    
+                    {isCollaborator && (
+                      <Link 
+                        to="/colaborador" 
+                        onClick={() => setIsMenuOpen(false)}
+                        className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
+                      >
+                        <Users className="w-5 h-5" />
+                        Painel Colaborador
                       </Link>
                     )}
                     

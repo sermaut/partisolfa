@@ -27,6 +27,11 @@ import AdminTarefas from "./pages/admin/AdminTarefas";
 import AdminDepositos from "./pages/admin/AdminDepositos";
 import AdminUsuarios from "./pages/admin/AdminUsuarios";
 import AdminReferrals from "./pages/admin/AdminReferrals";
+import AdminColaboradores from "./pages/admin/AdminColaboradores";
+import AdminLevantamentos from "./pages/admin/AdminLevantamentos";
+import ColaboradorDashboard from "./pages/colaborador/ColaboradorDashboard";
+import ColaboradorTarefas from "./pages/colaborador/ColaboradorTarefas";
+import ColaboradorLevantamento from "./pages/colaborador/ColaboradorLevantamento";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,7 +39,6 @@ const queryClient = new QueryClient();
 function ProfileCompletionWrapper() {
   const { user, profile, isLoading, isProfileComplete, refreshProfile } = useAuth();
 
-  // Show modal if user is logged in but profile is incomplete
   const showModal = !isLoading && user && profile && !isProfileComplete;
 
   if (!showModal) return null;
@@ -75,6 +79,11 @@ const AppContent = () => (
       <Route path="/admin/depositos" element={<AdminDepositos />} />
       <Route path="/admin/usuarios" element={<AdminUsuarios />} />
       <Route path="/admin/referrals" element={<AdminReferrals />} />
+      <Route path="/admin/colaboradores" element={<AdminColaboradores />} />
+      <Route path="/admin/levantamentos" element={<AdminLevantamentos />} />
+      <Route path="/colaborador" element={<ColaboradorDashboard />} />
+      <Route path="/colaborador/tarefas" element={<ColaboradorTarefas />} />
+      <Route path="/colaborador/levantamento" element={<ColaboradorLevantamento />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </>

@@ -1,0 +1,532 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { 
+  ArrowLeft, 
+  Search, 
+  Users, 
+  Plus, 
+  Edit2, 
+  Trash2, 
+  Loader2,
+  Wallet,
+  ArrowUpDown,
+  Ban
+} from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Layout } from '@/components/layout/Layout';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+
+interface Collaborator {
+  id: string;
+  user_id: string;
+  full_name: string;
+  email: string;
+  credits: number;
+  phone: string | null;
+  avatar_url: string | null;
+  created_at: string;
+}
+
+interface UserProfile {
+  id: string;
+  user_id: string;
+  full_name: string;
+  email: string;
+}
+
+export default function AdminColaboradores() {
+  const { user, isAdmin, isLoading: authLoading } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [allUsers, setAllUsers] = useState<UserProfile[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  
+  // Add collaborator dialog
+  const [showAddDialog, setShowAddDialog] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  
+  // Edit credits dialog
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingCollaborator, setEditingCollaborator] = useState<Collaborator | null>(null);
+  const [newCredits, setNewCredits] = useState('');
+  const [isUpdating, setIsUpdating] = useState(false);
+  
+  // Delete dialog
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deletingCollaborator, setDeletingCollaborator] = useState<Collaborator | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user || !isAdmin) {
+        navigate('/dashboard');
+        return;
+      }
+      fetchCollaborators();
+      fetchAllUsers();
+    }
+  }, [user, isAdmin, authLoading, navigate]);
+
+  const fetchCollaborators = async () => {
+    setIsLoading(true);
+    try {
+      // Get all users with collaborator role
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'collaborator');
+
+      if (rolesError) throw rolesError;
+
+      if (roles && roles.length > 0) {
+        const userIds = roles.map(r => r.user_id);
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('*')
+          .in('user_id', userIds)
+          .order('full_name');
+
+        if (profilesError) throw profilesError;
+        setCollaborators(profiles || []);
+      } else {
+        setCollaborators([]);
+      }
+    } catch (error) {
+      console.error('Error fetching collaborators:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar os colaboradores.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchAllUsers = async () => {
+    try {
+      // Get users that are NOT already collaborators or admins
+      const { data: existingRoles } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .in('role', ['collaborator', 'admin']);
+
+      const excludeIds = existingRoles?.map(r => r.user_id) || [];
+
+      let query = supabase
+        .from('profiles')
+        .select('id, user_id, full_name, email')
+        .order('full_name');
+
+      if (excludeIds.length > 0) {
+        query = query.not('user_id', 'in', `(${excludeIds.join(',')})`);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+      setAllUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  };
+
+  const handleAddCollaborator = async () => {
+    if (!selectedUserId) return;
+    
+    setIsAdding(true);
+    try {
+      // Add collaborator role
+      const { error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: selectedUserId, role: 'collaborator' });
+
+      if (error) throw error;
+
+      // Send notification
+      await supabase.from('notifications').insert({
+        user_id: selectedUserId,
+        title: 'Bem-vindo à equipa!',
+        message: 'Foste adicionado como colaborador. Agora podes receber tarefas e gerir o teu saldo.',
+      });
+
+      toast({
+        title: 'Colaborador adicionado',
+        description: 'O utilizador foi adicionado como colaborador.',
+      });
+
+      setShowAddDialog(false);
+      setSelectedUserId('');
+      fetchCollaborators();
+      fetchAllUsers();
+    } catch (error) {
+      console.error('Error adding collaborator:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível adicionar o colaborador.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAdding(false);
+    }
+  };
+
+  const handleUpdateCredits = async () => {
+    if (!editingCollaborator || newCredits === '') return;
+    
+    const credits = parseFloat(newCredits);
+    if (isNaN(credits) || credits < 0) {
+      toast({
+        title: 'Valor inválido',
+        description: 'Por favor, insira um valor válido.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ credits })
+        .eq('user_id', editingCollaborator.user_id);
+
+      if (error) throw error;
+
+      // Send notification
+      const diff = credits - editingCollaborator.credits;
+      const action = diff >= 0 ? 'adicionados' : 'removidos';
+      await supabase.from('notifications').insert({
+        user_id: editingCollaborator.user_id,
+        title: 'Saldo actualizado',
+        message: `O teu saldo foi actualizado. Foram ${action} ${Math.abs(diff).toFixed(1)} créditos. Saldo actual: ${credits.toFixed(1)} créditos.`,
+      });
+
+      toast({
+        title: 'Saldo actualizado',
+        description: 'O saldo do colaborador foi actualizado.',
+      });
+
+      setShowEditDialog(false);
+      setEditingCollaborator(null);
+      setNewCredits('');
+      fetchCollaborators();
+    } catch (error) {
+      console.error('Error updating credits:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível actualizar o saldo.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleRemoveCollaborator = async () => {
+    if (!deletingCollaborator) return;
+    
+    setIsDeleting(true);
+    try {
+      // Remove collaborator role (don't delete the user)
+      const { error } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', deletingCollaborator.user_id)
+        .eq('role', 'collaborator');
+
+      if (error) throw error;
+
+      // Send notification
+      await supabase.from('notifications').insert({
+        user_id: deletingCollaborator.user_id,
+        title: 'Função de colaborador removida',
+        message: 'A tua função de colaborador foi removida. Continuas a ter acesso à plataforma como utilizador regular.',
+      });
+
+      toast({
+        title: 'Colaborador removido',
+        description: 'A função de colaborador foi removida.',
+      });
+
+      setShowDeleteDialog(false);
+      setDeletingCollaborator(null);
+      fetchCollaborators();
+      fetchAllUsers();
+    } catch (error) {
+      console.error('Error removing collaborator:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível remover o colaborador.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const filteredCollaborators = collaborators.filter(c =>
+    c.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    c.email.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (authLoading || isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="container mx-auto px-4 py-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/admin')}>
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div>
+                <h1 className="text-2xl md:text-3xl font-bold flex items-center gap-3">
+                  <Users className="w-7 h-7 text-primary" />
+                  Colaboradores
+                </h1>
+                <p className="text-muted-foreground mt-1">
+                  {collaborators.length} colaborador{collaborators.length !== 1 ? 'es' : ''} registado{collaborators.length !== 1 ? 's' : ''}
+                </p>
+              </div>
+            </div>
+            <Button onClick={() => setShowAddDialog(true)} className="gap-2">
+              <Plus className="w-4 h-4" />
+              Adicionar Colaborador
+            </Button>
+          </div>
+
+          {/* Search */}
+          <div className="relative mb-6">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              placeholder="Pesquisar por nome ou email..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Collaborators Grid */}
+          {filteredCollaborators.length === 0 ? (
+            <div className="text-center py-12 bg-card rounded-xl border border-border">
+              <Users className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">
+                {searchQuery ? 'Nenhum colaborador encontrado.' : 'Nenhum colaborador registado.'}
+              </p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {filteredCollaborators.map((collaborator) => (
+                <motion.div
+                  key={collaborator.id}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="bg-card rounded-xl border border-border p-4 flex flex-col md:flex-row md:items-center justify-between gap-4"
+                >
+                  <div className="flex items-center gap-4">
+                    <Avatar className="w-12 h-12">
+                      <AvatarImage src={collaborator.avatar_url || ''} />
+                      <AvatarFallback className="bg-primary/20 text-primary">
+                        {collaborator.full_name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-semibold">{collaborator.full_name}</p>
+                      <p className="text-sm text-muted-foreground">{collaborator.email}</p>
+                      {collaborator.phone && (
+                        <p className="text-sm text-muted-foreground">{collaborator.phone}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <Badge variant="secondary" className="text-base px-3 py-1">
+                      <Wallet className="w-4 h-4 mr-2" />
+                      {collaborator.credits.toFixed(1)} créditos
+                    </Badge>
+                    
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEditingCollaborator(collaborator);
+                          setNewCredits(collaborator.credits.toString());
+                          setShowEditDialog(true);
+                        }}
+                      >
+                        <ArrowUpDown className="w-4 h-4 mr-1" />
+                        Saldo
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-destructive hover:text-destructive"
+                        onClick={() => {
+                          setDeletingCollaborator(collaborator);
+                          setShowDeleteDialog(true);
+                        }}
+                      >
+                        <Ban className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+      </div>
+
+      {/* Add Collaborator Dialog */}
+      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <DialogContent className="bg-card">
+          <DialogHeader>
+            <DialogTitle>Adicionar Colaborador</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Selecionar Utilizador</Label>
+              <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Escolha um utilizador..." />
+                </SelectTrigger>
+                <SelectContent className="bg-card border-border">
+                  {allUsers.map((u) => (
+                    <SelectItem key={u.user_id} value={u.user_id}>
+                      {u.full_name} ({u.email})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {allUsers.length === 0 && (
+                <p className="text-sm text-muted-foreground">
+                  Não há utilizadores disponíveis para adicionar.
+                </p>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleAddCollaborator} disabled={!selectedUserId || isAdding}>
+              {isAdding && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Adicionar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Credits Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="bg-card">
+          <DialogHeader>
+            <DialogTitle>Editar Saldo</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">
+              Colaborador: <span className="font-medium text-foreground">{editingCollaborator?.full_name}</span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Saldo actual: <span className="font-medium text-foreground">{editingCollaborator?.credits.toFixed(1)} créditos</span>
+            </p>
+            <div className="space-y-2">
+              <Label htmlFor="credits">Novo saldo (créditos)</Label>
+              <Input
+                id="credits"
+                type="number"
+                step="0.1"
+                min="0"
+                value={newCredits}
+                onChange={(e) => setNewCredits(e.target.value)}
+                placeholder="0.0"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleUpdateCredits} disabled={newCredits === '' || isUpdating}>
+              {isUpdating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Actualizar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Remove Collaborator Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remover Colaborador</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tens a certeza que queres remover <strong>{deletingCollaborator?.full_name}</strong> da função de colaborador?
+              O utilizador continuará a ter acesso à plataforma como utilizador regular.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleRemoveCollaborator}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isDeleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </Layout>
+  );
+}
