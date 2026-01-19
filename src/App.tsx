@@ -26,6 +26,7 @@ import AdminDashboard from "./pages/admin/AdminDashboard";
 import AdminTarefas from "./pages/admin/AdminTarefas";
 import AdminDepositos from "./pages/admin/AdminDepositos";
 import AdminUsuarios from "./pages/admin/AdminUsuarios";
+import AdminReferrals from "./pages/admin/AdminReferrals";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ const AppContent = () => (
       <Route path="/admin/tarefas" element={<AdminTarefas />} />
       <Route path="/admin/depositos" element={<AdminDepositos />} />
       <Route path="/admin/usuarios" element={<AdminUsuarios />} />
+      <Route path="/admin/referrals" element={<AdminReferrals />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </>

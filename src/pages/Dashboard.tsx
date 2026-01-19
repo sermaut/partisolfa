@@ -15,7 +15,9 @@ import {
   Bell,
   TrendingUp,
   PieChart,
-  BarChart3
+  BarChart3,
+  Gift,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
@@ -64,6 +66,7 @@ export default function Dashboard() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [totalCreditsUsed, setTotalCreditsUsed] = useState(0);
+  const [referralStats, setReferralStats] = useState({ total: 0, awarded: 0, bonusCredits: 0 });
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -111,6 +114,28 @@ export default function Dashboard() {
 
       if (notifError) throw notifError;
       setNotifications(notifData || []);
+
+      // Fetch referral stats
+      if (user) {
+        const { data: referralsData, error: referralsError } = await supabase
+          .from('referrals')
+          .select('*')
+          .eq('referrer_id', user.id);
+
+        if (!referralsError && referralsData) {
+          const totalReferrals = referralsData.length;
+          const awardedReferrals = referralsData.filter(r => r.bonus_awarded).length;
+          const bonusCredits = referralsData
+            .filter(r => r.bonus_awarded)
+            .reduce((sum, r) => sum + (r.bonus_amount_kz / 150), 0);
+
+          setReferralStats({
+            total: totalReferrals,
+            awarded: awardedReferrals,
+            bonusCredits: bonusCredits
+          });
+        }
+      }
     } catch (error) {
       console.error('Error fetching data:', error);
       toast({
@@ -261,7 +286,54 @@ export default function Dashboard() {
           </motion.div>
         </div>
 
-        {/* Charts Section */}
+        {/* Referral Stats Card */}
+        {referralStats.total > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.32 }}
+            className="mb-8"
+          >
+            <Link to="/perfil" className="glass-card rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 hover:border-primary/50 transition-colors block">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-gold/20 flex items-center justify-center">
+                  <Gift className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-display font-semibold text-lg">Programa de Convites</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Convide amigos e ganhe créditos!
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-6">
+                <div className="text-center">
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Users className="w-4 h-4" />
+                    <span className="text-xs">Convidados</span>
+                  </div>
+                  <p className="text-xl font-display font-bold">{referralStats.total}</p>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center gap-1 text-success">
+                    <CheckCircle className="w-4 h-4" />
+                    <span className="text-xs">Com Bónus</span>
+                  </div>
+                  <p className="text-xl font-display font-bold text-success">{referralStats.awarded}</p>
+                </div>
+                <div className="text-center">
+                  <div className="flex items-center gap-1 text-primary">
+                    <Wallet className="w-4 h-4" />
+                    <span className="text-xs">Ganhos</span>
+                  </div>
+                  <p className="text-xl font-display font-bold text-primary">
+                    {referralStats.bonusCredits.toFixed(1)}
+                  </p>
+                </div>
+              </div>
+            </Link>
+          </motion.div>
+        )}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
