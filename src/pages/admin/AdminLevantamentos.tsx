@@ -68,7 +68,7 @@ export default function AdminLevantamentos() {
   const [withdrawals, setWithdrawals] = useState<Withdrawal[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<string>('pending');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending');
   
   // Process dialog
   const [showProcessDialog, setShowProcessDialog] = useState(false);
@@ -96,7 +96,7 @@ export default function AdminLevantamentos() {
         .order('created_at', { ascending: false });
 
       if (statusFilter !== 'all') {
-        query = query.eq('status', statusFilter);
+        query = query.eq('status', statusFilter as 'pending' | 'approved' | 'rejected');
       }
 
       const { data, error } = await query;
@@ -241,7 +241,7 @@ export default function AdminLevantamentos() {
                 className="pl-10"
               />
             </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | 'pending' | 'approved' | 'rejected')}>
               <SelectTrigger className="w-full md:w-48">
                 <Filter className="w-4 h-4 mr-2" />
                 <SelectValue />

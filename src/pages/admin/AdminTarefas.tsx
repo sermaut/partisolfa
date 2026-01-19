@@ -23,7 +23,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronsLeft,
-  ChevronsRight
+  ChevronsRight,
+  UserPlus,
+  Users
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
@@ -88,6 +90,12 @@ interface TaskFile {
   is_result: boolean;
 }
 
+interface Collaborator {
+  user_id: string;
+  full_name: string;
+  email: string;
+}
+
 const statusConfig = {
   pending: { label: 'Pendente', class: 'status-pending', icon: Clock },
   in_progress: { label: 'Em Progresso', class: 'status-progress', icon: AlertCircle },
@@ -132,6 +140,13 @@ export default function AdminTarefas() {
   const [cancellationReason, setCancellationReason] = useState('');
   const [taskToCancel, setTaskToCancel] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  
+  // Assign task to collaborators
+  const [showAssignDialog, setShowAssignDialog] = useState(false);
+  const [taskToAssign, setTaskToAssign] = useState<Task | null>(null);
+  const [collaborators, setCollaborators] = useState<Collaborator[]>([]);
+  const [selectedCollaborators, setSelectedCollaborators] = useState<string[]>([]);
+  const [isAssigning, setIsAssigning] = useState(false);
 
   // Reset page when filters change
   useEffect(() => {
@@ -253,6 +268,90 @@ export default function AdminTarefas() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const fetchCollaborators = async () => {
+    try {
+      const { data: roles } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'collaborator');
+
+      if (roles && roles.length > 0) {
+        const userIds = roles.map(r => r.user_id);
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('user_id, full_name, email')
+          .in('user_id', userIds);
+        
+        setCollaborators(profiles || []);
+      }
+    } catch (error) {
+      console.error('Error fetching collaborators:', error);
+    }
+  };
+
+  const openAssignDialog = async (task: Task) => {
+    setTaskToAssign(task);
+    setSelectedCollaborators([]);
+    await fetchCollaborators();
+    setShowAssignDialog(true);
+  };
+
+  const handleAssignTask = async () => {
+    if (!taskToAssign || selectedCollaborators.length === 0 || !user) return;
+    
+    setIsAssigning(true);
+    try {
+      // Create task assignments for each selected collaborator
+      const assignments = selectedCollaborators.map(collabId => ({
+        task_id: taskToAssign.id,
+        collaborator_id: collabId,
+        assigned_by: user.id,
+        status: 'pending',
+      }));
+
+      const { error } = await supabase
+        .from('task_assignments')
+        .insert(assignments);
+
+      if (error) throw error;
+
+      // Notify each collaborator
+      const notifications = selectedCollaborators.map(collabId => ({
+        user_id: collabId,
+        title: 'Nova tarefa disponível',
+        message: `Uma nova tarefa "${taskToAssign.title}" foi-te atribuída. Consulta o teu painel para aceitar ou recusar.`,
+      }));
+
+      await supabase.from('notifications').insert(notifications);
+
+      toast({
+        title: 'Tarefa atribuída',
+        description: `A tarefa foi atribuída a ${selectedCollaborators.length} colaborador(es).`,
+      });
+
+      setShowAssignDialog(false);
+      setTaskToAssign(null);
+      setSelectedCollaborators([]);
+    } catch (error) {
+      console.error('Error assigning task:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível atribuir a tarefa.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsAssigning(false);
+    }
+  };
+
+  const toggleCollaboratorSelection = (userId: string) => {
+    setSelectedCollaborators(prev =>
+      prev.includes(userId)
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
   };
 
   const openTaskDetail = async (task: Task) => {
@@ -709,6 +808,16 @@ export default function AdminTarefas() {
                           </SelectContent>
                         </Select>
 
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => openAssignDialog(task)}
+                          title="Atribuir a colaboradores"
+                        >
+                          <UserPlus className="w-4 h-4 mr-2" />
+                          Atribuir
+                        </Button>
+
                         <Button variant="outline" size="sm" onClick={() => openTaskDetail(task)}>
                           <Eye className="w-4 h-4 mr-2" />
                           Detalhes
@@ -913,6 +1022,75 @@ export default function AdminTarefas() {
               </div>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign Task Dialog */}
+      <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+        <DialogContent className="max-w-md bg-card">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Users className="w-5 h-5 text-primary" />
+              Atribuir Tarefa
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <p className="text-sm text-muted-foreground">
+              Tarefa: <span className="font-medium text-foreground">{taskToAssign?.title}</span>
+            </p>
+            <div className="space-y-2">
+              <Label>Selecionar Colaboradores</Label>
+              {collaborators.length === 0 ? (
+                <p className="text-sm text-muted-foreground py-4 text-center">
+                  Nenhum colaborador disponível.
+                </p>
+              ) : (
+                <div className="max-h-60 overflow-y-auto space-y-2">
+                  {collaborators.map((collab) => (
+                    <div
+                      key={collab.user_id}
+                      onClick={() => toggleCollaboratorSelection(collab.user_id)}
+                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                        selectedCollaborators.includes(collab.user_id)
+                          ? 'border-primary bg-primary/10'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${
+                          selectedCollaborators.includes(collab.user_id)
+                            ? 'bg-primary border-primary'
+                            : 'border-muted-foreground'
+                        }`}>
+                          {selectedCollaborators.includes(collab.user_id) && (
+                            <CheckCircle className="w-3 h-3 text-primary-foreground" />
+                          )}
+                        </div>
+                        <div>
+                          <p className="font-medium text-sm">{collab.full_name}</p>
+                          <p className="text-xs text-muted-foreground">{collab.email}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {selectedCollaborators.length > 0 && (
+              <p className="text-sm text-primary">
+                {selectedCollaborators.length} colaborador(es) selecionado(s)
+              </p>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowAssignDialog(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={handleAssignTask} disabled={selectedCollaborators.length === 0 || isAssigning}>
+              {isAssigning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Atribuir
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </Layout>

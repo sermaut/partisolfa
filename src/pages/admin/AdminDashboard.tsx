@@ -10,7 +10,9 @@ import {
   Clock,
   CheckCircle,
   AlertCircle,
-  Gift
+  Gift,
+  UserCog,
+  Wallet
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
@@ -26,6 +28,8 @@ interface Stats {
   totalUsers: number;
   totalReferrals: number;
   awardedReferrals: number;
+  totalCollaborators: number;
+  pendingWithdrawals: number;
 }
 
 export default function AdminDashboard() {
@@ -40,6 +44,8 @@ export default function AdminDashboard() {
     totalUsers: 0,
     totalReferrals: 0,
     awardedReferrals: 0,
+    totalCollaborators: 0,
+    pendingWithdrawals: 0,
   });
   const [isLoading, setIsLoading] = useState(true);
 
@@ -104,6 +110,18 @@ export default function AdminDashboard() {
         .select('*', { count: 'exact', head: true })
         .eq('bonus_awarded', true);
 
+      // Fetch total collaborators count
+      const { count: totalCollaborators } = await supabase
+        .from('user_roles')
+        .select('*', { count: 'exact', head: true })
+        .eq('role', 'collaborator');
+
+      // Fetch pending withdrawals count
+      const { count: pendingWithdrawals } = await supabase
+        .from('collaborator_withdrawals')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
       setStats({
         pendingTasks: pendingTasks || 0,
         inProgressTasks: inProgressTasks || 0,
@@ -112,6 +130,8 @@ export default function AdminDashboard() {
         totalUsers: totalUsers || 0,
         totalReferrals: totalReferrals || 0,
         awardedReferrals: awardedReferrals || 0,
+        totalCollaborators: totalCollaborators || 0,
+        pendingWithdrawals: pendingWithdrawals || 0,
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -273,6 +293,46 @@ export default function AdminDashboard() {
                     <h3 className="font-semibold">Referências</h3>
                     <p className="text-sm text-muted-foreground">
                       {stats.awardedReferrals}/{stats.totalReferrals} com bónus
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+            </Link>
+
+            <Link
+              to="/admin/colaboradores"
+              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
+                    <UserCog className="w-6 h-6 text-purple-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Colaboradores</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {stats.totalCollaborators} colaborador{stats.totalCollaborators !== 1 ? 'es' : ''}
+                    </p>
+                  </div>
+                </div>
+                <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary transition-colors" />
+              </div>
+            </Link>
+
+            <Link
+              to="/admin/levantamentos"
+              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/30 transition-colors">
+                    <Wallet className="w-6 h-6 text-orange-500" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold">Levantamentos</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {stats.pendingWithdrawals} pendente{stats.pendingWithdrawals !== 1 ? 's' : ''}
                     </p>
                   </div>
                 </div>
