@@ -81,27 +81,29 @@ export function Header() {
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            <Link 
-              to="/" 
-              className="text-base text-muted-foreground hover:text-foreground transition-colors py-2"
-            >
-              Início
-            </Link>
-            <Link 
-              to="/servicos" 
-              className="text-base text-muted-foreground hover:text-foreground transition-colors py-2"
-            >
-              Serviços
-            </Link>
-            <Link 
-              to="/termos-uso" 
-              className="text-base text-muted-foreground hover:text-foreground transition-colors py-2"
-            >
-              Termos
-            </Link>
-          </nav>
+          {/* Desktop Navigation - Only show when NOT logged in */}
+          {!user && (
+            <nav className="hidden md:flex items-center gap-8">
+              <Link 
+                to="/" 
+                className="text-base text-muted-foreground hover:text-foreground transition-colors py-2"
+              >
+                Início
+              </Link>
+              <Link 
+                to="/servicos" 
+                className="text-base text-muted-foreground hover:text-foreground transition-colors py-2"
+              >
+                Serviços
+              </Link>
+              <Link 
+                to="/termos-uso" 
+                className="text-base text-muted-foreground hover:text-foreground transition-colors py-2"
+              >
+                Termos
+              </Link>
+            </nav>
+          )}
 
           {/* Auth Buttons */}
           <div className="hidden md:flex items-center gap-4">
@@ -246,29 +248,34 @@ export function Header() {
             className="md:hidden py-4 border-t border-border/50"
           >
             <nav className="flex flex-col gap-1">
-              <Link 
-                to="/" 
-                onClick={() => setIsMenuOpen(false)}
-                className="text-base text-muted-foreground hover:text-foreground transition-colors py-3 px-2 rounded-lg hover:bg-secondary"
-              >
-                Início
-              </Link>
-              <Link 
-                to="/servicos" 
-                onClick={() => setIsMenuOpen(false)}
-                className="text-base text-muted-foreground hover:text-foreground transition-colors py-3 px-2 rounded-lg hover:bg-secondary"
-              >
-                Serviços
-              </Link>
-              <Link 
-                to="/termos-uso" 
-                onClick={() => setIsMenuOpen(false)}
-                className="text-base text-muted-foreground hover:text-foreground transition-colors py-3 px-2 rounded-lg hover:bg-secondary"
-              >
-                Termos
-              </Link>
+              {/* Navigation links - Only show when NOT logged in */}
+              {!user && (
+                <>
+                  <Link 
+                    to="/" 
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-base text-muted-foreground hover:text-foreground transition-colors py-3 px-2 rounded-lg hover:bg-secondary"
+                  >
+                    Início
+                  </Link>
+                  <Link 
+                    to="/servicos" 
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-base text-muted-foreground hover:text-foreground transition-colors py-3 px-2 rounded-lg hover:bg-secondary"
+                  >
+                    Serviços
+                  </Link>
+                  <Link 
+                    to="/termos-uso" 
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-base text-muted-foreground hover:text-foreground transition-colors py-3 px-2 rounded-lg hover:bg-secondary"
+                  >
+                    Termos
+                  </Link>
+                </>
+              )}
               
-              <div className="flex flex-col gap-1 pt-4 border-t border-border/50 mt-2">
+              <div className={`flex flex-col gap-1 ${!user ? 'pt-4 border-t border-border/50 mt-2' : ''}`}>
                 {user ? (
                   <>
                     <div className="py-3 px-2">

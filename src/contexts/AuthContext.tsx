@@ -82,16 +82,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   useEffect(() => {
+    let mounted = true;
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
+        if (!mounted) return;
+
+        console.log('Auth state change:', event, currentSession?.user?.id);
+        
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
         if (currentSession?.user) {
           // Use setTimeout to avoid Supabase deadlock
           setTimeout(() => {
-            fetchProfile(currentSession.user.id);
+            if (mounted) {
+              fetchProfile(currentSession.user.id);
+            }
           }, 0);
         } else {
           setProfile(null);
@@ -102,18 +110,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
-      setUser(currentSession?.user ?? null);
-      
-      if (currentSession?.user) {
-        fetchProfile(currentSession.user.id);
-      }
-      setIsLoading(false);
-    });
+    // THEN check for existing session - this ensures session persists across page reloads
+    const initializeSession = async () => {
+      try {
+        const { data: { session: currentSession }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+          if (mounted) {
+            setIsLoading(false);
+          }
+          return;
+        }
 
-    return () => subscription.unsubscribe();
+        if (mounted) {
+          setSession(currentSession);
+          setUser(currentSession?.user ?? null);
+          
+          if (currentSession?.user) {
+            await fetchProfile(currentSession.user.id);
+          }
+          setIsLoading(false);
+        }
+      } catch (error) {
+        console.error('Error initializing session:', error);
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    initializeSession();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signUp = async (email: string, password: string, fullName: string) => {
