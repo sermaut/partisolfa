@@ -46,9 +46,10 @@ export default function Register() {
       return;
     }
 
-    if (code.length < 8) {
+    // Validate when code has at least 6 characters
+    if (code.length < 6) {
       setIsCodeValid(null);
-      setCodeValidationMessage('');
+      setCodeValidationMessage('O código deve ter pelo menos 6 caracteres');
       setValidatedReferrerId(null);
       return;
     }
