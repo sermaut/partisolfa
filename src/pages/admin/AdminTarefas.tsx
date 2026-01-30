@@ -40,12 +40,13 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  AnimatedDialog,
+  AnimatedDialogContent,
+  AnimatedDialogHeader,
+  AnimatedDialogTitle,
+  AnimatedDialogFooter,
+  AnimatedDialogSection,
+} from '@/components/ui/animated-dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -955,12 +956,17 @@ export default function AdminTarefas() {
       </div>
 
       {/* Cancellation Dialog */}
-      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <DialogContent className="max-w-md bg-card">
-          <DialogHeader>
-            <DialogTitle>Motivo do Cancelamento</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
+      <AnimatedDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AnimatedDialogContent variant="destructive" className="max-w-md">
+          <AnimatedDialogHeader>
+            <AnimatedDialogTitle className="flex items-center gap-3">
+              <div className="icon-container-destructive">
+                <AlertCircle className="w-5 h-5 text-destructive" />
+              </div>
+              Motivo do Cancelamento
+            </AnimatedDialogTitle>
+          </AnimatedDialogHeader>
+          <AnimatedDialogSection delay={0.1} className="space-y-4 py-2">
             <p className="text-sm text-muted-foreground">
               Por favor, indique o motivo do cancelamento. Os créditos serão devolvidos automaticamente ao usuário.
             </p>
@@ -970,8 +976,8 @@ export default function AdminTarefas() {
               onChange={(e) => setCancellationReason(e.target.value)}
               className="min-h-[100px] bg-secondary"
             />
-          </div>
-          <DialogFooter>
+          </AnimatedDialogSection>
+          <AnimatedDialogFooter>
             <Button variant="outline" onClick={() => { setShowCancelDialog(false); setCancellationReason(''); setTaskToCancel(null); }}>
               Voltar
             </Button>
@@ -979,48 +985,93 @@ export default function AdminTarefas() {
               {isUpdating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
               Confirmar Cancelamento
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AnimatedDialogFooter>
+        </AnimatedDialogContent>
+      </AnimatedDialog>
 
       {/* Task Detail Dialog */}
-      <Dialog open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTask(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-card">
-          <DialogHeader>
-            <DialogTitle className="font-display text-xl">{selectedTask?.title}</DialogTitle>
-          </DialogHeader>
+      <AnimatedDialog open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTask(null)}>
+        <AnimatedDialogContent variant="premium" className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <AnimatedDialogHeader>
+            <AnimatedDialogTitle className="flex items-center gap-3">
+              <div className="icon-container-premium">
+                {selectedTask?.service_type === 'arranjo' ? (
+                  <FileMusic className="w-5 h-5 text-primary" />
+                ) : selectedTask?.service_type === 'acc' ? (
+                  <Headphones className="w-5 h-5 text-primary" />
+                ) : (
+                  <Music className="w-5 h-5 text-primary" />
+                )}
+              </div>
+              {selectedTask?.title}
+            </AnimatedDialogTitle>
+          </AnimatedDialogHeader>
 
           {selectedTask && (
             <div className="space-y-6">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div><p className="text-muted-foreground">Serviço</p><p className="font-medium">{serviceLabels[selectedTask.service_type] || selectedTask.service_type}</p></div>
-                <div><p className="text-muted-foreground">Data</p><p className="font-medium">{formatDate(selectedTask.created_at)}</p></div>
-                <div><p className="text-muted-foreground">Usuário</p><p className="font-medium">{selectedTask.profiles?.full_name}</p></div>
-                <div><p className="text-muted-foreground">E-mail</p><p className="font-medium">{selectedTask.profiles?.email}</p></div>
-              </div>
+              <AnimatedDialogSection delay={0.1}>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="stat-card">
+                    <p className="text-xs text-muted-foreground">Serviço</p>
+                    <p className="font-medium">{serviceLabels[selectedTask.service_type] || selectedTask.service_type}</p>
+                  </div>
+                  <div className="stat-card">
+                    <p className="text-xs text-muted-foreground">Data</p>
+                    <p className="font-medium">{formatDate(selectedTask.created_at)}</p>
+                  </div>
+                  <div className="stat-card">
+                    <p className="text-xs text-muted-foreground">Usuário</p>
+                    <p className="font-medium">{selectedTask.profiles?.full_name}</p>
+                  </div>
+                  <div className="stat-card">
+                    <p className="text-xs text-muted-foreground">E-mail</p>
+                    <p className="font-medium text-sm truncate">{selectedTask.profiles?.email}</p>
+                  </div>
+                </div>
+              </AnimatedDialogSection>
 
               {selectedTask.result_format && (
-                <div className="bg-primary/10 rounded-lg p-4">
-                  <Label className="text-primary mb-2 block">Formato Preferido</Label>
-                  <div className="flex items-center gap-2">
-                    {selectedTask.result_format === 'pdf' && <FileText className="w-5 h-5 text-warning" />}
-                    {selectedTask.result_format === 'audio' && <Headphones className="w-5 h-5 text-primary" />}
-                    {selectedTask.result_format === 'image' && <Image className="w-5 h-5 text-success" />}
-                    <span className="font-medium">{resultFormatLabels[selectedTask.result_format] || selectedTask.result_format}</span>
+                <AnimatedDialogSection delay={0.15}>
+                  <div className="modal-gradient-premium rounded-xl p-4 border border-primary/20">
+                    <Label className="text-primary mb-2 block text-sm">Formato Preferido</Label>
+                    <div className="flex items-center gap-2">
+                      {selectedTask.result_format === 'pdf' && <FileText className="w-5 h-5 text-warning" />}
+                      {selectedTask.result_format === 'audio' && <Headphones className="w-5 h-5 text-primary" />}
+                      {selectedTask.result_format === 'image' && <Image className="w-5 h-5 text-success" />}
+                      <span className="font-medium">{resultFormatLabels[selectedTask.result_format] || selectedTask.result_format}</span>
+                    </div>
+                    {selectedTask.result_comment && <p className="text-sm mt-2 text-muted-foreground">{selectedTask.result_comment}</p>}
                   </div>
-                  {selectedTask.result_comment && <p className="text-sm mt-2 text-muted-foreground">{selectedTask.result_comment}</p>}
-                </div>
+                </AnimatedDialogSection>
               )}
 
-              {selectedTask.description && <div><Label className="text-muted-foreground">Descrição</Label><p className="mt-1 text-sm whitespace-pre-wrap">{selectedTask.description}</p></div>}
-              {selectedTask.recommendations && <div><Label className="text-muted-foreground">Recomendações</Label><p className="mt-1 text-sm whitespace-pre-wrap">{selectedTask.recommendations}</p></div>}
-              {selectedTask.cancellation_reason && <div className="bg-destructive/10 rounded-lg p-4"><Label className="text-destructive">Motivo do Cancelamento</Label><p className="mt-1 text-sm">{selectedTask.cancellation_reason}</p></div>}
+              <AnimatedDialogSection delay={0.2}>
+                {selectedTask.description && (
+                  <div className="space-y-2">
+                    <Label className="text-muted-foreground text-sm">Descrição</Label>
+                    <p className="text-sm whitespace-pre-wrap p-3 bg-secondary/50 rounded-lg">{selectedTask.description}</p>
+                  </div>
+                )}
+                {selectedTask.recommendations && (
+                  <div className="space-y-2 mt-4">
+                    <Label className="text-muted-foreground text-sm">Recomendações</Label>
+                    <p className="text-sm whitespace-pre-wrap p-3 bg-secondary/50 rounded-lg">{selectedTask.recommendations}</p>
+                  </div>
+                )}
+                {selectedTask.cancellation_reason && (
+                  <div className="modal-gradient-destructive rounded-xl p-4 border border-destructive/20 mt-4">
+                    <Label className="text-destructive text-sm">Motivo do Cancelamento</Label>
+                    <p className="mt-1 text-sm">{selectedTask.cancellation_reason}</p>
+                  </div>
+                )}
+              </AnimatedDialogSection>
 
-              <div>
-                <Label className="text-muted-foreground mb-3 block">Ficheiros Enviados</Label>
+              <AnimatedDialogSection delay={0.25}>
+                <div className="divider-gradient mb-4" />
+                <Label className="text-muted-foreground mb-3 block text-sm">Ficheiros Enviados</Label>
                 <div className="space-y-2">
                   {taskFiles.filter((f) => !f.is_result).map((file) => (
-                    <div key={file.id} className="bg-secondary/50 rounded-lg p-3 flex items-center justify-between">
+                    <div key={file.id} className="bg-secondary/50 rounded-lg p-3 flex items-center justify-between hover:bg-secondary/70 transition-colors">
                       <div className="flex items-center gap-2">{getFileIcon(file.file_type)}<span className="text-sm">{file.file_name}</span></div>
                       <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => downloadFile(file)} disabled={downloadingFile === file.id}>
                         {downloadingFile === file.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
@@ -1028,14 +1079,14 @@ export default function AdminTarefas() {
                     </div>
                   ))}
                 </div>
-              </div>
+              </AnimatedDialogSection>
 
               {taskFiles.filter((f) => f.is_result).length > 0 && (
-                <div>
-                  <Label className="text-success mb-3 block">Resultados Enviados</Label>
+                <AnimatedDialogSection delay={0.3}>
+                  <Label className="text-success mb-3 block text-sm">Resultados Enviados</Label>
                   <div className="space-y-2">
                     {taskFiles.filter((f) => f.is_result).map((file) => (
-                      <div key={file.id} className="bg-success/10 border border-success/30 rounded-lg p-3 flex items-center justify-between">
+                      <div key={file.id} className="modal-gradient-success border border-success/30 rounded-lg p-3 flex items-center justify-between">
                         <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><span className="text-sm">{file.file_name}</span></div>
                         <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => downloadFile(file)} disabled={downloadingFile === file.id}>
                           {downloadingFile === file.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
@@ -1043,11 +1094,12 @@ export default function AdminTarefas() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </AnimatedDialogSection>
               )}
 
-              <div className="pt-4 border-t border-border">
-                <Label className="mb-3 block">Enviar Resultado (até {MAX_RESULT_FILES} ficheiros)</Label>
+              <AnimatedDialogSection delay={0.35}>
+                <div className="divider-gradient mb-4" />
+                <Label className="mb-3 block text-sm">Enviar Resultado (até {MAX_RESULT_FILES} ficheiros)</Label>
                 <div className="flex items-center gap-3">
                   <Button variant="premium" onClick={openResultDialog} disabled={isUploading}>
                     <Upload className="w-4 h-4 mr-2" />
@@ -1055,25 +1107,29 @@ export default function AdminTarefas() {
                   </Button>
                   <p className="text-xs text-muted-foreground">O usuário será notificado automaticamente</p>
                 </div>
-              </div>
+              </AnimatedDialogSection>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </AnimatedDialogContent>
+      </AnimatedDialog>
 
       {/* Assign Task Dialog */}
-      <Dialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
-        <DialogContent className="max-w-md bg-card">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Users className="w-5 h-5 text-primary" />
+      <AnimatedDialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+        <AnimatedDialogContent variant="premium" className="max-w-md">
+          <AnimatedDialogHeader>
+            <AnimatedDialogTitle className="flex items-center gap-3">
+              <div className="icon-container-premium">
+                <Users className="w-5 h-5 text-primary" />
+              </div>
               Atribuir Tarefa
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <p className="text-sm text-muted-foreground">
-              Tarefa: <span className="font-medium text-foreground">{taskToAssign?.title}</span>
-            </p>
+            </AnimatedDialogTitle>
+          </AnimatedDialogHeader>
+          <AnimatedDialogSection delay={0.1} className="space-y-4 py-2">
+            <div className="p-3 modal-gradient-premium rounded-xl border border-primary/20">
+              <p className="text-sm text-muted-foreground">
+                Tarefa: <span className="font-medium text-foreground">{taskToAssign?.title}</span>
+              </p>
+            </div>
             <div className="space-y-2">
               <Label>Selecionar Colaboradores</Label>
               {collaborators.length === 0 ? (
@@ -1086,20 +1142,20 @@ export default function AdminTarefas() {
                     <div
                       key={collab.user_id}
                       onClick={() => toggleCollaboratorSelection(collab.user_id)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-colors ${
+                      className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
                         selectedCollaborators.includes(collab.user_id)
-                          ? 'border-primary bg-primary/10'
-                          : 'border-border hover:border-primary/50'
+                          ? 'border-primary bg-primary/10 shadow-md'
+                          : 'border-border hover:border-primary/50 hover:bg-secondary/50'
                       }`}
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-4 h-4 rounded border flex items-center justify-center ${
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
                           selectedCollaborators.includes(collab.user_id)
                             ? 'bg-primary border-primary'
                             : 'border-muted-foreground'
                         }`}>
                           {selectedCollaborators.includes(collab.user_id) && (
-                            <CheckCircle className="w-3 h-3 text-primary-foreground" />
+                            <CheckCircle className="w-3.5 h-3.5 text-primary-foreground" />
                           )}
                         </div>
                         <div>
@@ -1113,12 +1169,12 @@ export default function AdminTarefas() {
               )}
             </div>
             {selectedCollaborators.length > 0 && (
-              <p className="text-sm text-primary">
+              <p className="text-sm text-primary font-medium">
                 {selectedCollaborators.length} colaborador(es) selecionado(s)
               </p>
             )}
-          </div>
-          <DialogFooter>
+          </AnimatedDialogSection>
+          <AnimatedDialogFooter>
             <Button variant="outline" onClick={() => setShowAssignDialog(false)}>
               Cancelar
             </Button>
@@ -1126,26 +1182,28 @@ export default function AdminTarefas() {
               {isAssigning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Atribuir
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AnimatedDialogFooter>
+        </AnimatedDialogContent>
+      </AnimatedDialog>
 
       {/* Result Upload Dialog */}
-      <Dialog open={showResultDialog} onOpenChange={(open) => {
+      <AnimatedDialog open={showResultDialog} onOpenChange={(open) => {
         if (!open) {
           setResultDescription('');
           setResultFiles([]);
         }
         setShowResultDialog(open);
       }}>
-        <DialogContent className="max-w-lg bg-card">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Upload className="w-5 h-5 text-primary" />
+        <AnimatedDialogContent variant="success" className="max-w-lg">
+          <AnimatedDialogHeader>
+            <AnimatedDialogTitle className="flex items-center gap-3">
+              <div className="icon-container-success">
+                <Upload className="w-5 h-5 text-success" />
+              </div>
               Enviar Resultado
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
+            </AnimatedDialogTitle>
+          </AnimatedDialogHeader>
+          <AnimatedDialogSection delay={0.1} className="space-y-4 py-2">
             <div className="space-y-2">
               <Label htmlFor="resultDescription">Descrição do Resultado *</Label>
               <Textarea
@@ -1172,7 +1230,7 @@ export default function AdminTarefas() {
               />
               <Button 
                 variant="outline" 
-                className="w-full" 
+                className="w-full h-12 border-dashed border-2 hover:border-success/50 hover:bg-success/5" 
                 onClick={() => fileInputRef.current?.click()}
               >
                 <Upload className="w-4 h-4 mr-2" />
@@ -1182,12 +1240,12 @@ export default function AdminTarefas() {
               {resultFiles.length > 0 && (
                 <div className="space-y-2 mt-3">
                   {resultFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-2 bg-secondary/50 rounded-lg">
-                      <span className="text-sm truncate">{file.name}</span>
+                    <div key={index} className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg border border-border hover:border-success/30 transition-colors">
+                      <span className="text-sm truncate flex-1">{file.name}</span>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="h-7 w-7"
+                        className="h-7 w-7 ml-2 hover:bg-destructive/10 hover:text-destructive"
                         onClick={() => removeResultFile(index)}
                       >
                         <X className="w-4 h-4" />
@@ -1200,8 +1258,8 @@ export default function AdminTarefas() {
                 Formatos aceites: MP3, WAV, AAC, PDF, JPG, PNG (até {MAX_RESULT_FILES} ficheiros)
               </p>
             </div>
-          </div>
-          <DialogFooter>
+          </AnimatedDialogSection>
+          <AnimatedDialogFooter>
             <Button variant="outline" onClick={() => setShowResultDialog(false)}>
               Cancelar
             </Button>
@@ -1213,9 +1271,9 @@ export default function AdminTarefas() {
               {isUploading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Enviar Resultado
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AnimatedDialogFooter>
+        </AnimatedDialogContent>
+      </AnimatedDialog>
     </Layout>
   );
 }
