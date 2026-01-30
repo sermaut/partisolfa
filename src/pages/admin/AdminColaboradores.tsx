@@ -29,12 +29,13 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  AnimatedDialog,
+  AnimatedDialogContent,
+  AnimatedDialogHeader,
+  AnimatedDialogTitle,
+  AnimatedDialogFooter,
+  AnimatedDialogSection,
+} from '@/components/ui/animated-dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -707,16 +708,21 @@ export default function AdminColaboradores() {
       </div>
 
       {/* Add Collaborator Dialog */}
-      <Dialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <DialogContent className="bg-card">
-          <DialogHeader>
-            <DialogTitle>Adicionar Colaborador</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
+      <AnimatedDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <AnimatedDialogContent variant="premium">
+          <AnimatedDialogHeader>
+            <AnimatedDialogTitle className="flex items-center gap-3">
+              <div className="icon-container-premium">
+                <Plus className="w-5 h-5 text-primary" />
+              </div>
+              Adicionar Colaborador
+            </AnimatedDialogTitle>
+          </AnimatedDialogHeader>
+          <AnimatedDialogSection delay={0.1} className="space-y-4 py-4">
             <div className="space-y-2">
               <Label>Selecionar Utilizador</Label>
               <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-secondary">
                   <SelectValue placeholder="Escolha um utilizador..." />
                 </SelectTrigger>
                 <SelectContent className="bg-card border-border">
@@ -733,8 +739,8 @@ export default function AdminColaboradores() {
                 </p>
               )}
             </div>
-          </div>
-          <DialogFooter>
+          </AnimatedDialogSection>
+          <AnimatedDialogFooter>
             <Button variant="outline" onClick={() => setShowAddDialog(false)}>
               Cancelar
             </Button>
@@ -742,23 +748,30 @@ export default function AdminColaboradores() {
               {isAdding && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Adicionar
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AnimatedDialogFooter>
+        </AnimatedDialogContent>
+      </AnimatedDialog>
 
       {/* Edit Credits Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="bg-card">
-          <DialogHeader>
-            <DialogTitle>Editar Saldo</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <p className="text-sm text-muted-foreground">
-              Colaborador: <span className="font-medium text-foreground">{editingCollaborator?.full_name}</span>
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Saldo actual: <span className="font-medium text-foreground">{editingCollaborator?.credits.toFixed(1)} créditos</span>
-            </p>
+      <AnimatedDialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <AnimatedDialogContent variant="premium">
+          <AnimatedDialogHeader>
+            <AnimatedDialogTitle className="flex items-center gap-3">
+              <div className="icon-container-premium">
+                <ArrowUpDown className="w-5 h-5 text-primary" />
+              </div>
+              Editar Saldo
+            </AnimatedDialogTitle>
+          </AnimatedDialogHeader>
+          <AnimatedDialogSection delay={0.1} className="space-y-4 py-4">
+            <div className="p-4 modal-gradient-premium rounded-xl border border-primary/20">
+              <p className="text-sm text-muted-foreground">
+                Colaborador: <span className="font-medium text-foreground">{editingCollaborator?.full_name}</span>
+              </p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Saldo actual: <span className="font-medium text-primary">{editingCollaborator?.credits.toFixed(1)} créditos</span>
+              </p>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="credits">Novo saldo (créditos)</Label>
               <Input
@@ -769,10 +782,11 @@ export default function AdminColaboradores() {
                 value={newCredits}
                 onChange={(e) => setNewCredits(e.target.value)}
                 placeholder="0.0"
+                className="bg-secondary h-12 text-lg"
               />
             </div>
-          </div>
-          <DialogFooter>
+          </AnimatedDialogSection>
+          <AnimatedDialogFooter>
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>
               Cancelar
             </Button>
@@ -780,9 +794,9 @@ export default function AdminColaboradores() {
               {isUpdating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Actualizar
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AnimatedDialogFooter>
+        </AnimatedDialogContent>
+      </AnimatedDialog>
 
       {/* Remove Collaborator Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>

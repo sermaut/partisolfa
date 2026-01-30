@@ -18,7 +18,8 @@ import {
   ClipboardList,
   Wallet,
   UserPlus,
-  X
+  X,
+  Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,12 +28,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from '@/components/ui/dialog';
+  AnimatedDialog,
+  AnimatedDialogContent,
+  AnimatedDialogHeader,
+  AnimatedDialogTitle,
+  AnimatedDialogFooter,
+  AnimatedDialogSection,
+} from '@/components/ui/animated-dialog';
 import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
@@ -46,7 +48,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Profile {
@@ -503,69 +504,81 @@ export default function AdminUsuarios() {
       </div>
 
       {/* User Details Dialog */}
-      <Dialog open={showDetailsDialog} onOpenChange={(open) => {
+      <AnimatedDialog open={showDetailsDialog} onOpenChange={(open) => {
         if (!open) {
           setDetailsProfile(null);
           setUserStats(null);
         }
         setShowDetailsDialog(open);
       }}>
-        <DialogContent className="max-w-lg bg-card max-h-[90vh]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Eye className="w-5 h-5 text-primary" />
+        <AnimatedDialogContent variant="premium" className="max-w-lg max-h-[90vh]">
+          <AnimatedDialogHeader>
+            <AnimatedDialogTitle className="flex items-center gap-3">
+              <div className="icon-container-premium">
+                <Eye className="w-5 h-5 text-primary" />
+              </div>
               Detalhes do Usuário
-            </DialogTitle>
-          </DialogHeader>
+            </AnimatedDialogTitle>
+          </AnimatedDialogHeader>
 
           {detailsProfile && (
-            <ScrollArea className="max-h-[65vh] pr-4">
+            <ScrollArea className="max-h-[60vh] pr-4">
               <div className="space-y-6">
                 {/* Profile Header */}
-                <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-primary/10 to-transparent rounded-xl">
-                  <Avatar className="w-16 h-16">
-                    <AvatarImage src={detailsProfile.avatar_url || undefined} />
-                    <AvatarFallback className="bg-primary/20 text-primary font-display font-bold text-xl">
-                      {detailsProfile.full_name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="font-semibold text-lg">{detailsProfile.full_name}</h3>
-                    <p className="text-sm text-muted-foreground">{detailsProfile.email}</p>
-                    {detailsProfile.phone && (
-                      <p className="text-sm text-muted-foreground">{detailsProfile.phone}</p>
-                    )}
+                <AnimatedDialogSection delay={0.1}>
+                  <div className="flex items-center gap-4 p-5 modal-gradient-premium rounded-xl border border-primary/20">
+                    <Avatar className="w-16 h-16 ring-2 ring-primary/30 ring-offset-2 ring-offset-background">
+                      <AvatarImage src={detailsProfile.avatar_url || undefined} />
+                      <AvatarFallback className="bg-gradient-to-br from-primary/30 to-accent/20 text-primary font-display font-bold text-xl">
+                        {detailsProfile.full_name.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="font-semibold text-lg">{detailsProfile.full_name}</h3>
+                      <p className="text-sm text-muted-foreground flex items-center gap-2">
+                        <Mail className="w-3.5 h-3.5" />
+                        {detailsProfile.email}
+                      </p>
+                      {detailsProfile.phone && (
+                        <p className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Phone className="w-3.5 h-3.5" />
+                          {detailsProfile.phone}
+                        </p>
+                      )}
+                    </div>
                   </div>
-                </div>
+                </AnimatedDialogSection>
 
-                <Separator />
+                <div className="divider-gradient" />
 
                 {/* Basic Info */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                      <Wallet className="w-4 h-4" />
-                      Créditos
+                <AnimatedDialogSection delay={0.15}>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="stat-card">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                        <Wallet className="w-3.5 h-3.5" />
+                        Créditos
+                      </div>
+                      <p className="font-semibold text-lg text-primary">{detailsProfile.credits.toFixed(1)}</p>
                     </div>
-                    <p className="font-semibold text-lg text-primary">{detailsProfile.credits.toFixed(1)}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                      <Calendar className="w-4 h-4" />
-                      Data de Registo
+                    <div className="stat-card">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                        <Calendar className="w-3.5 h-3.5" />
+                        Data de Registo
+                      </div>
+                      <p className="font-medium">{formatDate(detailsProfile.created_at)}</p>
                     </div>
-                    <p className="font-medium">{formatDate(detailsProfile.created_at)}</p>
-                  </div>
-                  <div className="space-y-1 col-span-2">
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm">
-                      <Gift className="w-4 h-4" />
-                      Código de Convite
+                    <div className="stat-card col-span-2">
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
+                        <Gift className="w-3.5 h-3.5" />
+                        Código de Convite
+                      </div>
+                      <p className="font-mono font-medium text-primary">{detailsProfile.referral_code || 'N/A'}</p>
                     </div>
-                    <p className="font-mono font-medium text-primary">{detailsProfile.referral_code || 'N/A'}</p>
                   </div>
-                </div>
+                </AnimatedDialogSection>
 
-                <Separator />
+                <div className="divider-gradient" />
 
                 {/* Stats */}
                 {isLoadingStats ? (
@@ -575,125 +588,142 @@ export default function AdminUsuarios() {
                 ) : userStats && (
                   <>
                     {/* Tasks Stats */}
-                    <div className="space-y-3">
-                      <h4 className="font-medium flex items-center gap-2">
-                        <ClipboardList className="w-4 h-4 text-primary" />
-                        Solicitações
-                      </h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="p-3 bg-secondary/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground">Total</p>
-                          <p className="font-semibold">{userStats.tasksTotal}</p>
-                        </div>
-                        <div className="p-3 bg-secondary/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground">Pendentes</p>
-                          <p className="font-semibold text-yellow-500">{userStats.tasksPending}</p>
-                        </div>
-                        <div className="p-3 bg-secondary/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground">Em Progresso</p>
-                          <p className="font-semibold text-blue-500">{userStats.tasksInProgress}</p>
-                        </div>
-                        <div className="p-3 bg-secondary/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground">Concluídas</p>
-                          <p className="font-semibold text-green-500">{userStats.tasksCompleted}</p>
+                    <AnimatedDialogSection delay={0.2}>
+                      <div className="space-y-3">
+                        <h4 className="font-medium flex items-center gap-2 text-sm">
+                          <ClipboardList className="w-4 h-4 text-primary" />
+                          Solicitações
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="stat-card">
+                            <p className="text-xs text-muted-foreground">Total</p>
+                            <p className="font-semibold text-lg">{userStats.tasksTotal}</p>
+                          </div>
+                          <div className="stat-card border-l-2 border-warning/50">
+                            <p className="text-xs text-muted-foreground">Pendentes</p>
+                            <p className="font-semibold text-lg text-warning">{userStats.tasksPending}</p>
+                          </div>
+                          <div className="stat-card border-l-2 border-primary/50">
+                            <p className="text-xs text-muted-foreground">Em Progresso</p>
+                            <p className="font-semibold text-lg text-primary">{userStats.tasksInProgress}</p>
+                          </div>
+                          <div className="stat-card border-l-2 border-success/50">
+                            <p className="text-xs text-muted-foreground">Concluídas</p>
+                            <p className="font-semibold text-lg text-success">{userStats.tasksCompleted}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </AnimatedDialogSection>
 
                     {/* Deposits Stats */}
-                    <div className="space-y-3">
-                      <h4 className="font-medium flex items-center gap-2">
-                        <CreditCard className="w-4 h-4 text-primary" />
-                        Depósitos
-                      </h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="p-3 bg-secondary/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground">Aprovados</p>
-                          <p className="font-semibold text-green-500">{userStats.depositsApproved}</p>
-                        </div>
-                        <div className="p-3 bg-secondary/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground">Pendentes</p>
-                          <p className="font-semibold text-yellow-500">{userStats.depositsPending}</p>
-                        </div>
-                        <div className="p-3 bg-secondary/50 rounded-lg col-span-2">
-                          <p className="text-xs text-muted-foreground">Total Depositado</p>
-                          <p className="font-semibold text-primary">{userStats.totalDepositedKz.toLocaleString()} Kz</p>
+                    <AnimatedDialogSection delay={0.25}>
+                      <div className="space-y-3">
+                        <h4 className="font-medium flex items-center gap-2 text-sm">
+                          <CreditCard className="w-4 h-4 text-primary" />
+                          Depósitos
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="stat-card border-l-2 border-success/50">
+                            <p className="text-xs text-muted-foreground">Aprovados</p>
+                            <p className="font-semibold text-lg text-success">{userStats.depositsApproved}</p>
+                          </div>
+                          <div className="stat-card border-l-2 border-warning/50">
+                            <p className="text-xs text-muted-foreground">Pendentes</p>
+                            <p className="font-semibold text-lg text-warning">{userStats.depositsPending}</p>
+                          </div>
+                          <div className="stat-card col-span-2 modal-gradient-premium border border-primary/20">
+                            <p className="text-xs text-muted-foreground">Total Depositado</p>
+                            <p className="font-semibold text-xl text-primary flex items-center gap-2">
+                              <Sparkles className="w-4 h-4" />
+                              {userStats.totalDepositedKz.toLocaleString()} Kz
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </AnimatedDialogSection>
 
                     {/* Referrals */}
-                    <div className="space-y-3">
-                      <h4 className="font-medium flex items-center gap-2">
-                        <UserPlus className="w-4 h-4 text-primary" />
-                        Convites
-                      </h4>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="p-3 bg-secondary/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground">Convidado por</p>
-                          <p className="font-medium">{userStats.referredBy || 'Ninguém'}</p>
-                        </div>
-                        <div className="p-3 bg-secondary/50 rounded-lg">
-                          <p className="text-xs text-muted-foreground">Pessoas Convidadas</p>
-                          <p className="font-semibold">{userStats.referredCount}</p>
+                    <AnimatedDialogSection delay={0.3}>
+                      <div className="space-y-3">
+                        <h4 className="font-medium flex items-center gap-2 text-sm">
+                          <UserPlus className="w-4 h-4 text-primary" />
+                          Convites
+                        </h4>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="stat-card">
+                            <p className="text-xs text-muted-foreground">Convidado por</p>
+                            <p className="font-medium">{userStats.referredBy || 'Ninguém'}</p>
+                          </div>
+                          <div className="stat-card">
+                            <p className="text-xs text-muted-foreground">Pessoas Convidadas</p>
+                            <p className="font-semibold text-lg">{userStats.referredCount}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
+                    </AnimatedDialogSection>
                   </>
                 )}
               </div>
             </ScrollArea>
           )}
 
-          <DialogFooter>
+          <AnimatedDialogFooter>
             <Button variant="outline" onClick={() => setShowDetailsDialog(false)}>
               Fechar
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </AnimatedDialogFooter>
+        </AnimatedDialogContent>
+      </AnimatedDialog>
 
       {/* Edit Credits Dialog */}
-      <Dialog open={!!selectedProfile} onOpenChange={(open) => !open && closeDialog()}>
-        <DialogContent className="max-w-md bg-card">
-          <DialogHeader>
-            <DialogTitle className="font-display text-xl">
+      <AnimatedDialog open={!!selectedProfile} onOpenChange={(open) => !open && closeDialog()}>
+        <AnimatedDialogContent variant="premium" className="max-w-md">
+          <AnimatedDialogHeader>
+            <AnimatedDialogTitle className="flex items-center gap-3">
+              <div className="icon-container-premium">
+                <Edit className="w-5 h-5 text-primary" />
+              </div>
               Editar Créditos
-            </DialogTitle>
-          </DialogHeader>
+            </AnimatedDialogTitle>
+          </AnimatedDialogHeader>
 
           {selectedProfile && (
             <div className="space-y-6">
-              <div className="flex items-center gap-3 p-4 bg-secondary/50 rounded-lg">
-                <Avatar className="w-12 h-12">
-                  <AvatarImage src={selectedProfile.avatar_url || undefined} />
-                  <AvatarFallback className="bg-primary/20 text-primary font-display font-bold">
-                    {selectedProfile.full_name.charAt(0).toUpperCase()}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-semibold">{selectedProfile.full_name}</p>
-                  <p className="text-sm text-muted-foreground">{selectedProfile.email}</p>
+              <AnimatedDialogSection delay={0.1}>
+                <div className="flex items-center gap-4 p-4 modal-gradient-premium rounded-xl border border-primary/20">
+                  <Avatar className="w-14 h-14 ring-2 ring-primary/30">
+                    <AvatarImage src={selectedProfile.avatar_url || undefined} />
+                    <AvatarFallback className="bg-gradient-to-br from-primary/30 to-accent/20 text-primary font-display font-bold">
+                      {selectedProfile.full_name.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold">{selectedProfile.full_name}</p>
+                    <p className="text-sm text-muted-foreground">{selectedProfile.email}</p>
+                  </div>
                 </div>
-              </div>
+              </AnimatedDialogSection>
 
-              <div className="space-y-2">
-                <Label htmlFor="credits">Saldo de Créditos</Label>
-                <Input
-                  id="credits"
-                  type="number"
-                  step="0.1"
-                  min="0"
-                  value={editCredits}
-                  onChange={(e) => setEditCredits(e.target.value)}
-                  className="bg-secondary"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Saldo actual: {selectedProfile.credits.toFixed(1)} créditos
-                </p>
-              </div>
+              <AnimatedDialogSection delay={0.15}>
+                <div className="space-y-3">
+                  <Label htmlFor="credits" className="text-sm font-medium">Saldo de Créditos</Label>
+                  <Input
+                    id="credits"
+                    type="number"
+                    step="0.1"
+                    min="0"
+                    value={editCredits}
+                    onChange={(e) => setEditCredits(e.target.value)}
+                    className="bg-secondary text-lg h-12"
+                  />
+                  <p className="text-xs text-muted-foreground flex items-center gap-2">
+                    <Wallet className="w-3.5 h-3.5" />
+                    Saldo actual: <span className="text-primary font-medium">{selectedProfile.credits.toFixed(1)} créditos</span>
+                  </p>
+                </div>
+              </AnimatedDialogSection>
 
-              <DialogFooter>
+              <AnimatedDialogFooter>
                 <Button variant="outline" onClick={closeDialog}>
                   Cancelar
                 </Button>
@@ -701,17 +731,20 @@ export default function AdminUsuarios() {
                   variant="premium"
                   onClick={updateCredits}
                   disabled={isUpdating}
+                  className="min-w-[100px]"
                 >
                   {isUpdating ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  ) : null}
+                  ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
                   Guardar
                 </Button>
-              </DialogFooter>
+              </AnimatedDialogFooter>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </AnimatedDialogContent>
+      </AnimatedDialog>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteProfile} onOpenChange={(open) => !open && setDeleteProfile(null)}>
