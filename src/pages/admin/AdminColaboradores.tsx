@@ -17,7 +17,8 @@ import {
   ClipboardList,
   Music,
   FileMusic,
-  Headphones
+  Headphones,
+  AlertTriangle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -123,10 +124,15 @@ export default function AdminColaboradores() {
   const [newCredits, setNewCredits] = useState('');
   const [isUpdating, setIsUpdating] = useState(false);
   
-  // Delete dialog
+  // Delete dialog (remove role only)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deletingCollaborator, setDeletingCollaborator] = useState<Collaborator | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  // Delete completely dialog
+  const [showDeleteCompletelyDialog, setShowDeleteCompletelyDialog] = useState(false);
+  const [deletingCompletelyCollaborator, setDeletingCompletelyCollaborator] = useState<Collaborator | null>(null);
+  const [isDeletingCompletely, setIsDeletingCompletely] = useState(false);
 
   const toggleCollaboratorExpanded = (userId: string) => {
     setExpandedCollaborators(prev => {
@@ -392,6 +398,105 @@ export default function AdminColaboradores() {
     }
   };
 
+  const handleDeleteCollaboratorCompletely = async () => {
+    if (!deletingCompletelyCollaborator) return;
+    
+    setIsDeletingCompletely(true);
+    try {
+      // Delete user's tasks and associated files
+      const { data: userTasks } = await supabase
+        .from('tasks')
+        .select('id')
+        .eq('user_id', deletingCompletelyCollaborator.user_id);
+
+      if (userTasks && userTasks.length > 0) {
+        const taskIds = userTasks.map(t => t.id);
+        
+        // Get task files to delete from storage
+        const { data: taskFiles } = await supabase
+          .from('task_files')
+          .select('file_path, is_result')
+          .in('task_id', taskIds);
+
+        if (taskFiles) {
+          for (const file of taskFiles) {
+            const bucket = file.is_result ? 'result-files' : 'task-files';
+            await supabase.storage.from(bucket).remove([file.file_path]);
+          }
+        }
+
+        // Delete task files records
+        await supabase.from('task_files').delete().in('task_id', taskIds);
+        
+        // Delete task assignments
+        await supabase.from('task_assignments').delete().in('task_id', taskIds);
+        
+        // Delete tasks
+        await supabase.from('tasks').delete().eq('user_id', deletingCompletelyCollaborator.user_id);
+      }
+
+      // Delete task assignments where user is collaborator
+      await supabase.from('task_assignments').delete().eq('collaborator_id', deletingCompletelyCollaborator.user_id);
+
+      // Delete user's deposits and associated files
+      const { data: userDeposits } = await supabase
+        .from('deposits')
+        .select('proof_file_path')
+        .eq('user_id', deletingCompletelyCollaborator.user_id);
+
+      if (userDeposits) {
+        for (const deposit of userDeposits) {
+          await supabase.storage.from('deposit-proofs').remove([deposit.proof_file_path]);
+        }
+      }
+
+      await supabase.from('deposits').delete().eq('user_id', deletingCompletelyCollaborator.user_id);
+
+      // Delete user's notifications
+      await supabase.from('notifications').delete().eq('user_id', deletingCompletelyCollaborator.user_id);
+
+      // Delete referrals
+      await supabase.from('referrals').delete().eq('referrer_id', deletingCompletelyCollaborator.user_id);
+      await supabase.from('referrals').delete().eq('referred_id', deletingCompletelyCollaborator.user_id);
+
+      // Delete collaborator withdrawals
+      await supabase.from('collaborator_withdrawals').delete().eq('collaborator_id', deletingCompletelyCollaborator.user_id);
+
+      // Delete user roles
+      await supabase.from('user_roles').delete().eq('user_id', deletingCompletelyCollaborator.user_id);
+
+      // Delete avatar if exists
+      if (deletingCompletelyCollaborator.avatar_url) {
+        const avatarPath = deletingCompletelyCollaborator.avatar_url.split('/avatars/')[1];
+        if (avatarPath) {
+          await supabase.storage.from('avatars').remove([avatarPath]);
+        }
+      }
+
+      // Delete profile
+      await supabase.from('profiles').delete().eq('id', deletingCompletelyCollaborator.id);
+
+      toast({
+        title: 'Colaborador eliminado',
+        description: 'O colaborador e todos os seus dados foram eliminados com sucesso.',
+      });
+
+      setShowDeleteCompletelyDialog(false);
+      setDeletingCompletelyCollaborator(null);
+      fetchCollaborators();
+      fetchAllUsers();
+    } catch (error) {
+      console.error('Error deleting collaborator:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível eliminar o colaborador.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeletingCompletely(false);
+    }
+  };
+
   const filteredCollaborators = collaborators.filter(c =>
     c.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     c.email.toLowerCase().includes(searchQuery.toLowerCase())
@@ -527,8 +632,21 @@ export default function AdminColaboradores() {
                               setDeletingCollaborator(collaborator);
                               setShowDeleteDialog(true);
                             }}
+                            title="Remover função"
                           >
                             <Ban className="w-4 h-4" />
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="text-destructive hover:text-destructive"
+                            onClick={() => {
+                              setDeletingCompletelyCollaborator(collaborator);
+                              setShowDeleteCompletelyDialog(true);
+                            }}
+                            title="Eliminar completamente"
+                          >
+                            <Trash2 className="w-4 h-4" />
                           </Button>
                         </div>
                       </div>
@@ -684,6 +802,45 @@ export default function AdminColaboradores() {
             >
               {isDeleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Remover
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Collaborator Completely Dialog */}
+      <AlertDialog open={showDeleteCompletelyDialog} onOpenChange={setShowDeleteCompletelyDialog}>
+        <AlertDialogContent className="bg-card">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="w-5 h-5" />
+              Eliminar Colaborador Completamente
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem a certeza que deseja eliminar <strong>{deletingCompletelyCollaborator?.full_name}</strong> completamente?
+              <br /><br />
+              Esta acção irá eliminar permanentemente:
+              <ul className="list-disc list-inside mt-2 space-y-1">
+                <li>Perfil do colaborador</li>
+                <li>Todas as solicitações</li>
+                <li>Todos os depósitos</li>
+                <li>Todas as notificações</li>
+                <li>Todas as atribuições de tarefas</li>
+                <li>Todos os levantamentos</li>
+                <li>Todos os ficheiros associados</li>
+              </ul>
+              <br />
+              <strong className="text-destructive">Esta acção não pode ser desfeita.</strong>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeletingCompletely}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteCollaboratorCompletely}
+              disabled={isDeletingCompletely}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              {isDeletingCompletely && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Eliminar Permanentemente
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

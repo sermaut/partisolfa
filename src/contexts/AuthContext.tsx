@@ -20,6 +20,7 @@ export interface AuthContextType {
   profile: Profile | null;
   isAdmin: boolean;
   isCollaborator: boolean;
+  isOnlyCollaborator: boolean;
   isLoading: boolean;
   isProfileComplete: boolean;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: Error | null }>;
@@ -39,6 +40,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const isProfileComplete = !!(profile?.phone && profile?.avatar_url);
+  const isOnlyCollaborator = isCollaborator && !isAdmin;
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -195,6 +197,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         profile,
         isAdmin,
         isCollaborator,
+        isOnlyCollaborator,
         isLoading,
         isProfileComplete,
         signUp,

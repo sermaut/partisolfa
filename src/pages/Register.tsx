@@ -136,18 +136,16 @@ export default function Register() {
     setIsLoading(true);
 
     try {
-      // Use the already validated referrer ID
-      const referrerUserId = validatedReferrerId;
+      // Use the already validated referrer ID only if valid
+      const referrerUserId = isCodeValid === true ? validatedReferrerId : null;
       
-      // If code was entered but validation failed, block submission
+      // If code was entered but validation failed, show warning but continue
       if (referralCode.trim() && isCodeValid === false) {
         toast({
-          title: 'Código de convite inválido',
-          description: 'O código de convite inserido não existe.',
-          variant: 'destructive',
+          title: 'Código de convite não encontrado',
+          description: 'O registo será efectuado sem código de convite.',
+          variant: 'default',
         });
-        setIsLoading(false);
-        return;
       }
 
       // Criar conta

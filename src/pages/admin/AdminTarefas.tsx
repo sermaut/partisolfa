@@ -141,6 +141,11 @@ export default function AdminTarefas() {
   const [taskToCancel, setTaskToCancel] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   
+  // Result upload dialog
+  const [showResultDialog, setShowResultDialog] = useState(false);
+  const [resultDescription, setResultDescription] = useState('');
+  const [resultFiles, setResultFiles] = useState<File[]>([]);
+  
   // Assign task to collaborators
   const [showAssignDialog, setShowAssignDialog] = useState(false);
   const [taskToAssign, setTaskToAssign] = useState<Task | null>(null);
@@ -481,12 +486,18 @@ export default function AdminTarefas() {
     }
   };
 
-  const handleResultUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const openResultDialog = () => {
+    setResultDescription('');
+    setResultFiles([]);
+    setShowResultDialog(true);
+  };
+
+  const handleResultFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFiles = e.target.files;
-    if (!selectedFiles || !selectedTask) return;
+    if (!selectedFiles) return;
 
     const currentResultFiles = taskFiles.filter(f => f.is_result).length;
-    if (currentResultFiles + selectedFiles.length > MAX_RESULT_FILES) {
+    if (currentResultFiles + resultFiles.length + selectedFiles.length > MAX_RESULT_FILES) {
       toast({
         title: 'Limite de ficheiros',
         description: `Pode enviar no máximo ${MAX_RESULT_FILES} ficheiros de resultado.`,
@@ -495,9 +506,29 @@ export default function AdminTarefas() {
       return;
     }
 
+    setResultFiles(prev => [...prev, ...Array.from(selectedFiles)]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const removeResultFile = (index: number) => {
+    setResultFiles(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleResultUpload = async () => {
+    if (!selectedTask || resultFiles.length === 0 || resultDescription.trim().length < 10) {
+      toast({
+        title: 'Campos obrigatórios',
+        description: 'Por favor, adicione uma descrição (mínimo 10 caracteres) e pelo menos um ficheiro.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsUploading(true);
     try {
-      for (const file of Array.from(selectedFiles)) {
+      for (const file of resultFiles) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `${selectedTask.user_id}/${selectedTask.id}/${fileName}`;
@@ -518,12 +549,18 @@ export default function AdminTarefas() {
         });
       }
 
+      // Update task with result comment
+      await supabase
+        .from('tasks')
+        .update({ result_comment: resultDescription.trim() })
+        .eq('id', selectedTask.id);
+
       await updateTaskStatus(selectedTask.id, 'completed');
 
       await supabase.from('notifications').insert({
         user_id: selectedTask.user_id,
         title: 'Resultado disponível!',
-        message: `O resultado da sua solicitação "${selectedTask.title}" está pronto para download.`,
+        message: `O resultado da sua solicitação "${selectedTask.title}" está pronto para download. Descrição: ${resultDescription.trim()}`,
       });
 
       toast({
@@ -531,6 +568,9 @@ export default function AdminTarefas() {
         description: 'Os ficheiros foram enviados e o usuário foi notificado.',
       });
 
+      setShowResultDialog(false);
+      setResultDescription('');
+      setResultFiles([]);
       openTaskDetail(selectedTask);
     } catch (error) {
       console.error('Error uploading result:', error);
@@ -541,9 +581,6 @@ export default function AdminTarefas() {
       });
     } finally {
       setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
-      }
     }
   };
 
@@ -1012,10 +1049,9 @@ export default function AdminTarefas() {
               <div className="pt-4 border-t border-border">
                 <Label className="mb-3 block">Enviar Resultado (até {MAX_RESULT_FILES} ficheiros)</Label>
                 <div className="flex items-center gap-3">
-                  <input ref={fileInputRef} type="file" multiple onChange={handleResultUpload} className="hidden" />
-                  <Button variant="premium" onClick={() => fileInputRef.current?.click()} disabled={isUploading}>
-                    {isUploading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Upload className="w-4 h-4 mr-2" />}
-                    {isUploading ? 'A enviar...' : 'Carregar Resultado'}
+                  <Button variant="premium" onClick={openResultDialog} disabled={isUploading}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    Carregar Resultado
                   </Button>
                   <p className="text-xs text-muted-foreground">O usuário será notificado automaticamente</p>
                 </div>
@@ -1089,6 +1125,93 @@ export default function AdminTarefas() {
             <Button onClick={handleAssignTask} disabled={selectedCollaborators.length === 0 || isAssigning}>
               {isAssigning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Atribuir
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Result Upload Dialog */}
+      <Dialog open={showResultDialog} onOpenChange={(open) => {
+        if (!open) {
+          setResultDescription('');
+          setResultFiles([]);
+        }
+        setShowResultDialog(open);
+      }}>
+        <DialogContent className="max-w-lg bg-card">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Upload className="w-5 h-5 text-primary" />
+              Enviar Resultado
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="resultDescription">Descrição do Resultado *</Label>
+              <Textarea
+                id="resultDescription"
+                placeholder="Descreva o trabalho realizado, notas importantes sobre o resultado..."
+                value={resultDescription}
+                onChange={(e) => setResultDescription(e.target.value)}
+                className="min-h-[100px] bg-secondary"
+              />
+              <p className="text-xs text-muted-foreground">
+                Mínimo 10 caracteres ({resultDescription.length}/10)
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Ficheiros</Label>
+              <input 
+                ref={fileInputRef} 
+                type="file" 
+                multiple 
+                onChange={handleResultFileSelect} 
+                className="hidden" 
+                accept=".mp3,.wav,.aac,.pdf,.jpg,.jpeg,.png"
+              />
+              <Button 
+                variant="outline" 
+                className="w-full" 
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Upload className="w-4 h-4 mr-2" />
+                Selecionar Ficheiros
+              </Button>
+              
+              {resultFiles.length > 0 && (
+                <div className="space-y-2 mt-3">
+                  {resultFiles.map((file, index) => (
+                    <div key={index} className="flex items-center justify-between p-2 bg-secondary/50 rounded-lg">
+                      <span className="text-sm truncate">{file.name}</span>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="h-7 w-7"
+                        onClick={() => removeResultFile(index)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Formatos aceites: MP3, WAV, AAC, PDF, JPG, PNG (até {MAX_RESULT_FILES} ficheiros)
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowResultDialog(false)}>
+              Cancelar
+            </Button>
+            <Button 
+              variant="premium" 
+              onClick={handleResultUpload} 
+              disabled={isUploading || resultDescription.trim().length < 10 || resultFiles.length === 0}
+            >
+              {isUploading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              Enviar Resultado
             </Button>
           </DialogFooter>
         </DialogContent>

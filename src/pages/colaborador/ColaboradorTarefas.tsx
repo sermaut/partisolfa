@@ -11,7 +11,13 @@ import {
   Eye,
   Music,
   FileMusic,
-  Headphones
+  Headphones,
+  Download,
+  FileAudio,
+  Image as ImageIcon,
+  FileText,
+  Play,
+  Pause
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
@@ -39,6 +45,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { format } from 'date-fns';
 import { pt } from 'date-fns/locale';
+import { Separator } from '@/components/ui/separator';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface TaskAssignment {
   id: string;
@@ -55,11 +63,21 @@ interface TaskAssignment {
     result_format: string | null;
     credits_used: number;
     created_at: string;
+    recommendations: string | null;
   };
   client?: {
     full_name: string;
     email: string;
   };
+}
+
+interface TaskFile {
+  id: string;
+  file_name: string;
+  file_path: string;
+  file_type: string;
+  file_size: number | null;
+  is_result: boolean;
 }
 
 const serviceConfig = {
@@ -71,8 +89,8 @@ const serviceConfig = {
 const statusConfig = {
   pending: { label: 'Pendente', class: 'bg-yellow-500/20 text-yellow-500' },
   accepted: { label: 'Aceite', class: 'bg-green-500/20 text-green-500' },
-  rejected: { label: 'Rejeitada', class: 'bg-red-500/20 text-red-500' },
-  cancelled: { label: 'Cancelada', class: 'bg-gray-500/20 text-gray-500' },
+  rejected: { label: 'Rejeitada', class: 'bg-destructive/20 text-destructive' },
+  cancelled: { label: 'Cancelada', class: 'bg-muted text-muted-foreground' },
 };
 
 export default function ColaboradorTarefas() {
@@ -87,6 +105,18 @@ export default function ColaboradorTarefas() {
   const [showAcceptDialog, setShowAcceptDialog] = useState(false);
   const [showRejectDialog, setShowRejectDialog] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  
+  // Task files
+  const [taskFiles, setTaskFiles] = useState<TaskFile[]>([]);
+  const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+  const [downloadingFile, setDownloadingFile] = useState<string | null>(null);
+  
+  // Audio player
+  const [playingAudio, setPlayingAudio] = useState<string | null>(null);
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null);
+  
+  // Image preview
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading) {
@@ -97,6 +127,16 @@ export default function ColaboradorTarefas() {
       fetchAssignments();
     }
   }, [user, isCollaborator, authLoading, navigate]);
+
+  // Cleanup audio on unmount
+  useEffect(() => {
+    return () => {
+      if (audioElement) {
+        audioElement.pause();
+        audioElement.src = '';
+      }
+    };
+  }, [audioElement]);
 
   const fetchAssignments = async () => {
     if (!user) return;
@@ -147,6 +187,135 @@ export default function ColaboradorTarefas() {
     }
   };
 
+  const fetchTaskFiles = async (taskId: string) => {
+    setIsLoadingFiles(true);
+    try {
+      const { data, error } = await supabase
+        .from('task_files')
+        .select('*')
+        .eq('task_id', taskId)
+        .order('is_result', { ascending: true });
+
+      if (error) throw error;
+      setTaskFiles(data || []);
+    } catch (error) {
+      console.error('Error fetching task files:', error);
+      setTaskFiles([]);
+    } finally {
+      setIsLoadingFiles(false);
+    }
+  };
+
+  const handleOpenDetail = async (assignment: TaskAssignment) => {
+    setSelectedAssignment(assignment);
+    if (assignment.task_id) {
+      await fetchTaskFiles(assignment.task_id);
+    }
+    setShowDetailDialog(true);
+  };
+
+  const downloadFile = async (file: TaskFile) => {
+    setDownloadingFile(file.id);
+    try {
+      const bucket = file.is_result ? 'result-files' : 'task-files';
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .download(file.file_path);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = file.file_name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Download error:', error);
+      toast({
+        title: 'Erro no download',
+        description: 'Não foi possível descarregar o ficheiro.',
+        variant: 'destructive',
+      });
+    } finally {
+      setDownloadingFile(null);
+    }
+  };
+
+  const playAudio = async (file: TaskFile) => {
+    // Stop current audio if playing
+    if (audioElement) {
+      audioElement.pause();
+      audioElement.src = '';
+    }
+
+    if (playingAudio === file.id) {
+      setPlayingAudio(null);
+      setAudioElement(null);
+      return;
+    }
+
+    try {
+      const bucket = file.is_result ? 'result-files' : 'task-files';
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .download(file.file_path);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      const audio = new Audio(url);
+      audio.onended = () => {
+        setPlayingAudio(null);
+        URL.revokeObjectURL(url);
+      };
+      audio.play();
+      setPlayingAudio(file.id);
+      setAudioElement(audio);
+    } catch (error) {
+      console.error('Error playing audio:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível reproduzir o áudio.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const showImagePreview = async (file: TaskFile) => {
+    try {
+      const bucket = file.is_result ? 'result-files' : 'task-files';
+      const { data, error } = await supabase.storage
+        .from(bucket)
+        .download(file.file_path);
+
+      if (error) throw error;
+
+      const url = URL.createObjectURL(data);
+      setPreviewImage(url);
+    } catch (error) {
+      console.error('Error loading image:', error);
+      toast({
+        title: 'Erro',
+        description: 'Não foi possível carregar a imagem.',
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const getFileIcon = (type: string) => {
+    switch (type) {
+      case 'audio':
+        return <FileAudio className="w-4 h-4 text-primary" />;
+      case 'image':
+        return <ImageIcon className="w-4 h-4 text-green-500" />;
+      default:
+        return <FileText className="w-4 h-4 text-amber-500" />;
+    }
+  };
+
   const handleAccept = async () => {
     if (!selectedAssignment || !user) return;
     
@@ -191,6 +360,7 @@ export default function ColaboradorTarefas() {
       });
 
       setShowAcceptDialog(false);
+      setShowDetailDialog(false);
       setSelectedAssignment(null);
       fetchAssignments();
     } catch (error) {
@@ -249,6 +419,7 @@ export default function ColaboradorTarefas() {
       });
 
       setShowRejectDialog(false);
+      setShowDetailDialog(false);
       setSelectedAssignment(null);
       fetchAssignments();
     } catch (error) {
@@ -262,7 +433,6 @@ export default function ColaboradorTarefas() {
       setIsProcessing(false);
     }
   };
-
 
   const pendingAssignments = assignments.filter(a => a.status === 'pending');
   const acceptedAssignments = assignments.filter(a => a.status === 'accepted');
@@ -313,10 +483,7 @@ export default function ColaboradorTarefas() {
                 <Button
                   size="sm"
                   variant="outline"
-                  onClick={() => {
-                    setSelectedAssignment(assignment);
-                    setShowDetailDialog(true);
-                  }}
+                  onClick={() => handleOpenDetail(assignment)}
                 >
                   <Eye className="w-4 h-4 mr-1" />
                   Ver
@@ -349,7 +516,7 @@ export default function ColaboradorTarefas() {
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => navigate(`/tarefa/${assignment.task_id}`)}
+                onClick={() => handleOpenDetail(assignment)}
               >
                 <Eye className="w-4 h-4 mr-1" />
                 Abrir
@@ -358,6 +525,66 @@ export default function ColaboradorTarefas() {
           </div>
         </div>
       </motion.div>
+    );
+  };
+
+  const renderFileItem = (file: TaskFile) => {
+    const isAudio = file.file_type === 'audio';
+    const isImage = file.file_type === 'image';
+    const isPlaying = playingAudio === file.id;
+
+    return (
+      <div
+        key={file.id}
+        className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg"
+      >
+        <div className="flex items-center gap-3">
+          {getFileIcon(file.file_type)}
+          <div>
+            <p className="text-sm font-medium truncate max-w-[200px]">{file.file_name}</p>
+            <p className="text-xs text-muted-foreground">
+              {file.is_result ? 'Resultado' : 'Ficheiro do cliente'}
+              {file.file_size && ` • ${(file.file_size / 1024 / 1024).toFixed(2)} MB`}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {isAudio && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => playAudio(file)}
+            >
+              {isPlaying ? (
+                <Pause className="w-4 h-4" />
+              ) : (
+                <Play className="w-4 h-4" />
+              )}
+            </Button>
+          )}
+          {isImage && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => showImagePreview(file)}
+            >
+              <Eye className="w-4 h-4" />
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => downloadFile(file)}
+            disabled={downloadingFile === file.id}
+          >
+            {downloadingFile === file.id ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+          </Button>
+        </div>
+      </div>
     );
   };
 
@@ -433,62 +660,142 @@ export default function ColaboradorTarefas() {
       </div>
 
       {/* Task Detail Dialog */}
-      <Dialog open={showDetailDialog} onOpenChange={setShowDetailDialog}>
-        <DialogContent className="bg-card max-w-2xl">
+      <Dialog open={showDetailDialog} onOpenChange={(open) => {
+        if (!open) {
+          if (audioElement) {
+            audioElement.pause();
+            audioElement.src = '';
+          }
+          setPlayingAudio(null);
+          setTaskFiles([]);
+        }
+        setShowDetailDialog(open);
+      }}>
+        <DialogContent className="bg-card max-w-2xl max-h-[90vh]">
           <DialogHeader>
-            <DialogTitle>{selectedAssignment?.task?.title}</DialogTitle>
+            <DialogTitle className="text-xl">{selectedAssignment?.task?.title}</DialogTitle>
             <DialogDescription>
-              Detalhes da tarefa atribuída
+              Detalhes completos da tarefa atribuída
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">Serviço</p>
-                <p className="font-medium">
-                  {serviceConfig[selectedAssignment?.task?.service_type as keyof typeof serviceConfig]?.label}
+          
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="space-y-6 py-4">
+              {/* Basic Info */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Serviço</p>
+                  <p className="font-medium">
+                    {serviceConfig[selectedAssignment?.task?.service_type as keyof typeof serviceConfig]?.label}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Formato Desejado</p>
+                  <p className="font-medium">
+                    {selectedAssignment?.task?.result_format === 'audio' ? 'Áudio' : 
+                     selectedAssignment?.task?.result_format === 'pdf' ? 'PDF' : 
+                     selectedAssignment?.task?.result_format === 'image' ? 'Imagem' : 'Ambos'}
+                  </p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Cliente</p>
+                  <p className="font-medium">{selectedAssignment?.client?.full_name}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-sm text-muted-foreground">Créditos</p>
+                  <p className="font-medium">{selectedAssignment?.task?.credits_used}</p>
+                </div>
+              </div>
+              
+              <Separator />
+              
+              {/* Description */}
+              {selectedAssignment?.task?.description && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Descrição</p>
+                  <p className="text-sm bg-secondary/50 p-3 rounded-lg">{selectedAssignment.task.description}</p>
+                </div>
+              )}
+              
+              {/* Recommendations */}
+              {selectedAssignment?.task?.recommendations && (
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground">Recomendações</p>
+                  <p className="text-sm bg-secondary/50 p-3 rounded-lg">{selectedAssignment.task.recommendations}</p>
+                </div>
+              )}
+              
+              <Separator />
+              
+              {/* Task Files */}
+              <div className="space-y-3">
+                <p className="text-sm font-medium text-muted-foreground">
+                  Ficheiros Anexados ({taskFiles.length})
                 </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Formato</p>
-                <p className="font-medium">
-                  {selectedAssignment?.task?.result_format === 'audio' ? 'Áudio' : 
-                   selectedAssignment?.task?.result_format === 'pdf' ? 'PDF' : 
-                   selectedAssignment?.task?.result_format === 'image' ? 'Imagem' : 'N/A'}
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Cliente</p>
-                <p className="font-medium">{selectedAssignment?.client?.full_name}</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Créditos</p>
-                <p className="font-medium">{selectedAssignment?.task?.credits_used}</p>
+                
+                {isLoadingFiles ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="w-5 h-5 animate-spin text-muted-foreground" />
+                  </div>
+                ) : taskFiles.length === 0 ? (
+                  <p className="text-sm text-muted-foreground text-center py-4">
+                    Nenhum ficheiro anexado.
+                  </p>
+                ) : (
+                  <div className="space-y-2">
+                    {taskFiles.filter(f => !f.is_result).length > 0 && (
+                      <>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider">Ficheiros do Cliente</p>
+                        {taskFiles.filter(f => !f.is_result).map(renderFileItem)}
+                      </>
+                    )}
+                    {taskFiles.filter(f => f.is_result).length > 0 && (
+                      <>
+                        <p className="text-xs text-muted-foreground uppercase tracking-wider mt-4">Resultados</p>
+                        {taskFiles.filter(f => f.is_result).map(renderFileItem)}
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
-            
-            {selectedAssignment?.task?.description && (
-              <div>
-                <p className="text-sm text-muted-foreground">Descrição</p>
-                <p className="mt-1">{selectedAssignment.task.description}</p>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
+          </ScrollArea>
+          
+          <DialogFooter className="gap-2 sm:gap-0">
             <Button variant="outline" onClick={() => setShowDetailDialog(false)}>
               Fechar
             </Button>
-            <Button
-              className="bg-green-600 hover:bg-green-700"
-              onClick={() => {
-                setShowDetailDialog(false);
-                setShowAcceptDialog(true);
-              }}
-            >
-              <CheckCircle className="w-4 h-4 mr-2" />
-              Aceitar Tarefa
-            </Button>
+            {selectedAssignment?.status === 'pending' && (
+              <Button
+                className="bg-green-600 hover:bg-green-700"
+                onClick={() => {
+                  setShowDetailDialog(false);
+                  setShowAcceptDialog(true);
+                }}
+              >
+                <CheckCircle className="w-4 h-4 mr-2" />
+                Aceitar Tarefa
+              </Button>
+            )}
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Image Preview Dialog */}
+      <Dialog open={!!previewImage} onOpenChange={(open) => {
+        if (!open) {
+          if (previewImage) URL.revokeObjectURL(previewImage);
+          setPreviewImage(null);
+        }
+      }}>
+        <DialogContent className="bg-card max-w-4xl p-2">
+          {previewImage && (
+            <img 
+              src={previewImage} 
+              alt="Preview" 
+              className="w-full h-auto rounded-lg"
+            />
+          )}
         </DialogContent>
       </Dialog>
 
