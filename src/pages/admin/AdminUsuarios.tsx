@@ -12,14 +12,14 @@ import {
   Trash2,
   Phone,
   AlertTriangle,
-  Eye,
   Mail,
   Gift,
   ClipboardList,
   Wallet,
   UserPlus,
-  X,
-  Sparkles
+  Sparkles,
+  Save,
+  User
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,13 +28,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import {
-  AnimatedDialog,
-  AnimatedDialogContent,
-  AnimatedDialogHeader,
-  AnimatedDialogTitle,
-  AnimatedDialogFooter,
-  AnimatedDialogSection,
-} from '@/components/ui/animated-dialog';
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogBody,
+  ResponsiveDialogFooter,
+  ResponsiveDialogTitle,
+  ResponsiveDialogSection,
+  FullscreenImage,
+} from '@/components/ui/responsive-dialog';
 import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
@@ -48,7 +50,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface Profile {
   id: string;
@@ -76,6 +77,13 @@ interface UserStats {
   referredCount: number;
 }
 
+interface EditFormData {
+  full_name: string;
+  email: string;
+  phone: string;
+  credits: string;
+}
+
 export default function AdminUsuarios() {
   const { user, isAdmin, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -84,9 +92,6 @@ export default function AdminUsuarios() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedProfile, setSelectedProfile] = useState<Profile | null>(null);
-  const [editCredits, setEditCredits] = useState('');
-  const [isUpdating, setIsUpdating] = useState(false);
   const [deleteProfile, setDeleteProfile] = useState<Profile | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   
@@ -95,6 +100,19 @@ export default function AdminUsuarios() {
   const [detailsProfile, setDetailsProfile] = useState<Profile | null>(null);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
   const [isLoadingStats, setIsLoadingStats] = useState(false);
+  
+  // Edit mode
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<EditFormData>({
+    full_name: '',
+    email: '',
+    phone: '',
+    credits: '',
+  });
+  const [isSaving, setIsSaving] = useState(false);
+  
+  // Fullscreen image
+  const [showFullscreenImage, setShowFullscreenImage] = useState(false);
 
   useEffect(() => {
     if (!authLoading) {
@@ -131,54 +149,30 @@ export default function AdminUsuarios() {
   const fetchUserStats = async (profile: Profile) => {
     setIsLoadingStats(true);
     try {
-      // Fetch tasks stats
-      const { data: tasks } = await supabase
-        .from('tasks')
-        .select('status')
-        .eq('user_id', profile.user_id);
+      // Fetch all data in parallel for speed
+      const [tasksRes, depositsRes, referrerRes, referredCountRes] = await Promise.all([
+        supabase.from('tasks').select('status').eq('user_id', profile.user_id),
+        supabase.from('deposits').select('status, amount_kz').eq('user_id', profile.user_id),
+        profile.referred_by 
+          ? supabase.from('profiles').select('full_name').eq('user_id', profile.referred_by).single()
+          : Promise.resolve({ data: null }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('referred_by', profile.user_id),
+      ]);
 
-      // Fetch deposits stats
-      const { data: deposits } = await supabase
-        .from('deposits')
-        .select('status, amount_kz')
-        .eq('user_id', profile.user_id);
-
-      // Fetch referrer info
-      let referredByName = null;
-      if (profile.referred_by) {
-        const { data: referrer } = await supabase
-          .from('profiles')
-          .select('full_name')
-          .eq('user_id', profile.referred_by)
-          .single();
-        referredByName = referrer?.full_name || null;
-      }
-
-      // Fetch referred count
-      const { count: referredCount } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true })
-        .eq('referred_by', profile.user_id);
-
-      const taskStats = {
-        tasksTotal: tasks?.length || 0,
-        tasksPending: tasks?.filter(t => t.status === 'pending').length || 0,
-        tasksInProgress: tasks?.filter(t => t.status === 'in_progress').length || 0,
-        tasksCompleted: tasks?.filter(t => t.status === 'completed').length || 0,
-        tasksCancelled: tasks?.filter(t => t.status === 'cancelled').length || 0,
-      };
-
-      const depositStats = {
-        depositsApproved: deposits?.filter(d => d.status === 'approved').length || 0,
-        depositsPending: deposits?.filter(d => d.status === 'pending').length || 0,
-        totalDepositedKz: deposits?.filter(d => d.status === 'approved').reduce((sum, d) => sum + d.amount_kz, 0) || 0,
-      };
+      const tasks = tasksRes.data || [];
+      const deposits = depositsRes.data || [];
 
       setUserStats({
-        ...taskStats,
-        ...depositStats,
-        referredBy: referredByName,
-        referredCount: referredCount || 0,
+        tasksTotal: tasks.length,
+        tasksPending: tasks.filter(t => t.status === 'pending').length,
+        tasksInProgress: tasks.filter(t => t.status === 'in_progress').length,
+        tasksCompleted: tasks.filter(t => t.status === 'completed').length,
+        tasksCancelled: tasks.filter(t => t.status === 'cancelled').length,
+        depositsApproved: deposits.filter(d => d.status === 'approved').length,
+        depositsPending: deposits.filter(d => d.status === 'pending').length,
+        totalDepositedKz: deposits.filter(d => d.status === 'approved').reduce((sum, d) => sum + d.amount_kz, 0),
+        referredBy: referrerRes.data?.full_name || null,
+        referredCount: referredCountRes.count || 0,
       });
     } catch (error) {
       console.error('Error fetching user stats:', error);
@@ -189,47 +183,66 @@ export default function AdminUsuarios() {
 
   const openDetailsDialog = async (profile: Profile) => {
     setDetailsProfile(profile);
+    setEditForm({
+      full_name: profile.full_name,
+      email: profile.email,
+      phone: profile.phone || '',
+      credits: profile.credits.toString(),
+    });
+    setIsEditing(false);
     setShowDetailsDialog(true);
     await fetchUserStats(profile);
   };
 
-  const openEditDialog = (profile: Profile) => {
-    setSelectedProfile(profile);
-    setEditCredits(profile.credits.toString());
+  const closeDetailsDialog = () => {
+    setShowDetailsDialog(false);
+    setDetailsProfile(null);
+    setUserStats(null);
+    setIsEditing(false);
+    setShowFullscreenImage(false);
   };
 
-  const closeDialog = () => {
-    setSelectedProfile(null);
-    setEditCredits('');
-  };
+  const handleSaveChanges = async () => {
+    if (!detailsProfile) return;
 
-  const updateCredits = async () => {
-    if (!selectedProfile) return;
-
-    const newCredits = parseFloat(editCredits);
+    const newCredits = parseFloat(editForm.credits);
     if (isNaN(newCredits) || newCredits < 0) {
       toast({
         title: 'Valor inválido',
-        description: 'Por favor, insira um valor válido.',
+        description: 'Por favor, insira um valor válido para os créditos.',
         variant: 'destructive',
       });
       return;
     }
 
-    setIsUpdating(true);
+    if (!editForm.full_name.trim()) {
+      toast({
+        title: 'Nome obrigatório',
+        description: 'Por favor, insira um nome válido.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSaving(true);
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ credits: newCredits })
-        .eq('id', selectedProfile.id);
+        .update({
+          full_name: editForm.full_name.trim(),
+          email: editForm.email.trim(),
+          phone: editForm.phone.trim() || null,
+          credits: newCredits,
+        })
+        .eq('id', detailsProfile.id);
 
       if (error) throw error;
 
-      // Send notification
-      const creditDiff = newCredits - selectedProfile.credits;
+      // Send notification if credits changed
+      const creditDiff = newCredits - detailsProfile.credits;
       if (creditDiff !== 0) {
         await supabase.from('notifications').insert({
-          user_id: selectedProfile.user_id,
+          user_id: detailsProfile.user_id,
           title: creditDiff > 0 ? 'Créditos adicionados' : 'Ajuste de créditos',
           message: creditDiff > 0 
             ? `Foram adicionados ${creditDiff.toFixed(1)} créditos à sua conta.`
@@ -238,21 +251,30 @@ export default function AdminUsuarios() {
       }
 
       toast({
-        title: 'Créditos actualizados',
-        description: 'O saldo do usuário foi alterado com sucesso.',
+        title: 'Dados actualizados',
+        description: 'As informações do usuário foram alteradas com sucesso.',
       });
 
-      closeDialog();
-      fetchProfiles();
+      // Update local state
+      const updatedProfile = {
+        ...detailsProfile,
+        full_name: editForm.full_name.trim(),
+        email: editForm.email.trim(),
+        phone: editForm.phone.trim() || null,
+        credits: newCredits,
+      };
+      setDetailsProfile(updatedProfile);
+      setProfiles(prev => prev.map(p => p.id === detailsProfile.id ? updatedProfile : p));
+      setIsEditing(false);
     } catch (error) {
-      console.error('Error updating credits:', error);
+      console.error('Error updating profile:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível actualizar os créditos.',
+        description: 'Não foi possível actualizar os dados.',
         variant: 'destructive',
       });
     } finally {
-      setIsUpdating(false);
+      setIsSaving(false);
     }
   };
 
@@ -261,7 +283,7 @@ export default function AdminUsuarios() {
 
     setIsDeleting(true);
     try {
-      // Delete user's tasks and associated files
+      // Delete all user data in parallel where possible
       const { data: userTasks } = await supabase
         .from('tasks')
         .select('id')
@@ -277,48 +299,42 @@ export default function AdminUsuarios() {
           .in('task_id', taskIds);
 
         if (taskFiles) {
-          for (const file of taskFiles) {
+          // Delete files in parallel
+          await Promise.all(taskFiles.map(file => {
             const bucket = file.is_result ? 'result-files' : 'task-files';
-            await supabase.storage.from(bucket).remove([file.file_path]);
-          }
+            return supabase.storage.from(bucket).remove([file.file_path]);
+          }));
         }
 
-        // Delete task files records
-        await supabase.from('task_files').delete().in('task_id', taskIds);
-        
-        // Delete task assignments
-        await supabase.from('task_assignments').delete().in('task_id', taskIds);
-        
-        // Delete tasks
-        await supabase.from('tasks').delete().eq('user_id', deleteProfile.user_id);
+        // Delete records in parallel
+        await Promise.all([
+          supabase.from('task_files').delete().in('task_id', taskIds),
+          supabase.from('task_assignments').delete().in('task_id', taskIds),
+          supabase.from('tasks').delete().eq('user_id', deleteProfile.user_id),
+        ]);
       }
 
-      // Delete user's deposits and associated files
+      // Delete deposits and files
       const { data: userDeposits } = await supabase
         .from('deposits')
         .select('proof_file_path')
         .eq('user_id', deleteProfile.user_id);
 
       if (userDeposits) {
-        for (const deposit of userDeposits) {
-          await supabase.storage.from('deposit-proofs').remove([deposit.proof_file_path]);
-        }
+        await Promise.all(userDeposits.map(deposit => 
+          supabase.storage.from('deposit-proofs').remove([deposit.proof_file_path])
+        ));
       }
 
-      await supabase.from('deposits').delete().eq('user_id', deleteProfile.user_id);
-
-      // Delete user's notifications
-      await supabase.from('notifications').delete().eq('user_id', deleteProfile.user_id);
-
-      // Delete referrals
-      await supabase.from('referrals').delete().eq('referrer_id', deleteProfile.user_id);
-      await supabase.from('referrals').delete().eq('referred_id', deleteProfile.user_id);
-
-      // Delete collaborator withdrawals
-      await supabase.from('collaborator_withdrawals').delete().eq('collaborator_id', deleteProfile.user_id);
-
-      // Delete user roles
-      await supabase.from('user_roles').delete().eq('user_id', deleteProfile.user_id);
+      // Delete remaining user data in parallel
+      await Promise.all([
+        supabase.from('deposits').delete().eq('user_id', deleteProfile.user_id),
+        supabase.from('notifications').delete().eq('user_id', deleteProfile.user_id),
+        supabase.from('referrals').delete().eq('referrer_id', deleteProfile.user_id),
+        supabase.from('referrals').delete().eq('referred_id', deleteProfile.user_id),
+        supabase.from('collaborator_withdrawals').delete().eq('collaborator_id', deleteProfile.user_id),
+        supabase.from('user_roles').delete().eq('user_id', deleteProfile.user_id),
+      ]);
 
       // Delete avatar if exists
       if (deleteProfile.avatar_url) {
@@ -355,7 +371,8 @@ export default function AdminUsuarios() {
     const query = searchQuery.toLowerCase();
     return (
       profile.full_name.toLowerCase().includes(query) ||
-      profile.email.toLowerCase().includes(query)
+      profile.email.toLowerCase().includes(query) ||
+      (profile.phone && profile.phone.includes(query))
     );
   });
 
@@ -385,7 +402,7 @@ export default function AdminUsuarios() {
 
   return (
     <Layout showFooter={false}>
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -400,12 +417,12 @@ export default function AdminUsuarios() {
             Voltar ao painel
           </Button>
 
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-            <h1 className="font-display text-3xl font-bold">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 sm:mb-8">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold">
               <span className="text-gradient-gold">Usuários</span>
             </h1>
 
-            <div className="relative w-full md:w-80">
+            <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 placeholder="Pesquisar por nome ou e-mail..."
@@ -418,7 +435,7 @@ export default function AdminUsuarios() {
 
           {/* Users List */}
           {filteredProfiles.length === 0 ? (
-            <div className="glass-card rounded-xl p-12 text-center">
+            <div className="glass-card rounded-xl p-8 sm:p-12 text-center">
               <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">
                 Nenhum usuário encontrado
@@ -428,75 +445,61 @@ export default function AdminUsuarios() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {filteredProfiles.map((profile) => (
-                <div
+                <motion.div
                   key={profile.id}
-                  className="glass-card rounded-xl p-5"
+                  whileHover={{ scale: 1.01 }}
+                  whileTap={{ scale: 0.99 }}
+                  className="glass-card rounded-xl p-4 sm:p-5 cursor-pointer transition-all hover:border-primary/30"
+                  onClick={() => openDetailsDialog(profile)}
                 >
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <Avatar className="w-12 h-12">
+                  <div className="flex items-start justify-between mb-3 sm:mb-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <Avatar className="w-10 h-10 sm:w-12 sm:h-12 shrink-0">
                         <AvatarImage src={profile.avatar_url || undefined} />
-                        <AvatarFallback className="bg-primary/20 text-primary font-display font-bold">
+                        <AvatarFallback className="bg-primary/20 text-primary font-display font-bold text-sm sm:text-base">
                           {profile.full_name.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
-                      <div>
-                        <h3 className="font-semibold">{profile.full_name}</h3>
-                        <p className="text-sm text-muted-foreground truncate max-w-[160px]">
+                      <div className="min-w-0">
+                        <h3 className="font-semibold text-sm sm:text-base truncate">{profile.full_name}</h3>
+                        <p className="text-xs sm:text-sm text-muted-foreground truncate">
                           {profile.email}
                         </p>
                       </div>
                     </div>
-                    <div className="flex gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openDetailsDialog(profile)}
-                        title="Ver detalhes"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        onClick={() => openEditDialog(profile)}
-                        title="Editar créditos"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                        onClick={() => setDeleteProfile(profile)}
-                        title="Eliminar"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setDeleteProfile(profile);
+                      }}
+                      title="Eliminar"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3 text-sm">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 text-xs sm:text-sm">
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <CreditCard className="w-4 h-4" />
-                      <span className="font-medium text-primary">{profile.credits.toFixed(1)} créditos</span>
+                      <CreditCard className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                      <span className="font-medium text-primary">{profile.credits.toFixed(1)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <Calendar className="w-4 h-4" />
-                      <span>{formatDate(profile.created_at)}</span>
+                      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                      <span className="truncate">{formatDate(profile.created_at)}</span>
                     </div>
                     {profile.phone && (
                       <div className="flex items-center gap-2 text-muted-foreground col-span-2">
-                        <Phone className="w-4 h-4" />
-                        <span>{profile.phone}</span>
+                        <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
+                        <span className="truncate">{profile.phone}</span>
                       </div>
                     )}
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
@@ -504,79 +507,129 @@ export default function AdminUsuarios() {
       </div>
 
       {/* User Details Dialog */}
-      <AnimatedDialog open={showDetailsDialog} onOpenChange={(open) => {
-        if (!open) {
-          setDetailsProfile(null);
-          setUserStats(null);
-        }
-        setShowDetailsDialog(open);
+      <ResponsiveDialog open={showDetailsDialog} onOpenChange={(open) => {
+        if (!open) closeDetailsDialog();
       }}>
-        <AnimatedDialogContent variant="premium" className="max-w-lg max-h-[90vh]">
-          <AnimatedDialogHeader>
-            <AnimatedDialogTitle className="flex items-center gap-3">
+        <ResponsiveDialogContent variant="premium" size="lg">
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle className="flex items-center gap-3">
               <div className="icon-container-premium">
-                <Eye className="w-5 h-5 text-primary" />
+                <User className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
-              Detalhes do Usuário
-            </AnimatedDialogTitle>
-          </AnimatedDialogHeader>
+              {isEditing ? 'Editar Usuário' : 'Detalhes do Usuário'}
+            </ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
 
-          {detailsProfile && (
-            <ScrollArea className="max-h-[60vh] pr-4">
-              <div className="space-y-6">
+          <ResponsiveDialogBody>
+            {detailsProfile && (
+              <div className="space-y-4 sm:space-y-6">
                 {/* Profile Header */}
-                <AnimatedDialogSection delay={0.1}>
-                  <div className="flex items-center gap-4 p-5 modal-gradient-premium rounded-xl border border-primary/20">
-                    <Avatar className="w-16 h-16 ring-2 ring-primary/30 ring-offset-2 ring-offset-background">
-                      <AvatarImage src={detailsProfile.avatar_url || undefined} />
-                      <AvatarFallback className="bg-gradient-to-br from-primary/30 to-accent/20 text-primary font-display font-bold text-xl">
-                        {detailsProfile.full_name.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <h3 className="font-semibold text-lg">{detailsProfile.full_name}</h3>
-                      <p className="text-sm text-muted-foreground flex items-center gap-2">
-                        <Mail className="w-3.5 h-3.5" />
-                        {detailsProfile.email}
-                      </p>
-                      {detailsProfile.phone && (
-                        <p className="text-sm text-muted-foreground flex items-center gap-2">
-                          <Phone className="w-3.5 h-3.5" />
-                          {detailsProfile.phone}
-                        </p>
+                <ResponsiveDialogSection delay={0.1}>
+                  <div className="flex flex-col sm:flex-row items-center gap-4 p-4 sm:p-5 modal-gradient-premium rounded-xl border border-primary/20">
+                    <div 
+                      className="relative cursor-pointer group"
+                      onClick={() => detailsProfile.avatar_url && setShowFullscreenImage(true)}
+                    >
+                      <Avatar className="w-20 h-20 sm:w-24 sm:h-24 ring-2 ring-primary/30 ring-offset-2 ring-offset-background">
+                        <AvatarImage src={detailsProfile.avatar_url || undefined} />
+                        <AvatarFallback className="bg-gradient-to-br from-primary/30 to-accent/20 text-primary font-display font-bold text-2xl sm:text-3xl">
+                          {detailsProfile.full_name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      {detailsProfile.avatar_url && (
+                        <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <span className="text-xs text-white">Ver</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-center sm:text-left flex-1 min-w-0">
+                      {isEditing ? (
+                        <div className="space-y-3">
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Nome</Label>
+                            <Input
+                              value={editForm.full_name}
+                              onChange={(e) => setEditForm(prev => ({ ...prev, full_name: e.target.value }))}
+                              className="bg-secondary mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Email</Label>
+                            <Input
+                              type="email"
+                              value={editForm.email}
+                              onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                              className="bg-secondary mt-1"
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-muted-foreground">Telefone</Label>
+                            <Input
+                              value={editForm.phone}
+                              onChange={(e) => setEditForm(prev => ({ ...prev, phone: e.target.value }))}
+                              placeholder="Opcional"
+                              className="bg-secondary mt-1"
+                            />
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <h3 className="font-semibold text-lg sm:text-xl truncate">{detailsProfile.full_name}</h3>
+                          <p className="text-sm text-muted-foreground flex items-center justify-center sm:justify-start gap-2">
+                            <Mail className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">{detailsProfile.email}</span>
+                          </p>
+                          {detailsProfile.phone && (
+                            <p className="text-sm text-muted-foreground flex items-center justify-center sm:justify-start gap-2">
+                              <Phone className="w-3.5 h-3.5 shrink-0" />
+                              <span>{detailsProfile.phone}</span>
+                            </p>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
-                </AnimatedDialogSection>
+                </ResponsiveDialogSection>
 
                 <div className="divider-gradient" />
 
                 {/* Basic Info */}
-                <AnimatedDialogSection delay={0.15}>
-                  <div className="grid grid-cols-2 gap-3">
+                <ResponsiveDialogSection delay={0.15}>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
                     <div className="stat-card">
                       <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                         <Wallet className="w-3.5 h-3.5" />
                         Créditos
                       </div>
-                      <p className="font-semibold text-lg text-primary">{detailsProfile.credits.toFixed(1)}</p>
+                      {isEditing ? (
+                        <Input
+                          type="number"
+                          step="0.1"
+                          min="0"
+                          value={editForm.credits}
+                          onChange={(e) => setEditForm(prev => ({ ...prev, credits: e.target.value }))}
+                          className="bg-background/50 h-8 text-sm"
+                        />
+                      ) : (
+                        <p className="font-semibold text-base sm:text-lg text-primary">{detailsProfile.credits.toFixed(1)}</p>
+                      )}
                     </div>
                     <div className="stat-card">
                       <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                         <Calendar className="w-3.5 h-3.5" />
                         Data de Registo
                       </div>
-                      <p className="font-medium">{formatDate(detailsProfile.created_at)}</p>
+                      <p className="font-medium text-sm sm:text-base">{formatDate(detailsProfile.created_at)}</p>
                     </div>
                     <div className="stat-card col-span-2">
                       <div className="flex items-center gap-2 text-muted-foreground text-xs mb-1">
                         <Gift className="w-3.5 h-3.5" />
                         Código de Convite
                       </div>
-                      <p className="font-mono font-medium text-primary">{detailsProfile.referral_code || 'N/A'}</p>
+                      <p className="font-mono font-medium text-primary text-sm sm:text-base">{detailsProfile.referral_code || 'N/A'}</p>
                     </div>
                   </div>
-                </AnimatedDialogSection>
+                </ResponsiveDialogSection>
 
                 <div className="divider-gradient" />
 
@@ -588,7 +641,7 @@ export default function AdminUsuarios() {
                 ) : userStats && (
                   <>
                     {/* Tasks Stats */}
-                    <AnimatedDialogSection delay={0.2}>
+                    <ResponsiveDialogSection delay={0.2}>
                       <div className="space-y-3">
                         <h4 className="font-medium flex items-center gap-2 text-sm">
                           <ClipboardList className="w-4 h-4 text-primary" />
@@ -597,26 +650,26 @@ export default function AdminUsuarios() {
                         <div className="grid grid-cols-2 gap-2">
                           <div className="stat-card">
                             <p className="text-xs text-muted-foreground">Total</p>
-                            <p className="font-semibold text-lg">{userStats.tasksTotal}</p>
+                            <p className="font-semibold text-base sm:text-lg">{userStats.tasksTotal}</p>
                           </div>
                           <div className="stat-card border-l-2 border-warning/50">
                             <p className="text-xs text-muted-foreground">Pendentes</p>
-                            <p className="font-semibold text-lg text-warning">{userStats.tasksPending}</p>
+                            <p className="font-semibold text-base sm:text-lg text-warning">{userStats.tasksPending}</p>
                           </div>
                           <div className="stat-card border-l-2 border-primary/50">
                             <p className="text-xs text-muted-foreground">Em Progresso</p>
-                            <p className="font-semibold text-lg text-primary">{userStats.tasksInProgress}</p>
+                            <p className="font-semibold text-base sm:text-lg text-primary">{userStats.tasksInProgress}</p>
                           </div>
                           <div className="stat-card border-l-2 border-success/50">
                             <p className="text-xs text-muted-foreground">Concluídas</p>
-                            <p className="font-semibold text-lg text-success">{userStats.tasksCompleted}</p>
+                            <p className="font-semibold text-base sm:text-lg text-success">{userStats.tasksCompleted}</p>
                           </div>
                         </div>
                       </div>
-                    </AnimatedDialogSection>
+                    </ResponsiveDialogSection>
 
                     {/* Deposits Stats */}
-                    <AnimatedDialogSection delay={0.25}>
+                    <ResponsiveDialogSection delay={0.25}>
                       <div className="space-y-3">
                         <h4 className="font-medium flex items-center gap-2 text-sm">
                           <CreditCard className="w-4 h-4 text-primary" />
@@ -625,25 +678,25 @@ export default function AdminUsuarios() {
                         <div className="grid grid-cols-2 gap-2">
                           <div className="stat-card border-l-2 border-success/50">
                             <p className="text-xs text-muted-foreground">Aprovados</p>
-                            <p className="font-semibold text-lg text-success">{userStats.depositsApproved}</p>
+                            <p className="font-semibold text-base sm:text-lg text-success">{userStats.depositsApproved}</p>
                           </div>
                           <div className="stat-card border-l-2 border-warning/50">
                             <p className="text-xs text-muted-foreground">Pendentes</p>
-                            <p className="font-semibold text-lg text-warning">{userStats.depositsPending}</p>
+                            <p className="font-semibold text-base sm:text-lg text-warning">{userStats.depositsPending}</p>
                           </div>
                           <div className="stat-card col-span-2 modal-gradient-premium border border-primary/20">
                             <p className="text-xs text-muted-foreground">Total Depositado</p>
-                            <p className="font-semibold text-xl text-primary flex items-center gap-2">
+                            <p className="font-semibold text-lg sm:text-xl text-primary flex items-center gap-2">
                               <Sparkles className="w-4 h-4" />
                               {userStats.totalDepositedKz.toLocaleString()} Kz
                             </p>
                           </div>
                         </div>
                       </div>
-                    </AnimatedDialogSection>
+                    </ResponsiveDialogSection>
 
                     {/* Referrals */}
-                    <AnimatedDialogSection delay={0.3}>
+                    <ResponsiveDialogSection delay={0.3}>
                       <div className="space-y-3">
                         <h4 className="font-medium flex items-center gap-2 text-sm">
                           <UserPlus className="w-4 h-4 text-primary" />
@@ -652,113 +705,95 @@ export default function AdminUsuarios() {
                         <div className="grid grid-cols-2 gap-2">
                           <div className="stat-card">
                             <p className="text-xs text-muted-foreground">Convidado por</p>
-                            <p className="font-medium">{userStats.referredBy || 'Ninguém'}</p>
+                            <p className="font-medium text-sm truncate">{userStats.referredBy || 'Ninguém'}</p>
                           </div>
                           <div className="stat-card">
                             <p className="text-xs text-muted-foreground">Pessoas Convidadas</p>
-                            <p className="font-semibold text-lg">{userStats.referredCount}</p>
+                            <p className="font-semibold text-base sm:text-lg">{userStats.referredCount}</p>
                           </div>
                         </div>
                       </div>
-                    </AnimatedDialogSection>
+                    </ResponsiveDialogSection>
                   </>
                 )}
               </div>
-            </ScrollArea>
-          )}
+            )}
+          </ResponsiveDialogBody>
 
-          <AnimatedDialogFooter>
-            <Button variant="outline" onClick={() => setShowDetailsDialog(false)}>
-              Fechar
-            </Button>
-          </AnimatedDialogFooter>
-        </AnimatedDialogContent>
-      </AnimatedDialog>
-
-      {/* Edit Credits Dialog */}
-      <AnimatedDialog open={!!selectedProfile} onOpenChange={(open) => !open && closeDialog()}>
-        <AnimatedDialogContent variant="premium" className="max-w-md">
-          <AnimatedDialogHeader>
-            <AnimatedDialogTitle className="flex items-center gap-3">
-              <div className="icon-container-premium">
-                <Edit className="w-5 h-5 text-primary" />
-              </div>
-              Editar Créditos
-            </AnimatedDialogTitle>
-          </AnimatedDialogHeader>
-
-          {selectedProfile && (
-            <div className="space-y-6">
-              <AnimatedDialogSection delay={0.1}>
-                <div className="flex items-center gap-4 p-4 modal-gradient-premium rounded-xl border border-primary/20">
-                  <Avatar className="w-14 h-14 ring-2 ring-primary/30">
-                    <AvatarImage src={selectedProfile.avatar_url || undefined} />
-                    <AvatarFallback className="bg-gradient-to-br from-primary/30 to-accent/20 text-primary font-display font-bold">
-                      {selectedProfile.full_name.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold">{selectedProfile.full_name}</p>
-                    <p className="text-sm text-muted-foreground">{selectedProfile.email}</p>
-                  </div>
-                </div>
-              </AnimatedDialogSection>
-
-              <AnimatedDialogSection delay={0.15}>
-                <div className="space-y-3">
-                  <Label htmlFor="credits" className="text-sm font-medium">Saldo de Créditos</Label>
-                  <Input
-                    id="credits"
-                    type="number"
-                    step="0.1"
-                    min="0"
-                    value={editCredits}
-                    onChange={(e) => setEditCredits(e.target.value)}
-                    className="bg-secondary text-lg h-12"
-                  />
-                  <p className="text-xs text-muted-foreground flex items-center gap-2">
-                    <Wallet className="w-3.5 h-3.5" />
-                    Saldo actual: <span className="text-primary font-medium">{selectedProfile.credits.toFixed(1)} créditos</span>
-                  </p>
-                </div>
-              </AnimatedDialogSection>
-
-              <AnimatedDialogFooter>
-                <Button variant="outline" onClick={closeDialog}>
+          <ResponsiveDialogFooter>
+            {isEditing ? (
+              <>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    setIsEditing(false);
+                    if (detailsProfile) {
+                      setEditForm({
+                        full_name: detailsProfile.full_name,
+                        email: detailsProfile.email,
+                        phone: detailsProfile.phone || '',
+                        credits: detailsProfile.credits.toString(),
+                      });
+                    }
+                  }}
+                  className="w-full sm:w-auto"
+                >
                   Cancelar
                 </Button>
                 <Button
                   variant="premium"
-                  onClick={updateCredits}
-                  disabled={isUpdating}
-                  className="min-w-[100px]"
+                  onClick={handleSaveChanges}
+                  disabled={isSaving}
+                  className="w-full sm:w-auto"
                 >
-                  {isUpdating ? (
+                  {isSaving ? (
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   ) : (
-                    <Sparkles className="w-4 h-4 mr-2" />
+                    <Save className="w-4 h-4 mr-2" />
                   )}
                   Guardar
                 </Button>
-              </AnimatedDialogFooter>
-            </div>
-          )}
-        </AnimatedDialogContent>
-      </AnimatedDialog>
+              </>
+            ) : (
+              <>
+                <Button variant="outline" onClick={closeDetailsDialog} className="w-full sm:w-auto">
+                  Fechar
+                </Button>
+                <Button
+                  variant="premium"
+                  onClick={() => setIsEditing(true)}
+                  className="w-full sm:w-auto"
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Editar
+                </Button>
+              </>
+            )}
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
+
+      {/* Fullscreen Image */}
+      <FullscreenImage
+        src={detailsProfile?.avatar_url || ''}
+        alt={detailsProfile?.full_name || 'Avatar'}
+        isOpen={showFullscreenImage}
+        onClose={() => setShowFullscreenImage(false)}
+      />
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteProfile} onOpenChange={(open) => !open && setDeleteProfile(null)}>
-        <AlertDialogContent className="bg-card">
+        <AlertDialogContent className="bg-card max-w-[95vw] sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="w-5 h-5" />
               Eliminar Usuário
             </AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="text-left">
               Tem a certeza que deseja eliminar o usuário <strong>{deleteProfile?.full_name}</strong>?
               <br /><br />
               Esta acção irá eliminar permanentemente:
-              <ul className="list-disc list-inside mt-2 space-y-1">
+              <ul className="list-disc list-inside mt-2 space-y-1 text-sm">
                 <li>Perfil do usuário</li>
                 <li>Todas as solicitações</li>
                 <li>Todos os depósitos</li>
@@ -769,12 +804,12 @@ export default function AdminUsuarios() {
               <strong className="text-destructive">Esta acção não pode ser desfeita.</strong>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel disabled={isDeleting} className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteUser}
               disabled={isDeleting}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90 w-full sm:w-auto"
             >
               {isDeleting ? (
                 <Loader2 className="w-4 h-4 mr-2 animate-spin" />
