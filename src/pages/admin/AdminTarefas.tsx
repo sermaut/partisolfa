@@ -40,13 +40,14 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import {
-  AnimatedDialog,
-  AnimatedDialogContent,
-  AnimatedDialogHeader,
-  AnimatedDialogTitle,
-  AnimatedDialogFooter,
-  AnimatedDialogSection,
-} from '@/components/ui/animated-dialog';
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogBody,
+  ResponsiveDialogFooter,
+  ResponsiveDialogTitle,
+  ResponsiveDialogSection,
+} from '@/components/ui/responsive-dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -529,26 +530,32 @@ export default function AdminTarefas() {
 
     setIsUploading(true);
     try {
-      for (const file of resultFiles) {
+      // Upload all files in parallel for speed
+      const uploadPromises = resultFiles.map(async (file) => {
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
         const filePath = `${selectedTask.user_id}/${selectedTask.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('result-files')
-          .upload(filePath, file);
+          .upload(filePath, file, { cacheControl: '3600' });
 
         if (uploadError) throw uploadError;
 
-        await supabase.from('task_files').insert({
+        return {
           task_id: selectedTask.id,
           file_name: file.name,
           file_path: filePath,
           file_type: file.type.includes('audio') ? 'audio' : file.type.includes('image') ? 'image' : 'document',
           file_size: file.size,
           is_result: true,
-        });
-      }
+        };
+      });
+
+      const fileRecords = await Promise.all(uploadPromises);
+      
+      // Insert all file records in one batch
+      await supabase.from('task_files').insert(fileRecords);
 
       // Update task with result comment
       await supabase
@@ -561,7 +568,7 @@ export default function AdminTarefas() {
       await supabase.from('notifications').insert({
         user_id: selectedTask.user_id,
         title: 'Resultado disponível!',
-        message: `O resultado da sua solicitação "${selectedTask.title}" está pronto para download. Descrição: ${resultDescription.trim()}`,
+        message: `O resultado da sua solicitação "${selectedTask.title}" está pronto para download.`,
       });
 
       toast({
@@ -956,324 +963,342 @@ export default function AdminTarefas() {
       </div>
 
       {/* Cancellation Dialog */}
-      <AnimatedDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AnimatedDialogContent variant="destructive" className="max-w-md">
-          <AnimatedDialogHeader>
-            <AnimatedDialogTitle className="flex items-center gap-3">
+      <ResponsiveDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <ResponsiveDialogContent variant="destructive" size="md">
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle className="flex items-center gap-3">
               <div className="icon-container-destructive">
-                <AlertCircle className="w-5 h-5 text-destructive" />
+                <AlertCircle className="w-4 h-4 sm:w-5 sm:h-5 text-destructive" />
               </div>
               Motivo do Cancelamento
-            </AnimatedDialogTitle>
-          </AnimatedDialogHeader>
-          <AnimatedDialogSection delay={0.1} className="space-y-4 py-2">
-            <p className="text-sm text-muted-foreground">
-              Por favor, indique o motivo do cancelamento. Os créditos serão devolvidos automaticamente ao usuário.
-            </p>
-            <Textarea
-              placeholder="Descreva o motivo do cancelamento..."
-              value={cancellationReason}
-              onChange={(e) => setCancellationReason(e.target.value)}
-              className="min-h-[100px] bg-secondary"
-            />
-          </AnimatedDialogSection>
-          <AnimatedDialogFooter>
-            <Button variant="outline" onClick={() => { setShowCancelDialog(false); setCancellationReason(''); setTaskToCancel(null); }}>
+            </ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogBody>
+            <ResponsiveDialogSection delay={0.1} className="space-y-4">
+              <p className="text-xs sm:text-sm text-muted-foreground">
+                Por favor, indique o motivo do cancelamento. Os créditos serão devolvidos automaticamente ao usuário.
+              </p>
+              <Textarea
+                placeholder="Descreva o motivo do cancelamento..."
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+                className="min-h-[80px] sm:min-h-[100px] bg-secondary text-sm"
+              />
+            </ResponsiveDialogSection>
+          </ResponsiveDialogBody>
+          <ResponsiveDialogFooter>
+            <Button variant="outline" onClick={() => { setShowCancelDialog(false); setCancellationReason(''); setTaskToCancel(null); }} className="w-full sm:w-auto">
               Voltar
             </Button>
-            <Button variant="destructive" onClick={confirmCancellation} disabled={isUpdating || !cancellationReason.trim()}>
+            <Button variant="destructive" onClick={confirmCancellation} disabled={isUpdating || !cancellationReason.trim()} className="w-full sm:w-auto">
               {isUpdating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-              Confirmar Cancelamento
+              Confirmar
             </Button>
-          </AnimatedDialogFooter>
-        </AnimatedDialogContent>
-      </AnimatedDialog>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
       {/* Task Detail Dialog */}
-      <AnimatedDialog open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTask(null)}>
-        <AnimatedDialogContent variant="premium" className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <AnimatedDialogHeader>
-            <AnimatedDialogTitle className="flex items-center gap-3">
+      <ResponsiveDialog open={!!selectedTask} onOpenChange={(open) => !open && setSelectedTask(null)}>
+        <ResponsiveDialogContent variant="premium" size="xl">
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle className="flex items-center gap-3">
               <div className="icon-container-premium">
                 {selectedTask?.service_type === 'arranjo' ? (
-                  <FileMusic className="w-5 h-5 text-primary" />
+                  <FileMusic className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 ) : selectedTask?.service_type === 'acc' ? (
-                  <Headphones className="w-5 h-5 text-primary" />
+                  <Headphones className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 ) : (
-                  <Music className="w-5 h-5 text-primary" />
+                  <Music className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 )}
               </div>
-              {selectedTask?.title}
-            </AnimatedDialogTitle>
-          </AnimatedDialogHeader>
+              <span className="truncate">{selectedTask?.title}</span>
+            </ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
 
-          {selectedTask && (
-            <div className="space-y-6">
-              <AnimatedDialogSection delay={0.1}>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="stat-card">
-                    <p className="text-xs text-muted-foreground">Serviço</p>
-                    <p className="font-medium">{serviceLabels[selectedTask.service_type] || selectedTask.service_type}</p>
-                  </div>
-                  <div className="stat-card">
-                    <p className="text-xs text-muted-foreground">Data</p>
-                    <p className="font-medium">{formatDate(selectedTask.created_at)}</p>
-                  </div>
-                  <div className="stat-card">
-                    <p className="text-xs text-muted-foreground">Usuário</p>
-                    <p className="font-medium">{selectedTask.profiles?.full_name}</p>
-                  </div>
-                  <div className="stat-card">
-                    <p className="text-xs text-muted-foreground">E-mail</p>
-                    <p className="font-medium text-sm truncate">{selectedTask.profiles?.email}</p>
-                  </div>
-                </div>
-              </AnimatedDialogSection>
-
-              {selectedTask.result_format && (
-                <AnimatedDialogSection delay={0.15}>
-                  <div className="modal-gradient-premium rounded-xl p-4 border border-primary/20">
-                    <Label className="text-primary mb-2 block text-sm">Formato Preferido</Label>
-                    <div className="flex items-center gap-2">
-                      {selectedTask.result_format === 'pdf' && <FileText className="w-5 h-5 text-warning" />}
-                      {selectedTask.result_format === 'audio' && <Headphones className="w-5 h-5 text-primary" />}
-                      {selectedTask.result_format === 'image' && <Image className="w-5 h-5 text-success" />}
-                      <span className="font-medium">{resultFormatLabels[selectedTask.result_format] || selectedTask.result_format}</span>
+          <ResponsiveDialogBody>
+            {selectedTask && (
+              <div className="space-y-4 sm:space-y-6">
+                <ResponsiveDialogSection delay={0.1}>
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3">
+                    <div className="stat-card">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Serviço</p>
+                      <p className="font-medium text-xs sm:text-sm">{serviceLabels[selectedTask.service_type] || selectedTask.service_type}</p>
                     </div>
-                    {selectedTask.result_comment && <p className="text-sm mt-2 text-muted-foreground">{selectedTask.result_comment}</p>}
-                  </div>
-                </AnimatedDialogSection>
-              )}
-
-              <AnimatedDialogSection delay={0.2}>
-                {selectedTask.description && (
-                  <div className="space-y-2">
-                    <Label className="text-muted-foreground text-sm">Descrição</Label>
-                    <p className="text-sm whitespace-pre-wrap p-3 bg-secondary/50 rounded-lg">{selectedTask.description}</p>
-                  </div>
-                )}
-                {selectedTask.recommendations && (
-                  <div className="space-y-2 mt-4">
-                    <Label className="text-muted-foreground text-sm">Recomendações</Label>
-                    <p className="text-sm whitespace-pre-wrap p-3 bg-secondary/50 rounded-lg">{selectedTask.recommendations}</p>
-                  </div>
-                )}
-                {selectedTask.cancellation_reason && (
-                  <div className="modal-gradient-destructive rounded-xl p-4 border border-destructive/20 mt-4">
-                    <Label className="text-destructive text-sm">Motivo do Cancelamento</Label>
-                    <p className="mt-1 text-sm">{selectedTask.cancellation_reason}</p>
-                  </div>
-                )}
-              </AnimatedDialogSection>
-
-              <AnimatedDialogSection delay={0.25}>
-                <div className="divider-gradient mb-4" />
-                <Label className="text-muted-foreground mb-3 block text-sm">Ficheiros Enviados</Label>
-                <div className="space-y-2">
-                  {taskFiles.filter((f) => !f.is_result).map((file) => (
-                    <div key={file.id} className="bg-secondary/50 rounded-lg p-3 flex items-center justify-between hover:bg-secondary/70 transition-colors">
-                      <div className="flex items-center gap-2">{getFileIcon(file.file_type)}<span className="text-sm">{file.file_name}</span></div>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => downloadFile(file)} disabled={downloadingFile === file.id}>
-                        {downloadingFile === file.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-                      </Button>
+                    <div className="stat-card">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Data</p>
+                      <p className="font-medium text-xs sm:text-sm">{formatDate(selectedTask.created_at)}</p>
                     </div>
-                  ))}
-                </div>
-              </AnimatedDialogSection>
+                    <div className="stat-card">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">Usuário</p>
+                      <p className="font-medium text-xs sm:text-sm truncate">{selectedTask.profiles?.full_name}</p>
+                    </div>
+                    <div className="stat-card">
+                      <p className="text-[10px] sm:text-xs text-muted-foreground">E-mail</p>
+                      <p className="font-medium text-xs sm:text-sm truncate">{selectedTask.profiles?.email}</p>
+                    </div>
+                  </div>
+                </ResponsiveDialogSection>
 
-              {taskFiles.filter((f) => f.is_result).length > 0 && (
-                <AnimatedDialogSection delay={0.3}>
-                  <Label className="text-success mb-3 block text-sm">Resultados Enviados</Label>
+                {selectedTask.result_format && (
+                  <ResponsiveDialogSection delay={0.15}>
+                    <div className="modal-gradient-premium rounded-xl p-3 sm:p-4 border border-primary/20">
+                      <Label className="text-primary mb-2 block text-xs sm:text-sm">Formato Preferido</Label>
+                      <div className="flex items-center gap-2">
+                        {selectedTask.result_format === 'pdf' && <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-warning" />}
+                        {selectedTask.result_format === 'audio' && <Headphones className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />}
+                        {selectedTask.result_format === 'image' && <Image className="w-4 h-4 sm:w-5 sm:h-5 text-success" />}
+                        <span className="font-medium text-sm">{resultFormatLabels[selectedTask.result_format] || selectedTask.result_format}</span>
+                      </div>
+                      {selectedTask.result_comment && <p className="text-xs sm:text-sm mt-2 text-muted-foreground">{selectedTask.result_comment}</p>}
+                    </div>
+                  </ResponsiveDialogSection>
+                )}
+
+                <ResponsiveDialogSection delay={0.2}>
+                  {selectedTask.description && (
+                    <div className="space-y-2">
+                      <Label className="text-muted-foreground text-xs sm:text-sm">Descrição</Label>
+                      <p className="text-xs sm:text-sm whitespace-pre-wrap p-2 sm:p-3 bg-secondary/50 rounded-lg">{selectedTask.description}</p>
+                    </div>
+                  )}
+                  {selectedTask.recommendations && (
+                    <div className="space-y-2 mt-3 sm:mt-4">
+                      <Label className="text-muted-foreground text-xs sm:text-sm">Recomendações</Label>
+                      <p className="text-xs sm:text-sm whitespace-pre-wrap p-2 sm:p-3 bg-secondary/50 rounded-lg">{selectedTask.recommendations}</p>
+                    </div>
+                  )}
+                  {selectedTask.cancellation_reason && (
+                    <div className="modal-gradient-destructive rounded-xl p-3 sm:p-4 border border-destructive/20 mt-3 sm:mt-4">
+                      <Label className="text-destructive text-xs sm:text-sm">Motivo do Cancelamento</Label>
+                      <p className="mt-1 text-xs sm:text-sm">{selectedTask.cancellation_reason}</p>
+                    </div>
+                  )}
+                </ResponsiveDialogSection>
+
+                <ResponsiveDialogSection delay={0.25}>
+                  <div className="divider-gradient mb-3 sm:mb-4" />
+                  <Label className="text-muted-foreground mb-2 sm:mb-3 block text-xs sm:text-sm">Ficheiros Enviados</Label>
                   <div className="space-y-2">
-                    {taskFiles.filter((f) => f.is_result).map((file) => (
-                      <div key={file.id} className="modal-gradient-success border border-success/30 rounded-lg p-3 flex items-center justify-between">
-                        <div className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><span className="text-sm">{file.file_name}</span></div>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => downloadFile(file)} disabled={downloadingFile === file.id}>
-                          {downloadingFile === file.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+                    {taskFiles.filter((f) => !f.is_result).map((file) => (
+                      <div key={file.id} className="bg-secondary/50 rounded-lg p-2 sm:p-3 flex items-center justify-between hover:bg-secondary/70 transition-colors">
+                        <div className="flex items-center gap-2 min-w-0">
+                          {getFileIcon(file.file_type)}
+                          <span className="text-xs sm:text-sm truncate">{file.file_name}</span>
+                        </div>
+                        <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 shrink-0" onClick={() => downloadFile(file)} disabled={downloadingFile === file.id}>
+                          {downloadingFile === file.id ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
                         </Button>
                       </div>
                     ))}
+                    {taskFiles.filter((f) => !f.is_result).length === 0 && (
+                      <p className="text-xs sm:text-sm text-muted-foreground text-center py-2">Nenhum ficheiro enviado</p>
+                    )}
                   </div>
-                </AnimatedDialogSection>
-              )}
+                </ResponsiveDialogSection>
 
-              <AnimatedDialogSection delay={0.35}>
-                <div className="divider-gradient mb-4" />
-                <Label className="mb-3 block text-sm">Enviar Resultado (até {MAX_RESULT_FILES} ficheiros)</Label>
-                <div className="flex items-center gap-3">
-                  <Button variant="premium" onClick={openResultDialog} disabled={isUploading}>
-                    <Upload className="w-4 h-4 mr-2" />
-                    Carregar Resultado
-                  </Button>
-                  <p className="text-xs text-muted-foreground">O usuário será notificado automaticamente</p>
-                </div>
-              </AnimatedDialogSection>
-            </div>
-          )}
-        </AnimatedDialogContent>
-      </AnimatedDialog>
+                {taskFiles.filter((f) => f.is_result).length > 0 && (
+                  <ResponsiveDialogSection delay={0.3}>
+                    <Label className="text-success mb-2 sm:mb-3 block text-xs sm:text-sm">Resultados Enviados</Label>
+                    <div className="space-y-2">
+                      {taskFiles.filter((f) => f.is_result).map((file) => (
+                        <div key={file.id} className="modal-gradient-success border border-success/30 rounded-lg p-2 sm:p-3 flex items-center justify-between">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success shrink-0" />
+                            <span className="text-xs sm:text-sm truncate">{file.file_name}</span>
+                          </div>
+                          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 shrink-0" onClick={() => downloadFile(file)} disabled={downloadingFile === file.id}>
+                            {downloadingFile === file.id ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </ResponsiveDialogSection>
+                )}
+
+                <ResponsiveDialogSection delay={0.35}>
+                  <div className="divider-gradient mb-3 sm:mb-4" />
+                  <Label className="mb-2 sm:mb-3 block text-xs sm:text-sm">Enviar Resultado (até {MAX_RESULT_FILES} ficheiros)</Label>
+                  <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
+                    <Button variant="premium" onClick={openResultDialog} disabled={isUploading} className="w-full sm:w-auto">
+                      <Upload className="w-4 h-4 mr-2" />
+                      Carregar Resultado
+                    </Button>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground">O usuário será notificado automaticamente</p>
+                  </div>
+                </ResponsiveDialogSection>
+              </div>
+            )}
+          </ResponsiveDialogBody>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
       {/* Assign Task Dialog */}
-      <AnimatedDialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
-        <AnimatedDialogContent variant="premium" className="max-w-md">
-          <AnimatedDialogHeader>
-            <AnimatedDialogTitle className="flex items-center gap-3">
+      <ResponsiveDialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
+        <ResponsiveDialogContent variant="premium" size="md">
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle className="flex items-center gap-3">
               <div className="icon-container-premium">
-                <Users className="w-5 h-5 text-primary" />
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               Atribuir Tarefa
-            </AnimatedDialogTitle>
-          </AnimatedDialogHeader>
-          <AnimatedDialogSection delay={0.1} className="space-y-4 py-2">
-            <div className="p-3 modal-gradient-premium rounded-xl border border-primary/20">
-              <p className="text-sm text-muted-foreground">
-                Tarefa: <span className="font-medium text-foreground">{taskToAssign?.title}</span>
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label>Selecionar Colaboradores</Label>
-              {collaborators.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">
-                  Nenhum colaborador disponível.
+            </ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogBody>
+            <ResponsiveDialogSection delay={0.1} className="space-y-4">
+              <div className="p-2 sm:p-3 modal-gradient-premium rounded-xl border border-primary/20">
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Tarefa: <span className="font-medium text-foreground">{taskToAssign?.title}</span>
                 </p>
-              ) : (
-                <div className="max-h-60 overflow-y-auto space-y-2">
-                  {collaborators.map((collab) => (
-                    <div
-                      key={collab.user_id}
-                      onClick={() => toggleCollaboratorSelection(collab.user_id)}
-                      className={`p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
-                        selectedCollaborators.includes(collab.user_id)
-                          ? 'border-primary bg-primary/10 shadow-md'
-                          : 'border-border hover:border-primary/50 hover:bg-secondary/50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm">Selecionar Colaboradores</Label>
+                {collaborators.length === 0 ? (
+                  <p className="text-xs sm:text-sm text-muted-foreground py-4 text-center">
+                    Nenhum colaborador disponível.
+                  </p>
+                ) : (
+                  <div className="max-h-48 sm:max-h-60 overflow-y-auto space-y-2">
+                    {collaborators.map((collab) => (
+                      <div
+                        key={collab.user_id}
+                        onClick={() => toggleCollaboratorSelection(collab.user_id)}
+                        className={`p-2 sm:p-3 rounded-lg border cursor-pointer transition-all duration-200 ${
                           selectedCollaborators.includes(collab.user_id)
-                            ? 'bg-primary border-primary'
-                            : 'border-muted-foreground'
-                        }`}>
-                          {selectedCollaborators.includes(collab.user_id) && (
-                            <CheckCircle className="w-3.5 h-3.5 text-primary-foreground" />
-                          )}
-                        </div>
-                        <div>
-                          <p className="font-medium text-sm">{collab.full_name}</p>
-                          <p className="text-xs text-muted-foreground">{collab.email}</p>
+                            ? 'border-primary bg-primary/10 shadow-md'
+                            : 'border-border hover:border-primary/50 hover:bg-secondary/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center transition-colors ${
+                            selectedCollaborators.includes(collab.user_id)
+                              ? 'bg-primary border-primary'
+                              : 'border-muted-foreground'
+                          }`}>
+                            {selectedCollaborators.includes(collab.user_id) && (
+                              <CheckCircle className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-primary-foreground" />
+                            )}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-medium text-xs sm:text-sm truncate">{collab.full_name}</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground truncate">{collab.email}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {selectedCollaborators.length > 0 && (
+                <p className="text-xs sm:text-sm text-primary font-medium">
+                  {selectedCollaborators.length} colaborador(es) selecionado(s)
+                </p>
               )}
-            </div>
-            {selectedCollaborators.length > 0 && (
-              <p className="text-sm text-primary font-medium">
-                {selectedCollaborators.length} colaborador(es) selecionado(s)
-              </p>
-            )}
-          </AnimatedDialogSection>
-          <AnimatedDialogFooter>
-            <Button variant="outline" onClick={() => setShowAssignDialog(false)}>
+            </ResponsiveDialogSection>
+          </ResponsiveDialogBody>
+          <ResponsiveDialogFooter>
+            <Button variant="outline" onClick={() => setShowAssignDialog(false)} className="w-full sm:w-auto">
               Cancelar
             </Button>
-            <Button onClick={handleAssignTask} disabled={selectedCollaborators.length === 0 || isAssigning}>
+            <Button onClick={handleAssignTask} disabled={selectedCollaborators.length === 0 || isAssigning} className="w-full sm:w-auto">
               {isAssigning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Atribuir
             </Button>
-          </AnimatedDialogFooter>
-        </AnimatedDialogContent>
-      </AnimatedDialog>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
       {/* Result Upload Dialog */}
-      <AnimatedDialog open={showResultDialog} onOpenChange={(open) => {
+      <ResponsiveDialog open={showResultDialog} onOpenChange={(open) => {
         if (!open) {
           setResultDescription('');
           setResultFiles([]);
         }
         setShowResultDialog(open);
       }}>
-        <AnimatedDialogContent variant="success" className="max-w-lg">
-          <AnimatedDialogHeader>
-            <AnimatedDialogTitle className="flex items-center gap-3">
+        <ResponsiveDialogContent variant="success" size="lg">
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle className="flex items-center gap-3">
               <div className="icon-container-success">
-                <Upload className="w-5 h-5 text-success" />
+                <Upload className="w-4 h-4 sm:w-5 sm:h-5 text-success" />
               </div>
               Enviar Resultado
-            </AnimatedDialogTitle>
-          </AnimatedDialogHeader>
-          <AnimatedDialogSection delay={0.1} className="space-y-4 py-2">
-            <div className="space-y-2">
-              <Label htmlFor="resultDescription">Descrição do Resultado *</Label>
-              <Textarea
-                id="resultDescription"
-                placeholder="Descreva o trabalho realizado, notas importantes sobre o resultado..."
-                value={resultDescription}
-                onChange={(e) => setResultDescription(e.target.value)}
-                className="min-h-[100px] bg-secondary"
-              />
-              <p className="text-xs text-muted-foreground">
-                Mínimo 10 caracteres ({resultDescription.length}/10)
-              </p>
-            </div>
+            </ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogBody>
+            <ResponsiveDialogSection delay={0.1} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="resultDescription" className="text-sm">Descrição do Resultado *</Label>
+                <Textarea
+                  id="resultDescription"
+                  placeholder="Descreva o trabalho realizado, notas importantes sobre o resultado..."
+                  value={resultDescription}
+                  onChange={(e) => setResultDescription(e.target.value)}
+                  className="min-h-[80px] sm:min-h-[100px] bg-secondary text-sm"
+                />
+                <p className="text-[10px] sm:text-xs text-muted-foreground">
+                  Mínimo 10 caracteres ({resultDescription.length}/10)
+                </p>
+              </div>
 
-            <div className="space-y-2">
-              <Label>Ficheiros</Label>
-              <input 
-                ref={fileInputRef} 
-                type="file" 
-                multiple 
-                onChange={handleResultFileSelect} 
-                className="hidden" 
-                accept=".mp3,.wav,.aac,.pdf,.jpg,.jpeg,.png"
-              />
-              <Button 
-                variant="outline" 
-                className="w-full h-12 border-dashed border-2 hover:border-success/50 hover:bg-success/5" 
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload className="w-4 h-4 mr-2" />
-                Selecionar Ficheiros
-              </Button>
-              
-              {resultFiles.length > 0 && (
-                <div className="space-y-2 mt-3">
-                  {resultFiles.map((file, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg border border-border hover:border-success/30 transition-colors">
-                      <span className="text-sm truncate flex-1">{file.name}</span>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
-                        className="h-7 w-7 ml-2 hover:bg-destructive/10 hover:text-destructive"
-                        onClick={() => removeResultFile(index)}
-                      >
-                        <X className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <p className="text-xs text-muted-foreground">
-                Formatos aceites: MP3, WAV, AAC, PDF, JPG, PNG (até {MAX_RESULT_FILES} ficheiros)
-              </p>
-            </div>
-          </AnimatedDialogSection>
-          <AnimatedDialogFooter>
-            <Button variant="outline" onClick={() => setShowResultDialog(false)}>
+              <div className="space-y-2">
+                <Label className="text-sm">Ficheiros</Label>
+                <input 
+                  ref={fileInputRef} 
+                  type="file" 
+                  multiple 
+                  onChange={handleResultFileSelect} 
+                  className="hidden" 
+                  accept=".mp3,.wav,.aac,.pdf,.jpg,.jpeg,.png"
+                />
+                <Button 
+                  variant="outline" 
+                  className="w-full h-10 sm:h-12 border-dashed border-2 hover:border-success/50 hover:bg-success/5 text-sm" 
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Upload className="w-4 h-4 mr-2" />
+                  Selecionar Ficheiros
+                </Button>
+                
+                {resultFiles.length > 0 && (
+                  <div className="space-y-2 mt-2 sm:mt-3">
+                    {resultFiles.map((file, index) => (
+                      <div key={index} className="flex items-center justify-between p-2 sm:p-3 bg-secondary/50 rounded-lg border border-border hover:border-success/30 transition-colors">
+                        <span className="text-xs sm:text-sm truncate flex-1">{file.name}</span>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6 sm:h-7 sm:w-7 ml-2 hover:bg-destructive/10 hover:text-destructive shrink-0"
+                          onClick={() => removeResultFile(index)}
+                        >
+                          <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <p className="text-[10px] sm:text-xs text-muted-foreground">
+                  Formatos aceites: MP3, WAV, AAC, PDF, JPG, PNG (até {MAX_RESULT_FILES} ficheiros)
+                </p>
+              </div>
+            </ResponsiveDialogSection>
+          </ResponsiveDialogBody>
+          <ResponsiveDialogFooter>
+            <Button variant="outline" onClick={() => setShowResultDialog(false)} className="w-full sm:w-auto">
               Cancelar
             </Button>
             <Button 
               variant="premium" 
               onClick={handleResultUpload} 
               disabled={isUploading || resultDescription.trim().length < 10 || resultFiles.length === 0}
+              className="w-full sm:w-auto"
             >
               {isUploading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Enviar Resultado
+              Enviar
             </Button>
-          </AnimatedDialogFooter>
-        </AnimatedDialogContent>
-      </AnimatedDialog>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     </Layout>
   );
 }

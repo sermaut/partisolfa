@@ -29,13 +29,14 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import {
-  AnimatedDialog,
-  AnimatedDialogContent,
-  AnimatedDialogHeader,
-  AnimatedDialogTitle,
-  AnimatedDialogFooter,
-  AnimatedDialogSection,
-} from '@/components/ui/animated-dialog';
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogBody,
+  ResponsiveDialogFooter,
+  ResponsiveDialogTitle,
+  ResponsiveDialogSection,
+} from '@/components/ui/responsive-dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -514,8 +515,8 @@ export default function AdminColaboradores() {
   }
 
   return (
-    <Layout>
-      <div className="container mx-auto px-4 py-8">
+    <Layout showFooter={false}>
+      <div className="container mx-auto px-4 py-6 sm:py-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -575,94 +576,92 @@ export default function AdminColaboradores() {
                     animate={{ opacity: 1 }}
                     className="bg-card rounded-xl border border-border overflow-hidden"
                   >
-                    <div className="p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <Avatar className="w-12 h-12">
+                    <div className="p-3 sm:p-4 flex flex-col gap-3 sm:gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
+                        <Avatar className="w-10 h-10 sm:w-12 sm:h-12 shrink-0">
                           <AvatarImage src={collaborator.avatar_url || ''} />
-                          <AvatarFallback className="bg-primary/20 text-primary">
+                          <AvatarFallback className="bg-primary/20 text-primary text-sm sm:text-base">
                             {collaborator.full_name.charAt(0).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <div>
-                          <p className="font-semibold">{collaborator.full_name}</p>
-                          <p className="text-sm text-muted-foreground">{collaborator.email}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm sm:text-base truncate">{collaborator.full_name}</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">{collaborator.email}</p>
                           {collaborator.phone && (
-                            <p className="text-sm text-muted-foreground">{collaborator.phone}</p>
+                            <p className="text-xs sm:text-sm text-muted-foreground">{collaborator.phone}</p>
                           )}
                         </div>
+                        <Badge variant="secondary" className="text-xs sm:text-sm px-2 sm:px-3 py-1 shrink-0">
+                          <Wallet className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                          {collaborator.credits.toFixed(1)}
+                        </Badge>
                       </div>
 
-                      <div className="flex items-center gap-4">
-                        <Badge variant="secondary" className="text-base px-3 py-1">
-                          <Wallet className="w-4 h-4 mr-2" />
-                          {collaborator.credits.toFixed(1)} créditos
-                        </Badge>
-                        
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => toggleCollaboratorExpanded(collaborator.user_id)}
-                            className="gap-1"
-                          >
-                            <ClipboardList className="w-4 h-4" />
-                            {taskCount}
-                            {isExpanded ? (
-                              <ChevronUp className="w-4 h-4" />
-                            ) : (
-                              <ChevronDown className="w-4 h-4" />
-                            )}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setEditingCollaborator(collaborator);
-                              setNewCredits(collaborator.credits.toString());
-                              setShowEditDialog(true);
-                            }}
-                          >
-                            <ArrowUpDown className="w-4 h-4 mr-1" />
-                            Saldo
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => {
-                              setDeletingCollaborator(collaborator);
-                              setShowDeleteDialog(true);
-                            }}
-                            title="Remover função"
-                          >
-                            <Ban className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="text-destructive hover:text-destructive"
-                            onClick={() => {
-                              setDeletingCompletelyCollaborator(collaborator);
-                              setShowDeleteCompletelyDialog(true);
-                            }}
-                            title="Eliminar completamente"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleCollaboratorExpanded(collaborator.user_id)}
+                          className="gap-1 text-xs sm:text-sm"
+                        >
+                          <ClipboardList className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          {taskCount}
+                          {isExpanded ? (
+                            <ChevronUp className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          ) : (
+                            <ChevronDown className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                          )}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-xs sm:text-sm"
+                          onClick={() => {
+                            setEditingCollaborator(collaborator);
+                            setNewCredits(collaborator.credits.toString());
+                            setShowEditDialog(true);
+                          }}
+                        >
+                          <ArrowUpDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 sm:mr-1" />
+                          <span className="hidden sm:inline">Saldo</span>
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => {
+                            setDeletingCollaborator(collaborator);
+                            setShowDeleteDialog(true);
+                          }}
+                          title="Remover função"
+                        >
+                          <Ban className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-destructive hover:text-destructive"
+                          onClick={() => {
+                            setDeletingCompletelyCollaborator(collaborator);
+                            setShowDeleteCompletelyDialog(true);
+                          }}
+                          title="Eliminar completamente"
+                        >
+                          <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                        </Button>
                       </div>
                     </div>
                     
                     {/* Expandable Tasks Section */}
                     {isExpanded && (
-                      <div className="px-4 pb-4 border-t border-border pt-4 bg-muted/30">
+                      <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-border pt-3 sm:pt-4 bg-muted/30">
                         {taskCount === 0 ? (
-                          <p className="text-sm text-muted-foreground text-center py-2">
+                          <p className="text-xs sm:text-sm text-muted-foreground text-center py-2">
                             Nenhuma tarefa atribuída
                           </p>
                         ) : (
                           <div className="space-y-2">
-                            <p className="text-sm font-medium text-muted-foreground mb-3">
+                            <p className="text-xs sm:text-sm font-medium text-muted-foreground mb-2 sm:mb-3">
                               Tarefas Atribuídas ({taskCount})
                             </p>
                             {collaborator.tasks?.slice(0, 5).map((task) => {
@@ -673,25 +672,25 @@ export default function AdminColaboradores() {
                               return (
                                 <div
                                   key={task.id}
-                                  className="flex items-center justify-between gap-4 p-3 bg-card rounded-lg border border-border"
+                                  className="flex items-center justify-between gap-2 sm:gap-4 p-2 sm:p-3 bg-card rounded-lg border border-border"
                                 >
-                                  <div className="flex items-center gap-3">
-                                    <ServiceIcon className="w-4 h-4 text-primary" />
-                                    <div>
-                                      <p className="text-sm font-medium line-clamp-1">{task.task_title}</p>
-                                      <p className="text-xs text-muted-foreground">
+                                  <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+                                    <ServiceIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary shrink-0" />
+                                    <div className="min-w-0">
+                                      <p className="text-xs sm:text-sm font-medium truncate">{task.task_title}</p>
+                                      <p className="text-[10px] sm:text-xs text-muted-foreground">
                                         {serviceLabel} • {format(new Date(task.assigned_at), "d MMM yyyy", { locale: pt })}
                                       </p>
                                     </div>
                                   </div>
-                                  <Badge className={statusInfo?.class}>
+                                  <Badge className={`${statusInfo?.class} text-[10px] sm:text-xs shrink-0`}>
                                     {statusInfo?.label}
                                   </Badge>
                                 </div>
                               );
                             })}
                             {taskCount > 5 && (
-                              <p className="text-xs text-muted-foreground text-center pt-2">
+                              <p className="text-[10px] sm:text-xs text-muted-foreground text-center pt-2">
                                 E mais {taskCount - 5} tarefa(s)...
                               </p>
                             )}
@@ -708,111 +707,115 @@ export default function AdminColaboradores() {
       </div>
 
       {/* Add Collaborator Dialog */}
-      <AnimatedDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
-        <AnimatedDialogContent variant="premium">
-          <AnimatedDialogHeader>
-            <AnimatedDialogTitle className="flex items-center gap-3">
+      <ResponsiveDialog open={showAddDialog} onOpenChange={setShowAddDialog}>
+        <ResponsiveDialogContent variant="premium" size="md">
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle className="flex items-center gap-3">
               <div className="icon-container-premium">
-                <Plus className="w-5 h-5 text-primary" />
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               Adicionar Colaborador
-            </AnimatedDialogTitle>
-          </AnimatedDialogHeader>
-          <AnimatedDialogSection delay={0.1} className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label>Selecionar Utilizador</Label>
-              <Select value={selectedUserId} onValueChange={setSelectedUserId}>
-                <SelectTrigger className="bg-secondary">
-                  <SelectValue placeholder="Escolha um utilizador..." />
-                </SelectTrigger>
-                <SelectContent className="bg-card border-border">
-                  {allUsers.map((u) => (
-                    <SelectItem key={u.user_id} value={u.user_id}>
-                      {u.full_name} ({u.email})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {allUsers.length === 0 && (
-                <p className="text-sm text-muted-foreground">
-                  Não há utilizadores disponíveis para adicionar.
-                </p>
-              )}
-            </div>
-          </AnimatedDialogSection>
-          <AnimatedDialogFooter>
-            <Button variant="outline" onClick={() => setShowAddDialog(false)}>
+            </ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogBody>
+            <ResponsiveDialogSection delay={0.1} className="space-y-4">
+              <div className="space-y-2">
+                <Label>Selecionar Utilizador</Label>
+                <Select value={selectedUserId} onValueChange={setSelectedUserId}>
+                  <SelectTrigger className="bg-secondary">
+                    <SelectValue placeholder="Escolha um utilizador..." />
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border-border max-h-60">
+                    {allUsers.map((u) => (
+                      <SelectItem key={u.user_id} value={u.user_id}>
+                        <span className="truncate">{u.full_name} ({u.email})</span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                {allUsers.length === 0 && (
+                  <p className="text-xs sm:text-sm text-muted-foreground">
+                    Não há utilizadores disponíveis para adicionar.
+                  </p>
+                )}
+              </div>
+            </ResponsiveDialogSection>
+          </ResponsiveDialogBody>
+          <ResponsiveDialogFooter>
+            <Button variant="outline" onClick={() => setShowAddDialog(false)} className="w-full sm:w-auto">
               Cancelar
             </Button>
-            <Button onClick={handleAddCollaborator} disabled={!selectedUserId || isAdding}>
+            <Button onClick={handleAddCollaborator} disabled={!selectedUserId || isAdding} className="w-full sm:w-auto">
               {isAdding && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Adicionar
             </Button>
-          </AnimatedDialogFooter>
-        </AnimatedDialogContent>
-      </AnimatedDialog>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
       {/* Edit Credits Dialog */}
-      <AnimatedDialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <AnimatedDialogContent variant="premium">
-          <AnimatedDialogHeader>
-            <AnimatedDialogTitle className="flex items-center gap-3">
+      <ResponsiveDialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <ResponsiveDialogContent variant="premium" size="md">
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle className="flex items-center gap-3">
               <div className="icon-container-premium">
-                <ArrowUpDown className="w-5 h-5 text-primary" />
+                <ArrowUpDown className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
               </div>
               Editar Saldo
-            </AnimatedDialogTitle>
-          </AnimatedDialogHeader>
-          <AnimatedDialogSection delay={0.1} className="space-y-4 py-4">
-            <div className="p-4 modal-gradient-premium rounded-xl border border-primary/20">
-              <p className="text-sm text-muted-foreground">
-                Colaborador: <span className="font-medium text-foreground">{editingCollaborator?.full_name}</span>
-              </p>
-              <p className="text-sm text-muted-foreground mt-1">
-                Saldo actual: <span className="font-medium text-primary">{editingCollaborator?.credits.toFixed(1)} créditos</span>
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="credits">Novo saldo (créditos)</Label>
-              <Input
-                id="credits"
-                type="number"
-                step="0.1"
-                min="0"
-                value={newCredits}
-                onChange={(e) => setNewCredits(e.target.value)}
-                placeholder="0.0"
-                className="bg-secondary h-12 text-lg"
-              />
-            </div>
-          </AnimatedDialogSection>
-          <AnimatedDialogFooter>
-            <Button variant="outline" onClick={() => setShowEditDialog(false)}>
+            </ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogBody>
+            <ResponsiveDialogSection delay={0.1} className="space-y-4">
+              <div className="p-3 sm:p-4 modal-gradient-premium rounded-xl border border-primary/20">
+                <p className="text-xs sm:text-sm text-muted-foreground">
+                  Colaborador: <span className="font-medium text-foreground">{editingCollaborator?.full_name}</span>
+                </p>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
+                  Saldo actual: <span className="font-medium text-primary">{editingCollaborator?.credits.toFixed(1)} créditos</span>
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="credits" className="text-sm">Novo saldo (créditos)</Label>
+                <Input
+                  id="credits"
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  value={newCredits}
+                  onChange={(e) => setNewCredits(e.target.value)}
+                  placeholder="0.0"
+                  className="bg-secondary h-10 sm:h-12 text-base sm:text-lg"
+                />
+              </div>
+            </ResponsiveDialogSection>
+          </ResponsiveDialogBody>
+          <ResponsiveDialogFooter>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)} className="w-full sm:w-auto">
               Cancelar
             </Button>
-            <Button onClick={handleUpdateCredits} disabled={newCredits === '' || isUpdating}>
+            <Button onClick={handleUpdateCredits} disabled={newCredits === '' || isUpdating} className="w-full sm:w-auto">
               {isUpdating && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Actualizar
             </Button>
-          </AnimatedDialogFooter>
-        </AnimatedDialogContent>
-      </AnimatedDialog>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
 
       {/* Remove Collaborator Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent className="bg-card">
+        <AlertDialogContent className="bg-card max-w-[95vw] sm:max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Remover Colaborador</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-base sm:text-lg">Remover Colaborador</AlertDialogTitle>
+            <AlertDialogDescription className="text-left text-xs sm:text-sm">
               Tens a certeza que queres remover <strong>{deletingCollaborator?.full_name}</strong> da função de colaborador?
               O utilizador continuará a ter acesso à plataforma como utilizador regular.
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleRemoveCollaborator}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive hover:bg-destructive/90 w-full sm:w-auto"
             >
               {isDeleting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Remover
@@ -823,17 +826,17 @@ export default function AdminColaboradores() {
 
       {/* Delete Collaborator Completely Dialog */}
       <AlertDialog open={showDeleteCompletelyDialog} onOpenChange={setShowDeleteCompletelyDialog}>
-        <AlertDialogContent className="bg-card">
+        <AlertDialogContent className="bg-card max-w-[95vw] sm:max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-              <Trash2 className="w-5 h-5" />
-              Eliminar Colaborador Completamente
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive text-base sm:text-lg">
+              <Trash2 className="w-4 h-4 sm:w-5 sm:h-5" />
+              Eliminar Colaborador
             </AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className="text-left text-xs sm:text-sm">
               Tem a certeza que deseja eliminar <strong>{deletingCompletelyCollaborator?.full_name}</strong> completamente?
               <br /><br />
               Esta acção irá eliminar permanentemente:
-              <ul className="list-disc list-inside mt-2 space-y-1">
+              <ul className="list-disc list-inside mt-2 space-y-1 text-xs sm:text-sm">
                 <li>Perfil do colaborador</li>
                 <li>Todas as solicitações</li>
                 <li>Todos os depósitos</li>
@@ -846,15 +849,15 @@ export default function AdminColaboradores() {
               <strong className="text-destructive">Esta acção não pode ser desfeita.</strong>
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeletingCompletely}>Cancelar</AlertDialogCancel>
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel disabled={isDeletingCompletely} className="w-full sm:w-auto">Cancelar</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteCollaboratorCompletely}
               disabled={isDeletingCompletely}
-              className="bg-destructive hover:bg-destructive/90"
+              className="bg-destructive hover:bg-destructive/90 w-full sm:w-auto"
             >
               {isDeletingCompletely && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Eliminar Permanentemente
+              Eliminar
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
