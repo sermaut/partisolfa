@@ -85,8 +85,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
+    let refreshInterval: ReturnType<typeof setInterval>;
 
-    // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
         if (!mounted) return;
@@ -97,7 +97,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(currentSession?.user ?? null);
         
         if (currentSession?.user) {
-          // Use setTimeout to avoid Supabase deadlock
           setTimeout(() => {
             if (mounted) {
               fetchProfile(currentSession.user.id);
@@ -112,16 +111,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    // THEN check for existing session - this ensures session persists across page reloads
     const initializeSession = async () => {
       try {
         const { data: { session: currentSession }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Error getting session:', error);
-          if (mounted) {
-            setIsLoading(false);
-          }
+          if (mounted) setIsLoading(false);
           return;
         }
 
@@ -136,17 +132,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       } catch (error) {
         console.error('Error initializing session:', error);
-        if (mounted) {
-          setIsLoading(false);
-        }
+        if (mounted) setIsLoading(false);
       }
     };
 
     initializeSession();
 
+    // Proactively refresh session every 10 minutes to prevent expiry
+    refreshInterval = setInterval(async () => {
+      try {
+        const { data, error } = await supabase.auth.refreshSession();
+        if (!error && data.session && mounted) {
+          setSession(data.session);
+          setUser(data.session.user);
+        }
+      } catch (e) {
+        console.error('Session refresh error:', e);
+      }
+    }, 10 * 60 * 1000);
+
     return () => {
       mounted = false;
       subscription.unsubscribe();
+      clearInterval(refreshInterval);
     };
   }, []);
 
