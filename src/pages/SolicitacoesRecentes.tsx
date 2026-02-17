@@ -173,7 +173,7 @@ export default function SolicitacoesRecentes() {
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
             <div>
               <h1 className="font-display text-3xl font-bold">
-                Solicitações <span className="text-gradient-gold">Recentes</span>
+                Solicitações <span className="text-gradient-gold">Feitas</span>
               </h1>
               <p className="text-muted-foreground mt-1">
                 {tasks.length} solicitaç{tasks.length !== 1 ? 'ões' : 'ão'}

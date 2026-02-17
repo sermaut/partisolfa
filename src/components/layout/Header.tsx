@@ -166,7 +166,7 @@ export function Header() {
                   <DropdownMenuItem asChild>
                     <Link to="/solicitacoes" className="cursor-pointer py-3 text-base">
                       <History className="w-5 h-5 mr-3" />
-                      Solicitações Recentes
+                      Solicitações Feitas
                     </Link>
                   </DropdownMenuItem>
                   
@@ -331,7 +331,7 @@ export function Header() {
                       className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
                     >
                       <History className="w-5 h-5" />
-                      Solicitações Recentes
+                      Solicitações Feitas
                     </Link>
                     
                     <Link 

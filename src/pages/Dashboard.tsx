@@ -334,36 +334,7 @@ export default function Dashboard() {
             </Link>
           </motion.div>
         )}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8"
-        >
-          <div className="glass-card rounded-xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <TrendingUp className="w-5 h-5 text-primary" />
-              <h3 className="font-display font-semibold">Uso de Créditos</h3>
-            </div>
-            <UsageChart tasks={allTasks} />
-          </div>
-
-          <div className="glass-card rounded-xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <PieChart className="w-5 h-5 text-primary" />
-              <h3 className="font-display font-semibold">Distribuição de Serviços</h3>
-            </div>
-            <ServiceDistributionChart tasks={allTasks} />
-          </div>
-
-          <div className="glass-card rounded-xl p-6">
-            <div className="flex items-center gap-2 mb-4">
-              <BarChart3 className="w-5 h-5 text-primary" />
-              <h3 className="font-display font-semibold">Estado das Solicitações</h3>
-            </div>
-            <StatusDistributionChart tasks={allTasks} />
-          </div>
-        </motion.div>
+        {/* Charts hidden by design preference */}
 
         {/* Quick Actions */}
         <motion.div

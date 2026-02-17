@@ -176,7 +176,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
             <div className="glass-card rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 rounded-lg bg-warning/20 flex items-center justify-center">

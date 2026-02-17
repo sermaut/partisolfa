@@ -6,13 +6,24 @@ import {
   Trash2,
   CheckCircle,
   Circle,
-  Loader2
+  Loader2,
+  X,
+  Clock
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import {
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogHeader,
+  ResponsiveDialogBody,
+  ResponsiveDialogFooter,
+  ResponsiveDialogTitle,
+  ResponsiveDialogSection,
+} from '@/components/ui/responsive-dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +53,7 @@ export default function Notificacoes() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
 
   useEffect(() => {
     if (!authLoading) {
@@ -73,6 +85,13 @@ export default function Notificacoes() {
       });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const openNotification = async (notification: Notification) => {
+    setSelectedNotification(notification);
+    if (!notification.is_read) {
+      await markAsRead(notification.id);
     }
   };
 
@@ -115,11 +134,6 @@ export default function Notificacoes() {
       });
     } catch (error) {
       console.error('Error marking all as read:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível marcar as notificações como lidas.',
-        variant: 'destructive',
-      });
     }
   };
 
@@ -134,6 +148,9 @@ export default function Notificacoes() {
       if (error) throw error;
 
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+      if (selectedNotification?.id === notificationId) {
+        setSelectedNotification(null);
+      }
 
       toast({
         title: 'Notificação eliminada',
@@ -141,11 +158,6 @@ export default function Notificacoes() {
       });
     } catch (error) {
       console.error('Error deleting notification:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível eliminar a notificação.',
-        variant: 'destructive',
-      });
     } finally {
       setDeletingId(null);
     }
@@ -161,6 +173,7 @@ export default function Notificacoes() {
       if (error) throw error;
 
       setNotifications([]);
+      setSelectedNotification(null);
 
       toast({
         title: 'Notificações eliminadas',
@@ -168,11 +181,6 @@ export default function Notificacoes() {
       });
     } catch (error) {
       console.error('Error deleting all notifications:', error);
-      toast({
-        title: 'Erro',
-        description: 'Não foi possível eliminar as notificações.',
-        variant: 'destructive',
-      });
     }
   };
 
@@ -193,11 +201,7 @@ export default function Notificacoes() {
       <Layout showFooter={false}>
         <div className="min-h-[80vh] flex items-center justify-center">
           <div className="music-wave">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
+            <span></span><span></span><span></span><span></span><span></span>
           </div>
         </div>
       </Layout>
@@ -242,7 +246,7 @@ export default function Notificacoes() {
                     <AlertDialogHeader>
                       <AlertDialogTitle>Eliminar todas as notificações?</AlertDialogTitle>
                       <AlertDialogDescription>
-                        Esta acção não pode ser revertida. Todas as suas notificações serão eliminadas permanentemente.
+                        Esta acção não pode ser revertida.
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
@@ -270,75 +274,105 @@ export default function Notificacoes() {
           ) : (
             <div className="space-y-3">
               {notifications.map((notification) => (
-                <div
+                <motion.div
                   key={notification.id}
-                  className={`glass-card rounded-xl p-4 transition-colors ${
+                  whileTap={{ scale: 0.99 }}
+                  className={`glass-card rounded-xl p-4 transition-colors cursor-pointer hover:border-primary/30 ${
                     !notification.is_read ? 'border-primary/50 bg-primary/5' : ''
                   }`}
-                  onClick={() => !notification.is_read && markAsRead(notification.id)}
+                  onClick={() => openNotification(notification)}
                 >
                   <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3">
-                      <div className="mt-1">
+                    <div className="flex items-start gap-3 min-w-0">
+                      <div className="mt-1 shrink-0">
                         {notification.is_read ? (
                           <CheckCircle className="w-4 h-4 text-muted-foreground" />
                         ) : (
                           <Circle className="w-4 h-4 text-primary fill-primary" />
                         )}
                       </div>
-                      <div>
-                        <h3 className={`font-semibold ${!notification.is_read ? 'text-primary' : ''}`}>
+                      <div className="min-w-0">
+                        <h3 className={`font-semibold text-sm truncate ${!notification.is_read ? 'text-primary' : ''}`}>
                           {notification.title}
                         </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                           {notification.message}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-2">
+                        <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
                           {formatDate(notification.created_at)}
                         </p>
                       </div>
                     </div>
 
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          {deletingId === notification.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Trash2 className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent className="bg-card" onClick={(e) => e.stopPropagation()}>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Eliminar notificação?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Esta acção não pode ser revertida.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={() => deleteNotification(notification.id)}
-                            className="bg-destructive hover:bg-destructive/90"
-                          >
-                            Eliminar
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive shrink-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteNotification(notification.id);
+                      }}
+                    >
+                      {deletingId === notification.id ? (
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                      ) : (
+                        <Trash2 className="w-4 h-4" />
+                      )}
+                    </Button>
                   </div>
-                </div>
+                </motion.div>
               ))}
             </div>
           )}
         </motion.div>
       </div>
+
+      {/* Notification Detail Modal */}
+      <ResponsiveDialog open={!!selectedNotification} onOpenChange={(open) => !open && setSelectedNotification(null)}>
+        <ResponsiveDialogContent variant="premium" size="md">
+          <ResponsiveDialogHeader>
+            <ResponsiveDialogTitle className="flex items-center gap-3">
+              <div className="icon-container-premium">
+                <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+              </div>
+              <span className="truncate">{selectedNotification?.title}</span>
+            </ResponsiveDialogTitle>
+          </ResponsiveDialogHeader>
+          <ResponsiveDialogBody>
+            {selectedNotification && (
+              <ResponsiveDialogSection delay={0.1} className="space-y-4">
+                <div className="text-xs sm:text-sm text-muted-foreground flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5" />
+                  {formatDate(selectedNotification.created_at)}
+                </div>
+                <div className="p-3 sm:p-4 bg-secondary/50 rounded-xl">
+                  <p className="text-sm sm:text-base leading-relaxed whitespace-pre-wrap">
+                    {selectedNotification.message}
+                  </p>
+                </div>
+              </ResponsiveDialogSection>
+            )}
+          </ResponsiveDialogBody>
+          <ResponsiveDialogFooter>
+            <Button
+              variant="outline"
+              className="text-destructive w-full sm:w-auto"
+              onClick={() => {
+                if (selectedNotification) {
+                  deleteNotification(selectedNotification.id);
+                }
+              }}
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              Eliminar
+            </Button>
+            <Button variant="outline" onClick={() => setSelectedNotification(null)} className="w-full sm:w-auto">
+              Fechar
+            </Button>
+          </ResponsiveDialogFooter>
+        </ResponsiveDialogContent>
+      </ResponsiveDialog>
     </Layout>
   );
 }
