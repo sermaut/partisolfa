@@ -142,6 +142,9 @@ export default function AdminTarefas() {
   const [cancellationReason, setCancellationReason] = useState('');
   const [taskToCancel, setTaskToCancel] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [loadingFiles, setLoadingFiles] = useState(false);
+  const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
   
   // Result upload dialog
   const [showResultDialog, setShowResultDialog] = useState(false);
@@ -363,16 +366,33 @@ export default function AdminTarefas() {
 
   const openTaskDetail = async (task: Task) => {
     setSelectedTask(task);
-    
+    setLoadingFiles(true);
+    setTaskFiles([]);
+    setFileUrls({});
+
     const { data: files, error } = await supabase
       .from('task_files')
       .select('*')
       .eq('task_id', task.id)
       .order('is_result', { ascending: false });
 
-    if (!error) {
-      setTaskFiles(files || []);
+    const loadedFiles = files || [];
+    setTaskFiles(loadedFiles);
+
+    // Generate signed URLs in parallel for instant previews
+    if (loadedFiles.length > 0) {
+      const urlEntries = await Promise.all(
+        loadedFiles.map(async (file) => {
+          const bucket = file.is_result ? 'result-files' : 'task-files';
+          const { data } = await supabase.storage
+            .from(bucket)
+            .createSignedUrl(file.file_path, 3600);
+          return [file.id, data?.signedUrl || ''] as [string, string];
+        })
+      );
+      setFileUrls(Object.fromEntries(urlEntries));
     }
+    setLoadingFiles(false);
   };
 
   const handleStatusChange = (taskId: string, newStatus: string) => {
@@ -1080,19 +1100,65 @@ export default function AdminTarefas() {
                   <div className="divider-gradient mb-3 sm:mb-4" />
                   <Label className="text-muted-foreground mb-2 sm:mb-3 block text-xs sm:text-sm">Ficheiros Enviados</Label>
                   <div className="space-y-2">
-                    {taskFiles.filter((f) => !f.is_result).map((file) => (
-                      <div key={file.id} className="bg-secondary/50 rounded-lg p-2 sm:p-3 flex items-center justify-between hover:bg-secondary/70 transition-colors">
-                        <div className="flex items-center gap-2 min-w-0">
-                          {getFileIcon(file.file_type)}
-                          <span className="text-xs sm:text-sm truncate">{file.file_name}</span>
-                        </div>
-                        <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 shrink-0" onClick={() => downloadFile(file)} disabled={downloadingFile === file.id}>
-                          {downloadingFile === file.id ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                        </Button>
+                    {loadingFiles ? (
+                      <div className="flex items-center justify-center py-6">
+                        <Loader2 className="w-5 h-5 animate-spin text-primary mr-2" />
+                        <span className="text-xs sm:text-sm text-muted-foreground">A carregar ficheiros...</span>
                       </div>
-                    ))}
-                    {taskFiles.filter((f) => !f.is_result).length === 0 && (
+                    ) : taskFiles.filter((f) => !f.is_result).length === 0 ? (
                       <p className="text-xs sm:text-sm text-muted-foreground text-center py-2">Nenhum ficheiro enviado</p>
+                    ) : (
+                      taskFiles.filter((f) => !f.is_result).map((file) => (
+                        <div key={file.id} className="bg-secondary/50 rounded-lg p-2 sm:p-3 hover:bg-secondary/70 transition-colors">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 min-w-0">
+                              {getFileIcon(file.file_type)}
+                              <div className="min-w-0">
+                                <span className="text-xs sm:text-sm truncate block">{file.file_name}</span>
+                                {file.file_size && (
+                                  <span className="text-[10px] text-muted-foreground">
+                                    {file.file_size < 1024 * 1024
+                                      ? `${(file.file_size / 1024).toFixed(1)} KB`
+                                      : `${(file.file_size / (1024 * 1024)).toFixed(1)} MB`}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {file.file_type === 'image' && fileUrls[file.id] && (
+                                <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => setPreviewImage(fileUrls[file.id])}>
+                                  <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                </Button>
+                              )}
+                              <a
+                                href={fileUrls[file.id] || '#'}
+                                download={file.file_name}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={!fileUrls[file.id] ? 'pointer-events-none opacity-50' : ''}
+                              >
+                                <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" disabled={!fileUrls[file.id]}>
+                                  <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                </Button>
+                              </a>
+                            </div>
+                          </div>
+                          {/* Inline image thumbnail */}
+                          {file.file_type === 'image' && fileUrls[file.id] && (
+                            <img
+                              src={fileUrls[file.id]}
+                              alt={file.file_name}
+                              className="mt-2 rounded-lg max-h-40 w-auto object-contain cursor-pointer border border-border"
+                              onClick={() => setPreviewImage(fileUrls[file.id])}
+                              loading="lazy"
+                            />
+                          )}
+                          {/* Inline audio player */}
+                          {file.file_type === 'audio' && fileUrls[file.id] && (
+                            <audio controls preload="none" className="mt-2 w-full h-8" src={fileUrls[file.id]} />
+                          )}
+                        </div>
+                      ))
                     )}
                   </div>
                 </ResponsiveDialogSection>
@@ -1102,14 +1168,31 @@ export default function AdminTarefas() {
                     <Label className="text-success mb-2 sm:mb-3 block text-xs sm:text-sm">Resultados Enviados</Label>
                     <div className="space-y-2">
                       {taskFiles.filter((f) => f.is_result).map((file) => (
-                        <div key={file.id} className="modal-gradient-success border border-success/30 rounded-lg p-2 sm:p-3 flex items-center justify-between">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success shrink-0" />
-                            <span className="text-xs sm:text-sm truncate">{file.file_name}</span>
+                        <div key={file.id} className="modal-gradient-success border border-success/30 rounded-lg p-2 sm:p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 min-w-0">
+                              <CheckCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-success shrink-0" />
+                              <span className="text-xs sm:text-sm truncate">{file.file_name}</span>
+                            </div>
+                            <div className="flex items-center gap-1 shrink-0">
+                              {file.file_type === 'image' && fileUrls[file.id] && (
+                                <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" onClick={() => setPreviewImage(fileUrls[file.id])}>
+                                  <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                </Button>
+                              )}
+                              <a href={fileUrls[file.id] || '#'} download={file.file_name} target="_blank" rel="noopener noreferrer" className={!fileUrls[file.id] ? 'pointer-events-none opacity-50' : ''}>
+                                <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8" disabled={!fileUrls[file.id]}>
+                                  <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                                </Button>
+                              </a>
+                            </div>
                           </div>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 sm:h-8 sm:w-8 shrink-0" onClick={() => downloadFile(file)} disabled={downloadingFile === file.id}>
-                            {downloadingFile === file.id ? <Loader2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" /> : <Download className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
-                          </Button>
+                          {file.file_type === 'image' && fileUrls[file.id] && (
+                            <img src={fileUrls[file.id]} alt={file.file_name} className="mt-2 rounded-lg max-h-40 w-auto object-contain cursor-pointer border border-border" onClick={() => setPreviewImage(fileUrls[file.id])} loading="lazy" />
+                          )}
+                          {file.file_type === 'audio' && fileUrls[file.id] && (
+                            <audio controls preload="none" className="mt-2 w-full h-8" src={fileUrls[file.id]} />
+                          )}
                         </div>
                       ))}
                     </div>
@@ -1132,6 +1215,16 @@ export default function AdminTarefas() {
           </ResponsiveDialogBody>
         </ResponsiveDialogContent>
       </ResponsiveDialog>
+
+      {/* Fullscreen Image Preview */}
+      {previewImage && (
+        <div className="fixed inset-0 z-[100] bg-black/90 flex items-center justify-center p-4" onClick={() => setPreviewImage(null)}>
+          <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-white hover:bg-white/20 z-10" onClick={() => setPreviewImage(null)}>
+            <X className="w-6 h-6" />
+          </Button>
+          <img src={previewImage} alt="Preview" className="max-w-full max-h-full object-contain rounded-lg" onClick={(e) => e.stopPropagation()} />
+        </div>
+      )}
 
       {/* Assign Task Dialog */}
       <ResponsiveDialog open={showAssignDialog} onOpenChange={setShowAssignDialog}>
