@@ -240,6 +240,28 @@ export default function AdminTarefas() {
     }
   }, [user, isAdmin, authLoading, navigate, statusFilter]);
 
+  // Realtime subscription for instant updates
+  useEffect(() => {
+    if (!user || !isAdmin) return;
+
+    const channel = supabase
+      .channel('admin-tasks-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tasks' }, () => {
+        fetchTasks();
+      })
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'task_files' }, (payload) => {
+        // If viewing a task detail, refresh its files
+        if (selectedTask && payload.new && (payload.new as any).task_id === selectedTask.id) {
+          openTaskDetail(selectedTask);
+        }
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, isAdmin, selectedTask]);
+
   const fetchTasks = async () => {
     setIsLoading(true);
     try {
