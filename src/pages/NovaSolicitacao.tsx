@@ -204,6 +204,21 @@ export default function NovaSolicitacao() {
         });
       }));
 
+      // Notify all admins about the new task
+      const { data: adminRoles } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'admin');
+
+      if (adminRoles && adminRoles.length > 0) {
+        const adminNotifications = adminRoles.map((r) => ({
+          user_id: r.user_id,
+          title: 'Nova solicitação recebida!',
+          message: `${profile?.full_name || 'Um utilizador'} enviou uma nova solicitação: "${title}" (${files.length} ficheiro${files.length > 1 ? 's' : ''}).`,
+        }));
+        await supabase.from('notifications').insert(adminNotifications);
+      }
+
       await supabase
         .from('profiles')
         .update({ credits: (profile?.credits || 0) - serviceCost })
