@@ -101,8 +101,8 @@ export default function Index() {
               ) : (
                 <>
                   <Button variant="hero" asChild size="xl">
-                    <Link to="/registar">
-                      Começar Agora
+                    <Link to="/login">
+                      Entrar
                       <ArrowRight className="w-5 h-5" />
                     </Link>
                   </Button>
