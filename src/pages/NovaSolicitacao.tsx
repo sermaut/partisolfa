@@ -118,9 +118,20 @@ export default function NovaSolicitacao() {
         toast({ title: 'Tipo não suportado', description: `${file.name} não é permitido.`, variant: 'destructive' });
         return;
       }
+      if (!allowedTypesForService(serviceType).includes(fileType)) {
+        toast({
+          title: 'Tipo não permitido para este serviço',
+          description: serviceType === 'transposicao'
+            ? 'Transposição Musical aceita apenas imagens e áudios.'
+            : `${file.name} não é permitido.`,
+          variant: 'destructive',
+        });
+        return;
+      }
       const uploadedFile: UploadedFile = { file, type: fileType };
       if (fileType === 'image') uploadedFile.preview = URL.createObjectURL(file);
       newFiles.push(uploadedFile);
+
     });
 
     setFiles((prev) => [...prev, ...newFiles]);
