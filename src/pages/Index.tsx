@@ -125,9 +125,10 @@ export default function Index() {
                 <p className="text-sm text-muted-foreground">Créditos de bónus</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl md:text-4xl font-display font-bold text-gradient-gold">3</p>
+                <p className="text-3xl md:text-4xl font-display font-bold text-gradient-gold">2</p>
                 <p className="text-sm text-muted-foreground">Serviços</p>
               </div>
+
               <div className="text-center">
                 <p className="text-3xl md:text-4xl font-display font-bold text-gradient-gold">3</p>
                 <p className="text-sm text-muted-foreground">Dias máximo</p>
