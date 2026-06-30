@@ -56,26 +56,35 @@ export default function NovaSolicitacao() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [serviceType, setServiceType] = useState<'aperfeicoamento' | 'arranjo' | 'acc' | null>(null);
+  const [serviceType, setServiceType] = useState<'arranjo' | 'transposicao' | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [recommendations, setRecommendations] = useState('');
-  const [accPurpose, setAccPurpose] = useState('');
   const [resultFormat, setResultFormat] = useState<'pdf' | 'audio' | 'image'>('pdf');
   const [resultComment, setResultComment] = useState('');
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
 
-  const getServiceCredits = () => {
-    if (serviceType === 'aperfeicoamento') return 1.5;
-    if (serviceType === 'arranjo') return 2;
-    if (serviceType === 'acc') return 2;
-    return 0;
+  const getServiceCost = () => {
+    if (serviceType === 'arranjo') return { credits: 3, kz: 450 };
+    if (serviceType === 'transposicao') return { credits: 250 / 150, kz: 250 };
+    return { credits: 0, kz: 0 };
   };
 
-  const serviceCost = getServiceCredits();
+  const { credits: serviceCost, kz: serviceKz } = getServiceCost();
   const hasEnoughCredits = (profile?.credits || 0) >= serviceCost && serviceCost > 0;
+
+  // Allowed file types per service
+  const allowedTypesForService = (st: typeof serviceType): Array<'audio' | 'image' | 'document'> => {
+    if (st === 'arranjo') return ['audio', 'image', 'document'];
+    if (st === 'transposicao') return ['audio', 'image'];
+    return ['audio', 'image', 'document'];
+  };
+  const allowedAccept = serviceType === 'transposicao'
+    ? '.mp3,.wav,.aac,.jpg,.jpeg,.png'
+    : '.mp3,.wav,.aac,.pdf,.jpg,.jpeg,.png';
+
 
   const getFileType = (mimeType: string): 'audio' | 'image' | 'document' | null => {
     if (ACCEPTED_FILE_TYPES.audio.includes(mimeType)) return 'audio';
@@ -109,9 +118,20 @@ export default function NovaSolicitacao() {
         toast({ title: 'Tipo não suportado', description: `${file.name} não é permitido.`, variant: 'destructive' });
         return;
       }
+      if (!allowedTypesForService(serviceType).includes(fileType)) {
+        toast({
+          title: 'Tipo não permitido para este serviço',
+          description: serviceType === 'transposicao'
+            ? 'Transposição Musical aceita apenas imagens e áudios.'
+            : `${file.name} não é permitido.`,
+          variant: 'destructive',
+        });
+        return;
+      }
       const uploadedFile: UploadedFile = { file, type: fileType };
       if (fileType === 'image') uploadedFile.preview = URL.createObjectURL(file);
       newFiles.push(uploadedFile);
+
     });
 
     setFiles((prev) => [...prev, ...newFiles]);
@@ -151,23 +171,15 @@ export default function NovaSolicitacao() {
       toast({ title: 'Campos obrigatórios', description: 'Preencha todos os campos e anexe ficheiros.', variant: 'destructive' });
       return;
     }
-    if (serviceType === 'acc' && !accPurpose.trim()) {
-      toast({ title: 'Campo obrigatório', description: 'Descreva a finalidade do acompanhamento.', variant: 'destructive' });
-      return;
-    }
 
     setIsSubmitting(true);
     try {
-      const taskDescription = serviceType === 'acc' 
-        ? `${description || ''}\n\nFinalidade do ACC: ${accPurpose}`.trim()
-        : description;
-
       const { data: task, error: taskError } = await supabase
         .from('tasks')
         .insert({
           user_id: user!.id,
           title,
-          description: taskDescription,
+          description,
           recommendations,
           service_type: serviceType,
           credits_used: serviceCost,
@@ -178,6 +190,7 @@ export default function NovaSolicitacao() {
         .single();
 
       if (taskError) throw taskError;
+
 
       // Upload files in parallel
       await Promise.all(files.map(async (uploadedFile) => {
@@ -256,19 +269,15 @@ export default function NovaSolicitacao() {
           {/* Service Type Selection */}
           <div className="space-y-4 mb-8">
             <Label className="text-base">Tipo de Serviço *</Label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {([
-                { key: 'aperfeicoamento' as const, label: 'Aperfeiçoamento', desc: 'Melhoria de partituras e músicas', cost: '1.5 créditos', icon: Music },
-                { key: 'arranjo' as const, label: 'Arranjo Musical', desc: 'Criação de arranjos personalizados', cost: '2 créditos', icon: FileMusic },
-                { key: 'acc' as const, label: 'Criação de ACCs', desc: 'Acompanhamentos em áudio', cost: '2 créditos', icon: Headphones },
+                { key: 'arranjo' as const, label: 'Arranjo Musical', desc: 'Arranjo profissional com correcção harmónica', cost: '450 Kz (3 créditos)', icon: FileMusic },
+                { key: 'transposicao' as const, label: 'Transposição Musical', desc: 'Cópia fiel sem intervenção no arranjo', cost: '250 Kz (1.67 créditos)', icon: Music },
               ]).map((service) => (
                 <button
                   key={service.key}
                   type="button"
-                  onClick={() => {
-                    setServiceType(service.key);
-                    if (service.key === 'acc') setResultFormat('audio');
-                  }}
+                  onClick={() => setServiceType(service.key)}
                   className={`glass-card rounded-xl p-6 text-left transition-all relative ${
                     serviceType === service.key ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
                   }`}
@@ -283,12 +292,14 @@ export default function NovaSolicitacao() {
                       <p className="font-semibold">{service.label}</p>
                       <p className="text-sm text-muted-foreground">{service.desc}</p>
                       <p className="text-sm font-medium text-primary mt-2">{service.cost}</p>
+                      <p className="text-xs text-muted-foreground mt-1">Prazo máximo: 3 dias</p>
                     </div>
                   </div>
                   {serviceType === service.key && <CheckCircle className="absolute top-4 right-4 w-5 h-5 text-primary" />}
                 </button>
               ))}
             </div>
+
           </div>
 
           {!hasEnoughCredits && serviceType && (
@@ -324,11 +335,11 @@ export default function NovaSolicitacao() {
             <ResponsiveDialogTitle className="flex items-center gap-3">
               <div className="icon-container-premium">
                 {serviceType === 'arranjo' ? <FileMusic className="w-5 h-5 text-primary" /> :
-                 serviceType === 'acc' ? <Headphones className="w-5 h-5 text-primary" /> :
                  <Music className="w-5 h-5 text-primary" />}
               </div>
               Nova Solicitação
             </ResponsiveDialogTitle>
+
           </ResponsiveDialogHeader>
           <ResponsiveDialogBody>
             <div className="space-y-5">
@@ -371,51 +382,29 @@ export default function NovaSolicitacao() {
                 </div>
               </ResponsiveDialogSection>
 
-              {serviceType === 'acc' && (
-                <ResponsiveDialogSection delay={0.25}>
-                  <div className="space-y-2">
-                    <Label htmlFor="modal-acc">Finalidade do Acompanhamento *</Label>
-                    <Textarea
-                      id="modal-acc"
-                      placeholder="Para que instrumento(s) ou finalidade pretende os acompanhamentos..."
-                      value={accPurpose}
-                      onChange={(e) => setAccPurpose(e.target.value)}
-                      className="bg-secondary border-border min-h-[80px]"
-                    />
-                    <p className="text-xs text-muted-foreground">Receberá 3 versões de acompanhamento distintas.</p>
-                  </div>
-                </ResponsiveDialogSection>
-              )}
-
               <ResponsiveDialogSection delay={0.3}>
                 <div className="space-y-3">
                   <Label>Formato do Resultado *</Label>
-                  {serviceType === 'acc' ? (
-                    <div className="p-3 bg-secondary/50 rounded-xl border border-primary/20 flex items-center gap-2">
-                      <Headphones className="w-4 h-4 text-primary" />
-                      <span className="text-sm font-medium">Áudio (3 acompanhamentos)</span>
-                    </div>
-                  ) : (
-                    <RadioGroup value={resultFormat} onValueChange={(v) => setResultFormat(v as any)} className="space-y-2">
-                      {[
-                        { value: 'pdf', label: 'Partitura PDF', icon: FileText },
-                        { value: 'audio', label: 'Áudio', icon: Headphones },
-                        { value: 'image', label: 'Partitura Imagem', icon: Image },
-                      ].map((fmt) => (
-                        <div key={fmt.value} className={`flex items-center space-x-3 p-3 rounded-xl border transition-colors cursor-pointer ${
-                          resultFormat === fmt.value ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'
-                        }`}>
-                          <RadioGroupItem value={fmt.value} id={`modal-${fmt.value}`} />
-                          <Label htmlFor={`modal-${fmt.value}`} className="flex items-center gap-2 cursor-pointer flex-1">
-                            <fmt.icon className="w-4 h-4 text-muted-foreground" />
-                            {fmt.label}
-                          </Label>
-                        </div>
-                      ))}
-                    </RadioGroup>
-                  )}
+                  <RadioGroup value={resultFormat} onValueChange={(v) => setResultFormat(v as any)} className="space-y-2">
+                    {[
+                      { value: 'pdf', label: 'Partitura PDF', icon: FileText },
+                      { value: 'audio', label: 'Áudio', icon: Headphones },
+                      { value: 'image', label: 'Partitura Imagem', icon: Image },
+                    ].map((fmt) => (
+                      <div key={fmt.value} className={`flex items-center space-x-3 p-3 rounded-xl border transition-colors cursor-pointer ${
+                        resultFormat === fmt.value ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/30'
+                      }`}>
+                        <RadioGroupItem value={fmt.value} id={`modal-${fmt.value}`} />
+                        <Label htmlFor={`modal-${fmt.value}`} className="flex items-center gap-2 cursor-pointer flex-1">
+                          <fmt.icon className="w-4 h-4 text-muted-foreground" />
+                          {fmt.label}
+                        </Label>
+                      </div>
+                    ))}
+                  </RadioGroup>
                 </div>
               </ResponsiveDialogSection>
+
 
               <ResponsiveDialogSection delay={0.35}>
                 <div className="space-y-2">
@@ -439,7 +428,7 @@ export default function NovaSolicitacao() {
                     multiple
                     onChange={handleFileSelect}
                     className="hidden"
-                    accept=".mp3,.wav,.aac,.pdf,.jpg,.jpeg,.png"
+                    accept={allowedAccept}
                   />
                   <Button
                     variant="outline"
@@ -468,7 +457,12 @@ export default function NovaSolicitacao() {
                       ))}
                     </div>
                   )}
-                  <p className="text-xs text-muted-foreground">MP3, WAV, AAC, PDF, JPG, PNG (máx. 20MB cada)</p>
+                  <p className="text-xs text-muted-foreground">
+                    {serviceType === 'transposicao'
+                      ? 'Apenas imagens e áudios (MP3, WAV, AAC, JPG, PNG) — máx. 20MB cada'
+                      : 'PDFs, imagens e áudios (MP3, WAV, AAC, PDF, JPG, PNG) — máx. 20MB cada'}
+                  </p>
+
                 </div>
               </ResponsiveDialogSection>
             </div>

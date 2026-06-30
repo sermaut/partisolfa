@@ -18,54 +18,41 @@ import { Layout } from '@/components/layout/Layout';
 
 const services = [
   {
-    id: 'aperfeicoamento',
-    title: 'Aperfeiçoamento Musical',
-    description: 'Refinamos a sua partitura ou música existente, corrigindo erros, melhorando harmonias e aprimorando a qualidade geral da composição.',
-    icon: Music,
-    features: [
-      'Correção de erros harmónicos e melódicos',
-      'Melhoria de vozes e contrapontos',
-      'Ajuste de dinâmicas e articulações',
-      'Revisão de notação musical',
-      'Optimização para execução',
-    ],
-    price: '1.5 créditos',
-    delivery: 'Até 3 dias',
-    popular: false,
-  },
-  {
     id: 'arranjo',
     title: 'Arranjo Musical',
-    description: 'Criamos arranjos profissionais personalizados para qualquer formação instrumental ou vocal, desde solos até orquestras completas.',
+    description: 'Criamos arranjos profissionais personalizados para qualquer hino, com correcção harmónica e harmonização completa.',
     icon: FileMusic,
     features: [
-      'Arranjo para qualquer formação musical',
-      'Adaptação de tonalidade e estilo',
-      'Harmonização completa',
-      'Partes instrumentais/vocais separadas',
-      'Ficheiro de áudio demonstrativo',
+      'Correcção de erros harmónicos e melódicos',
+      'Harmonização profissional de hinos',
+      'Melhoria de vozes musicais e contrapontos',
+      'Partes instrumentais/vocais separadas por partições',
+      'Aceita PDFs, imagens e áudios',
     ],
-    price: '2 créditos',
+    price: '450 Kz',
+    credits: '3 créditos',
     delivery: 'Até 3 dias',
     popular: true,
   },
   {
-    id: 'acc',
-    title: 'Criação de ACCs',
-    description: 'Produzimos acompanhamentos em áudio personalizados para prática, ensaios ou apresentações, com 3 versões distintas entregues.',
-    icon: Headphones,
+    id: 'transposicao',
+    title: 'Transposição Musical',
+    description: 'Recriamos arranjos no sentido de copiar e colar, sem nenhuma intervenção no arranjo anexado.',
+    icon: Music,
     features: [
-      'Entrega exclusiva em formato áudio',
-      '3 acompanhamentos distintos incluídos',
-      'Ideal para flauta, fanfarra, guitarra',
-      'Personalizado para a sua finalidade',
-      'Perfeito para ensaios e prática',
+      'Sem ajuste de erros harmónicos',
+      'Sem melhoria de vozes musicais e contrapontos',
+      'Sem intervenção no arranjo anexado',
+      'Transposição fiel ao original',
+      'Aceita apenas imagens e áudios',
     ],
-    price: '2 créditos',
+    price: '250 Kz',
+    credits: '1.67 créditos',
     delivery: 'Até 3 dias',
     popular: false,
   },
 ];
+
 
 const benefits = [
   {
@@ -110,7 +97,7 @@ export default function Servicos() {
         </motion.div>
 
         {/* Services Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-20 max-w-4xl mx-auto">
           {services.map((service, index) => {
             const Icon = service.icon;
             return (
@@ -153,14 +140,16 @@ export default function Servicos() {
 
                 <div className="flex items-center justify-between pt-6 border-t border-border">
                   <div>
-                    <p className="text-sm text-muted-foreground">A partir de</p>
+                    <p className="text-sm text-muted-foreground">Preço</p>
                     <p className="text-2xl font-display font-bold text-primary">{service.price}</p>
+                    <p className="text-xs text-muted-foreground">{service.credits}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-sm text-muted-foreground">Prazo</p>
                     <p className="font-medium">{service.delivery}</p>
                   </div>
                 </div>
+
 
                 <Button 
                   variant={service.popular ? 'premium' : 'outline'} 

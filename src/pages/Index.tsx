@@ -125,9 +125,10 @@ export default function Index() {
                 <p className="text-sm text-muted-foreground">Créditos de bónus</p>
               </div>
               <div className="text-center">
-                <p className="text-3xl md:text-4xl font-display font-bold text-gradient-gold">3</p>
+                <p className="text-3xl md:text-4xl font-display font-bold text-gradient-gold">2</p>
                 <p className="text-sm text-muted-foreground">Serviços</p>
               </div>
+
               <div className="text-center">
                 <p className="text-3xl md:text-4xl font-display font-bold text-gradient-gold">3</p>
                 <p className="text-sm text-muted-foreground">Dias máximo</p>
@@ -155,8 +156,8 @@ export default function Index() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {/* Service 1 */}
+          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+            {/* Service 1 - Arranjo */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -165,21 +166,21 @@ export default function Index() {
               className="glass-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 group"
             >
               <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <Music className="w-6 h-6 text-primary-foreground" />
+                <FileMusic className="w-6 h-6 text-primary-foreground" />
               </div>
               <h3 className="font-display text-xl font-semibold mb-3">
-                Aperfeiçoamento Musical
+                Arranjo Musical
               </h3>
               <p className="text-muted-foreground text-sm mb-4">
-                Melhoria de músicas e partituras existentes com qualidade profissional.
+                Arranjos profissionais personalizados para qualquer hino, com correcção harmónica e melhoria de vozes.
               </p>
               <div className="flex items-center gap-2 text-primary font-semibold text-sm">
-                <span>1.5 Créditos</span>
-                <span className="text-muted-foreground font-normal">• 225 Kz</span>
+                <span>450 Kz</span>
+                <span className="text-muted-foreground font-normal">• 3 créditos</span>
               </div>
             </motion.div>
 
-            {/* Service 2 */}
+            {/* Service 2 - Transposição */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -188,43 +189,21 @@ export default function Index() {
               className="glass-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 group"
             >
               <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <FileMusic className="w-6 h-6 text-primary-foreground" />
+                <Music className="w-6 h-6 text-primary-foreground" />
               </div>
               <h3 className="font-display text-xl font-semibold mb-3">
-                Criação de Arranjos
+                Transposição Musical
               </h3>
               <p className="text-muted-foreground text-sm mb-4">
-                Arranjos musicais personalizados e únicos para as suas composições.
+                Cópia fiel do arranjo anexado, sem ajustes harmónicos nem alterações no original.
               </p>
               <div className="flex items-center gap-2 text-primary font-semibold text-sm">
-                <span>2 Créditos</span>
-                <span className="text-muted-foreground font-normal">• 300 Kz</span>
-              </div>
-            </motion.div>
-
-            {/* Service 3 */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="glass-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <Headphones className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <h3 className="font-display text-xl font-semibold mb-3">
-                Criação de ACCs
-              </h3>
-              <p className="text-muted-foreground text-sm mb-4">
-                Acompanhamentos musicais para diferentes instrumentos e finalidades.
-              </p>
-              <div className="flex items-center gap-2 text-primary font-semibold text-sm">
-                <span>2 Créditos</span>
-                <span className="text-muted-foreground font-normal">• 300 Kz</span>
+                <span>250 Kz</span>
+                <span className="text-muted-foreground font-normal">• ~1.67 créditos</span>
               </div>
             </motion.div>
           </div>
+
         </div>
       </section>
 

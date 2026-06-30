@@ -106,10 +106,12 @@ const statusConfig = {
 };
 
 const serviceLabels: Record<string, string> = {
-  aperfeicoamento: 'Aperfeiçoamento',
+  aperfeicoamento: 'Aperfeiçoamento (legado)',
   arranjo: 'Arranjo Musical',
-  acc: 'Criação de ACCs',
+  transposicao: 'Transposição Musical',
+  acc: 'Criação de ACCs (legado)',
 };
+
 
 const resultFormatLabels: Record<string, string> = {
   pdf: 'Partitura PDF',
@@ -776,10 +778,12 @@ export default function AdminTarefas() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos Serviços</SelectItem>
-                    <SelectItem value="aperfeicoamento">Aperfeiçoamento</SelectItem>
                     <SelectItem value="arranjo">Arranjo Musical</SelectItem>
-                    <SelectItem value="acc">Criação de ACCs</SelectItem>
+                    <SelectItem value="transposicao">Transposição Musical</SelectItem>
+                    <SelectItem value="aperfeicoamento">Aperfeiçoamento (legado)</SelectItem>
+                    <SelectItem value="acc">Criação de ACCs (legado)</SelectItem>
                   </SelectContent>
+
                 </Select>
               </div>
             </div>
