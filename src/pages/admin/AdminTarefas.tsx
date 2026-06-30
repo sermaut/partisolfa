@@ -778,10 +778,12 @@ export default function AdminTarefas() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Todos Serviços</SelectItem>
-                    <SelectItem value="aperfeicoamento">Aperfeiçoamento</SelectItem>
                     <SelectItem value="arranjo">Arranjo Musical</SelectItem>
-                    <SelectItem value="acc">Criação de ACCs</SelectItem>
+                    <SelectItem value="transposicao">Transposição Musical</SelectItem>
+                    <SelectItem value="aperfeicoamento">Aperfeiçoamento (legado)</SelectItem>
+                    <SelectItem value="acc">Criação de ACCs (legado)</SelectItem>
                   </SelectContent>
+
                 </Select>
               </div>
             </div>
