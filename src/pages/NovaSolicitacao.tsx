@@ -56,26 +56,35 @@ export default function NovaSolicitacao() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [serviceType, setServiceType] = useState<'aperfeicoamento' | 'arranjo' | 'acc' | null>(null);
+  const [serviceType, setServiceType] = useState<'arranjo' | 'transposicao' | null>(null);
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [recommendations, setRecommendations] = useState('');
-  const [accPurpose, setAccPurpose] = useState('');
   const [resultFormat, setResultFormat] = useState<'pdf' | 'audio' | 'image'>('pdf');
   const [resultComment, setResultComment] = useState('');
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
 
-  const getServiceCredits = () => {
-    if (serviceType === 'aperfeicoamento') return 1.5;
-    if (serviceType === 'arranjo') return 2;
-    if (serviceType === 'acc') return 2;
-    return 0;
+  const getServiceCost = () => {
+    if (serviceType === 'arranjo') return { credits: 3, kz: 450 };
+    if (serviceType === 'transposicao') return { credits: 250 / 150, kz: 250 };
+    return { credits: 0, kz: 0 };
   };
 
-  const serviceCost = getServiceCredits();
+  const { credits: serviceCost, kz: serviceKz } = getServiceCost();
   const hasEnoughCredits = (profile?.credits || 0) >= serviceCost && serviceCost > 0;
+
+  // Allowed file types per service
+  const allowedTypesForService = (st: typeof serviceType): Array<'audio' | 'image' | 'document'> => {
+    if (st === 'arranjo') return ['audio', 'image', 'document'];
+    if (st === 'transposicao') return ['audio', 'image'];
+    return ['audio', 'image', 'document'];
+  };
+  const allowedAccept = serviceType === 'transposicao'
+    ? '.mp3,.wav,.aac,.jpg,.jpeg,.png'
+    : '.mp3,.wav,.aac,.pdf,.jpg,.jpeg,.png';
+
 
   const getFileType = (mimeType: string): 'audio' | 'image' | 'document' | null => {
     if (ACCEPTED_FILE_TYPES.audio.includes(mimeType)) return 'audio';
