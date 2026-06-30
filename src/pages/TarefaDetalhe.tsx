@@ -247,46 +247,11 @@ export default function TarefaDetalhe() {
           </div>
 
           {/* Status Message */}
-          <div className="glass-card rounded-xl p-4 mb-8">
+          <div className="glass-card rounded-xl p-4 mb-6">
             <p className="text-muted-foreground">{status.description}</p>
           </div>
 
-          {/* Details Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div className="glass-card rounded-xl p-5">
-              <div className="flex items-center gap-3 mb-3">
-                <Calendar className="w-5 h-5 text-primary" />
-                <span className="font-medium">Data de Criação</span>
-              </div>
-              <p className="text-muted-foreground">{formatDate(task.created_at)}</p>
-            </div>
-
-            <div className="glass-card rounded-xl p-5">
-              <div className="flex items-center gap-3 mb-3">
-                <Clock className="w-5 h-5 text-primary" />
-                <span className="font-medium">Última Actualização</span>
-              </div>
-              <p className="text-muted-foreground">{formatDate(task.updated_at)}</p>
-            </div>
-          </div>
-
-          {/* Description */}
-          {task.description && (
-            <div className="glass-card rounded-xl p-5 mb-6">
-              <h2 className="font-display text-lg font-semibold mb-3">Descrição</h2>
-              <p className="text-muted-foreground whitespace-pre-wrap">{task.description}</p>
-            </div>
-          )}
-
-          {/* Recommendations */}
-          {task.recommendations && (
-            <div className="glass-card rounded-xl p-5 mb-6">
-              <h2 className="font-display text-lg font-semibold mb-3">Recomendações</h2>
-              <p className="text-muted-foreground whitespace-pre-wrap">{task.recommendations}</p>
-            </div>
-          )}
-
-          {/* Result Files (Show prominently if completed) */}
+          {/* Result Files (Expanded by default, prominent) */}
           {resultFiles.length > 0 && (
             <div className="glass-card rounded-xl p-5 mb-6 border-success/50 bg-success/5">
               <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2 text-success">
@@ -329,11 +294,64 @@ export default function TarefaDetalhe() {
             </div>
           )}
 
+          {/* Collapsible sections - other details */}
+          <details className="glass-card rounded-xl mb-4 group" open={resultFiles.length === 0}>
+            <summary className="cursor-pointer p-5 font-display text-lg font-semibold flex items-center justify-between">
+              Detalhes da Solicitação
+              <span className="text-sm text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
+            </summary>
+            <div className="px-5 pb-5 grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1 text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4" /> Data de Criação
+                </div>
+                <p className="text-sm">{formatDate(task.created_at)}</p>
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1 text-sm text-muted-foreground">
+                  <Clock className="w-4 h-4" /> Última Actualização
+                </div>
+                <p className="text-sm">{formatDate(task.updated_at)}</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Prazo máximo</p>
+                <p className="text-sm font-medium">Até 3 dias após a criação</p>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1">Créditos utilizados</p>
+                <p className="text-sm font-medium">{task.credits_used}</p>
+              </div>
+            </div>
+          </details>
+
+          {task.description && (
+            <details className="glass-card rounded-xl mb-4 group">
+              <summary className="cursor-pointer p-5 font-display text-lg font-semibold flex items-center justify-between">
+                Descrição
+                <span className="text-sm text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p className="px-5 pb-5 text-muted-foreground whitespace-pre-wrap">{task.description}</p>
+            </details>
+          )}
+
+          {task.recommendations && (
+            <details className="glass-card rounded-xl mb-4 group">
+              <summary className="cursor-pointer p-5 font-display text-lg font-semibold flex items-center justify-between">
+                Recomendações
+                <span className="text-sm text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p className="px-5 pb-5 text-muted-foreground whitespace-pre-wrap">{task.recommendations}</p>
+            </details>
+          )}
+
           {/* Uploaded Files */}
           {uploadedFiles.length > 0 && (
-            <div className="glass-card rounded-xl p-5">
-              <h2 className="font-display text-lg font-semibold mb-4">Ficheiros Enviados</h2>
-              <div className="space-y-3">
+            <details className="glass-card rounded-xl mb-4 group">
+              <summary className="cursor-pointer p-5 font-display text-lg font-semibold flex items-center justify-between">
+                Ficheiros Enviados ({uploadedFiles.length})
+                <span className="text-sm text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <div className="px-5 pb-5 space-y-3">
                 {uploadedFiles.map((file) => (
                   <div
                     key={file.id}
@@ -363,8 +381,9 @@ export default function TarefaDetalhe() {
                   </div>
                 ))}
               </div>
-            </div>
+            </details>
           )}
+
         </motion.div>
       </div>
     </Layout>
