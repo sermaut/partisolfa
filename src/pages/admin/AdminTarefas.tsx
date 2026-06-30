@@ -106,10 +106,12 @@ const statusConfig = {
 };
 
 const serviceLabels: Record<string, string> = {
-  aperfeicoamento: 'Aperfeiçoamento',
+  aperfeicoamento: 'Aperfeiçoamento (legado)',
   arranjo: 'Arranjo Musical',
-  acc: 'Criação de ACCs',
+  transposicao: 'Transposição Musical',
+  acc: 'Criação de ACCs (legado)',
 };
+
 
 const resultFormatLabels: Record<string, string> = {
   pdf: 'Partitura PDF',

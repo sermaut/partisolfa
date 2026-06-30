@@ -41,10 +41,13 @@ const statusConfig = {
   cancelled: { label: 'Cancelada', class: 'status-cancelled', icon: AlertCircle },
 };
 
-const serviceLabels = {
-  aperfeicoamento: 'Aperfeiçoamento',
+const serviceLabels: Record<string, string> = {
+  aperfeicoamento: 'Aperfeiçoamento (legado)',
   arranjo: 'Arranjo Musical',
+  transposicao: 'Transposição Musical',
+  acc: 'Criação de ACCs (legado)',
 };
+
 
 export default function Historico() {
   const { user, isLoading: authLoading } = useAuth();
@@ -166,9 +169,10 @@ export default function Historico() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos os serviços</SelectItem>
-                  <SelectItem value="aperfeicoamento">Aperfeiçoamento</SelectItem>
                   <SelectItem value="arranjo">Arranjo Musical</SelectItem>
+                  <SelectItem value="transposicao">Transposição Musical</SelectItem>
                 </SelectContent>
+
               </Select>
             </div>
           </div>

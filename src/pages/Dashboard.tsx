@@ -52,10 +52,13 @@ const statusConfig = {
   cancelled: { label: 'Cancelada', class: 'status-cancelled', icon: AlertCircle },
 };
 
-const serviceLabels = {
-  aperfeicoamento: 'Aperfeiçoamento',
+const serviceLabels: Record<string, string> = {
+  aperfeicoamento: 'Aperfeiçoamento (legado)',
   arranjo: 'Arranjo Musical',
+  transposicao: 'Transposição Musical',
+  acc: 'Criação de ACCs (legado)',
 };
+
 
 export default function Dashboard() {
   const { user, profile, isLoading: authLoading } = useAuth();

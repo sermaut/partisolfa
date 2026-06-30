@@ -45,10 +45,13 @@ const statusConfig = {
   cancelled: { label: 'Cancelada', class: 'status-cancelled', icon: XCircle },
 };
 
-const serviceLabels = {
-  aperfeicoamento: 'Aperfeiçoamento',
+const serviceLabels: Record<string, string> = {
+  aperfeicoamento: 'Aperfeiçoamento (legado)',
   arranjo: 'Arranjo Musical',
+  transposicao: 'Transposição Musical',
+  acc: 'Criação de ACCs (legado)',
 };
+
 
 export default function SolicitacoesRecentes() {
   const { user, isLoading: authLoading } = useAuth();

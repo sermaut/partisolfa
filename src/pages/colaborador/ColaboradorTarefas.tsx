@@ -80,11 +80,13 @@ interface TaskFile {
   is_result: boolean;
 }
 
-const serviceConfig = {
-  aperfeicoamento: { label: 'Aperfeiçoamento', icon: Music },
+const serviceConfig: Record<string, { label: string; icon: typeof Music }> = {
+  aperfeicoamento: { label: 'Aperfeiçoamento (legado)', icon: Music },
   arranjo: { label: 'Arranjo Musical', icon: FileMusic },
-  acc: { label: 'Criação de ACCs', icon: Headphones },
+  transposicao: { label: 'Transposição Musical', icon: Music },
+  acc: { label: 'Criação de ACCs (legado)', icon: Headphones },
 };
+
 
 const statusConfig = {
   pending: { label: 'Pendente', class: 'bg-yellow-500/20 text-yellow-500' },
