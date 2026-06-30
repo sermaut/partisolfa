@@ -417,7 +417,7 @@ export default function NovaSolicitacao() {
                     multiple
                     onChange={handleFileSelect}
                     className="hidden"
-                    accept=".mp3,.wav,.aac,.pdf,.jpg,.jpeg,.png"
+                    accept={allowedAccept}
                   />
                   <Button
                     variant="outline"
@@ -446,7 +446,12 @@ export default function NovaSolicitacao() {
                       ))}
                     </div>
                   )}
-                  <p className="text-xs text-muted-foreground">MP3, WAV, AAC, PDF, JPG, PNG (máx. 20MB cada)</p>
+                  <p className="text-xs text-muted-foreground">
+                    {serviceType === 'transposicao'
+                      ? 'Apenas imagens e áudios (MP3, WAV, AAC, JPG, PNG) — máx. 20MB cada'
+                      : 'PDFs, imagens e áudios (MP3, WAV, AAC, PDF, JPG, PNG) — máx. 20MB cada'}
+                  </p>
+
                 </div>
               </ResponsiveDialogSection>
             </div>
