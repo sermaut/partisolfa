@@ -314,6 +314,15 @@ export function Header() {
                     </Link>
                     
                     <Link 
+                      to="/servicos" 
+                      onClick={() => setIsMenuOpen(false)}
+                      className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
+                    >
+                      <FileText className="w-5 h-5" />
+                      Nossos Serviços
+                    </Link>
+                    
+                    <Link 
                       to="/nova-solicitacao" 
                       onClick={() => setIsMenuOpen(false)}
                       className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
@@ -321,6 +330,7 @@ export function Header() {
                       <PlusCircle className="w-5 h-5" />
                       Nova Solicitação
                     </Link>
+
                     
                     <Link 
                       to="/notificacoes" 
