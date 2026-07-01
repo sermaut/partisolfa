@@ -139,12 +139,12 @@
   /* Gold gradient text */
   .text-gradient-gold {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(180, 70%, 38%) 0%, hsl(150, 60%, 42%) 50%, hsl(180, 70%, 38%) 100%);
+    background-image: linear-gradient(135deg, hsl(146, 71%, 19%) 0%, hsl(43, 71%, 47%) 50%, hsl(146, 71%, 19%) 100%);
   }
 
-  /* Glass morphism card */
+  /* Glass morphism card - solid surface with soft border */
   .glass-card {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50;
+    @apply bg-card border border-border;
     box-shadow: var(--shadow-card);
   }
 
