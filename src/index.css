@@ -155,7 +155,7 @@
   }
 
   .btn-glow:hover {
-    box-shadow: 0 6px 30px -4px hsla(38, 95%, 55%, 0.5);
+    box-shadow: 0 6px 30px -4px hsla(146, 71%, 19%, 0.45);
     transform: translateY(-2px);
   }
 
@@ -169,7 +169,7 @@
 
   .music-wave span {
     width: 3px;
-    background: linear-gradient(to top, hsl(38, 95%, 55%), hsl(32, 90%, 50%));
+    background: linear-gradient(to top, hsl(146, 71%, 19%), hsl(43, 71%, 47%));
     border-radius: 2px;
     animation: wave 1s ease-in-out infinite;
   }
@@ -184,28 +184,28 @@
     50% { height: 20px; }
   }
 
-  /* Status badges */
+  /* Status badges - solid borders */
   .status-pending {
-    @apply bg-warning/20 text-warning border border-warning/30;
+    @apply bg-warning/15 text-warning border border-warning;
   }
 
   .status-progress {
-    @apply bg-primary/20 text-primary border border-primary/30;
+    @apply bg-primary/10 text-primary border border-primary;
   }
 
   .status-completed {
-    @apply bg-success/20 text-success border border-success/30;
+    @apply bg-success/10 text-success border border-success;
   }
 
   .status-cancelled {
-    @apply bg-destructive/20 text-destructive border border-destructive/30;
+    @apply bg-destructive/10 text-destructive border border-destructive;
   }
 
   /* Animated border */
   .animated-border {
     position: relative;
     background: linear-gradient(var(--card), var(--card)) padding-box,
-                linear-gradient(135deg, hsl(38, 95%, 55%), hsl(32, 90%, 50%), hsl(38, 95%, 55%)) border-box;
+                linear-gradient(135deg, hsl(146, 71%, 19%), hsl(43, 71%, 47%), hsl(146, 71%, 19%)) border-box;
     border: 1px solid transparent;
   }
 
