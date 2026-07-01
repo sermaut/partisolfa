@@ -200,8 +200,6 @@
   .status-cancelled {
     @apply bg-destructive text-destructive-foreground border border-destructive rounded-md;
   }
-    @apply bg-destructive/10 text-destructive border border-destructive;
-  }
 
   /* Animated border */
   .animated-border {
