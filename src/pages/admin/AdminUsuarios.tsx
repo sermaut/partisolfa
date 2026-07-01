@@ -608,7 +608,7 @@ export default function AdminUsuarios() {
                           min="0"
                           value={editForm.credits}
                           onChange={(e) => setEditForm(prev => ({ ...prev, credits: e.target.value }))}
-                          className="bg-background/50 h-8 text-sm"
+                          className="bg-secondary h-8 text-sm"
                         />
                       ) : (
                         <p className="font-semibold text-base sm:text-lg text-primary">{detailsProfile.credits.toFixed(1)}</p>

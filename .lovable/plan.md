@@ -1,87 +1,85 @@
+# Reformular paleta e bordas em todo o site
 
+## Objetivo
 
-## Corrigir Visualizacao de Ficheiros Enviados no Painel Admin
+Substituir a paleta atual (teal + verde claro sobre off-white) por uma paleta editorial **Creme Quente + Verde Profundo**, com **bordas sólidas e visíveis** em todos os cards, inputs, botões outline e separadores. Aplicar ao site inteiro (público + autenticado + admin).
 
-### Problema Identificado
+## Nova paleta
 
-A secao "Ficheiros Enviados" mostra "Nenhum ficheiro enviado" mesmo quando existem ficheiros na base de dados. Apos analise do codigo, identifiquei duas causas:
+- Fundo base: creme quente `#FBF8F1`
+- Superfícies (cards, popovers, modais): branco puro `#FFFFFF`
+- Texto principal: quase-preto `#1A1A1A`
+- Primária (botões, links, foco): verde profundo `#0F5132`
+- Acento (destaques premium, gradientes dourados legados): dourado `#C9A227`
+- Bordas: cinza-quente sólido, ~`#D9D2C2` (opaco, sem transparência)
+- Muted / secondary: creme mais escuro `#F2ECDD`
+- Sucesso: mantém verde profundo; Aviso: dourado; Destrutivo: vermelho terroso `#B23A2E`
 
-1. **Sem estado de carregamento**: Quando o modal abre, os ficheiros sao buscados de forma assincrona, mas nao existe indicador visual de loading. O utilizador ve imediatamente "Nenhum ficheiro enviado" antes da consulta terminar.
-2. **Sem previsualizacao rapida**: Os ficheiros apenas mostram nome e botao de download, sem previews inline (imagens, audio), tornando a experiencia lenta e pouco informativa.
+## Mudanças
 
-### Solucao Proposta
+### 1. `src/index.css` (núcleo da mudança)
+- Reescrever `:root` com os novos tokens HSL (background, foreground, card, popover, primary, secondary, muted, accent, destructive, success, warning, border, input, ring, sidebar-*).
+- Atualizar `.dark` para uma versão escura coerente (verde muito escuro `#0A1F14` como fundo, creme como foreground, mesmos acentos).
+- Substituir `--gradient-gold` para `linear-gradient(135deg, #0F5132 0%, #C9A227 100%)` mantendo o nome da variável (compatibilidade com botões `premium`/`hero`).
+- `--gradient-hero`, `--gradient-card`, `--gradient-dark`: recalibrar para tons creme.
+- `--shadow-gold` e `--shadow-card`: recalcular com base no verde profundo em vez do teal.
+- `.text-gradient-gold`: passar a usar verde profundo → dourado.
+- Remover opacidades exageradas nas classes `status-*`: trocar `bg-*/20` por `bg-*/10` **e** `border-*` sólido (sem `/30`).
+- `.glass-card`: reduzir transparência (`bg-card/95`) para bordas ficarem nítidas em fundo creme.
 
-#### 1. Adicionar estado de carregamento para ficheiros
+### 2. `tailwind.config.ts`
+- Atualizar `backgroundImage.gradient-gold`, `gradient-dark`, `gradient-card` para refletir a nova paleta (verde profundo + dourado + creme). Manter os nomes das chaves.
 
-No ficheiro `src/pages/admin/AdminTarefas.tsx`:
-- Criar um estado `loadingFiles` que mostra um spinner enquanto os ficheiros sao carregados
-- Impedir que "Nenhum ficheiro enviado" apareca prematuramente
+### 3. Bordas sólidas — varredura pontual
+Procurar e endurecer bordas transparentes nos componentes partilhados:
+- `src/components/ui/card.tsx`: já usa `border` (token) — passará a ser sólido pelo novo `--border`. Sem edit.
+- `src/components/ui/input.tsx`, `textarea.tsx`, `select.tsx`, `dialog.tsx`, `dropdown-menu.tsx`, `popover.tsx`, `sheet.tsx`, `alert.tsx`: trocar quaisquer `border-border/50`, `border-white/10`, `bg-card/50`, `bg-background/80` por versões sólidas (`border-border`, `bg-card`, `bg-background`).
+- `src/components/layout/Header.tsx` e `Footer.tsx`: remover transparências em bordas/fundos (`backdrop-blur` mantém-se, mas fundo passa a `bg-background/95` mínimo e borda `border-border`).
+- Botão `variant="outline"` em `button.tsx`: já usa `border-border` — herda automaticamente.
 
-#### 2. Pre-carregar URLs assinadas para visualizacao rapida
+### 4. Ajustes específicos de páginas com cores hardcoded
+Grep por classes que quebram tokens e substituir por semânticas:
+- `text-white`, `bg-black`, `bg-white`, `text-black`, `bg-[#…]`, `border-white/…`, `bg-black/…` em: `Index.tsx`, `Servicos.tsx`, `Login.tsx`, `Register.tsx`, `Dashboard.tsx`, `TarefaDetalhe.tsx`, `NovaSolicitacao.tsx`, `admin/*`, `colaborador/*`.
+- Substituir por `text-foreground`, `bg-background`, `bg-card`, `text-primary-foreground`, `border-border`.
 
-- Ao abrir os detalhes da tarefa, gerar URLs assinadas (signed URLs) em paralelo para todos os ficheiros
-- Guardar essas URLs em estado para acesso instantaneo
-- Isto permite previews inline sem latencia adicional
+### 5. Validação
+- Abrir preview em `/` (Home), `/login`, `/dashboard`, `/nova-solicitacao`, `/admin/tarefas` e confirmar visualmente:
+  - Bordas visíveis em todos os cards e inputs.
+  - Nenhum texto ilegível (contraste AA mínimo).
+  - Gradientes dourados agora em verde+dourado, não teal.
+  - Modais e dropdowns com fundo opaco.
 
-#### 3. Melhorar a apresentacao dos ficheiros
+## Fora de escopo
+- Não alterar lógica, dados, RLS, rotas ou funcionalidades.
+- Não trocar tipografia (Playfair Display + Inter mantêm-se).
+- Não adicionar novos componentes.
 
-Substituir a lista simples por cards mais ricos com:
-- **Imagens**: Thumbnail inline com opcao de ver em tela cheia
-- **Audio**: Player inline compacto para reproducao directa
-- **Documentos/PDF**: Icone diferenciado com tamanho do ficheiro formatado
-- Botao de download mantido para todos os tipos
+## Detalhes técnicos (para referência)
 
-#### 4. Optimizar velocidade
+Valores HSL a colocar em `:root`:
 
-- Usar `Promise.all` para buscar os ficheiros e gerar URLs assinadas em paralelo
-- Definir tempo de expiracao longo (1 hora) para URLs assinadas para evitar regeneracoes
-
-### Detalhes Tecnicos
-
-**Ficheiro**: `src/pages/admin/AdminTarefas.tsx`
-
-Alteracoes no estado:
-```typescript
-const [loadingFiles, setLoadingFiles] = useState(false);
-const [fileUrls, setFileUrls] = useState<Record<string, string>>({});
+```text
+--background: 42 45% 96%;      /* #FBF8F1 */
+--foreground: 0 0% 10%;        /* #1A1A1A */
+--card: 0 0% 100%;
+--card-foreground: 0 0% 10%;
+--popover: 0 0% 100%;
+--popover-foreground: 0 0% 10%;
+--primary: 146 71% 19%;        /* #0F5132 */
+--primary-foreground: 42 45% 96%;
+--secondary: 42 40% 91%;       /* #F2ECDD */
+--secondary-foreground: 0 0% 15%;
+--muted: 42 35% 93%;
+--muted-foreground: 0 0% 35%;
+--accent: 43 71% 47%;          /* #C9A227 */
+--accent-foreground: 0 0% 10%;
+--destructive: 8 60% 44%;      /* #B23A2E */
+--destructive-foreground: 42 45% 96%;
+--success: 146 71% 19%;
+--warning: 43 71% 47%;
+--border: 42 25% 80%;          /* #D9D2C2 sólido */
+--input: 42 25% 82%;
+--ring: 146 71% 19%;
 ```
 
-Alteracoes na funcao `openTaskDetail`:
-```typescript
-const openTaskDetail = async (task: Task) => {
-  setSelectedTask(task);
-  setLoadingFiles(true);
-  setTaskFiles([]);
-  setFileUrls({});
-
-  const { data: files } = await supabase
-    .from('task_files')
-    .select('*')
-    .eq('task_id', task.id)
-    .order('is_result', { ascending: false });
-
-  const loadedFiles = files || [];
-  setTaskFiles(loadedFiles);
-
-  // Gerar URLs assinadas em paralelo
-  const urlEntries = await Promise.all(
-    loadedFiles.map(async (file) => {
-      const bucket = file.is_result ? 'result-files' : 'task-files';
-      const { data } = await supabase.storage
-        .from(bucket)
-        .createSignedUrl(file.file_path, 3600);
-      return [file.id, data?.signedUrl || ''];
-    })
-  );
-  setFileUrls(Object.fromEntries(urlEntries));
-  setLoadingFiles(false);
-};
-```
-
-Alteracoes na UI (seccao "Ficheiros Enviados"):
-- Mostrar `Loader2` com animacao enquanto `loadingFiles === true`
-- Para ficheiros de tipo `image`: mostrar thumbnail clicavel usando a URL assinada
-- Para ficheiros de tipo `audio`: mostrar mini-player `<audio>` com controlos nativos
-- Para outros tipos: manter icone + nome + tamanho + botao download
-- Usar download via URL assinada (mais rapido que `supabase.storage.download()`)
-
+Após aprovação, aplico tudo numa única passagem.
