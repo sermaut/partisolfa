@@ -31,32 +31,32 @@
     --secondary: 42 40% 91%;
     --secondary-foreground: 0 0% 15%;
 
-    /* Muted */
+    /* Muted - darker for WCAG AA */
     --muted: 42 35% 93%;
-    --muted-foreground: 0 0% 35%;
+    --muted-foreground: 0 0% 28%;
 
     /* Accent - Gold */
     --accent: 43 71% 47%;
     --accent-foreground: 0 0% 10%;
 
     /* Destructive - Terracotta red */
-    --destructive: 8 60% 44%;
+    --destructive: 8 65% 38%;
     --destructive-foreground: 42 45% 96%;
 
     /* Success */
     --success: 146 71% 19%;
     --success-foreground: 42 45% 96%;
 
-    /* Warning */
-    --warning: 43 71% 47%;
-    --warning-foreground: 0 0% 10%;
+    /* Warning - darkened for text readability on cream */
+    --warning: 38 78% 32%;
+    --warning-foreground: 42 45% 96%;
 
     /* Borders & inputs - solid warm gray */
-    --border: 42 25% 80%;
-    --input: 42 25% 82%;
+    --border: 42 22% 72%;
+    --input: 42 22% 72%;
     --ring: 146 71% 19%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
     /* Gradients (kept var names for compatibility) */
     --gradient-gold: linear-gradient(135deg, hsl(146, 71%, 19%) 0%, hsl(43, 71%, 47%) 100%);
@@ -64,10 +64,10 @@
     --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(42, 40%, 96%) 100%);
     --gradient-hero: linear-gradient(135deg, hsl(42, 50%, 95%) 0%, hsl(43, 45%, 92%) 50%, hsl(42, 50%, 95%) 100%);
 
-    /* Shadows */
-    --shadow-gold: 0 4px 20px -4px hsla(146, 71%, 19%, 0.25);
-    --shadow-card: 0 8px 28px -12px hsla(0, 0%, 10%, 0.15);
-    --shadow-elevated: 0 20px 50px -20px hsla(0, 0%, 10%, 0.25);
+    /* Shadows - unified elevation scale */
+    --shadow-gold: 0 4px 16px -6px hsla(146, 71%, 19%, 0.28);
+    --shadow-card: 0 1px 2px 0 hsla(0, 0%, 10%, 0.06), 0 2px 6px -2px hsla(0, 0%, 10%, 0.08);
+    --shadow-elevated: 0 8px 24px -8px hsla(0, 0%, 10%, 0.18);
 
     /* Sidebar */
     --sidebar-background: 0 0% 100%;
@@ -142,9 +142,9 @@
     background-image: linear-gradient(135deg, hsl(146, 71%, 19%) 0%, hsl(43, 71%, 47%) 50%, hsl(146, 71%, 19%) 100%);
   }
 
-  /* Glass morphism card - solid surface with soft border */
+  /* Standard surface card - solid, unified border & shadow */
   .glass-card {
-    @apply bg-card border border-border;
+    @apply bg-card border border-border rounded-lg;
     box-shadow: var(--shadow-card);
   }
 
@@ -155,8 +155,8 @@
   }
 
   .btn-glow:hover {
-    box-shadow: 0 6px 30px -4px hsla(146, 71%, 19%, 0.45);
-    transform: translateY(-2px);
+    box-shadow: 0 6px 24px -4px hsla(146, 71%, 19%, 0.4);
+    transform: translateY(-1px);
   }
 
   /* Music wave animation */
@@ -184,21 +184,21 @@
     50% { height: 20px; }
   }
 
-  /* Status badges - solid borders */
+  /* Status badges - solid backgrounds with WCAG-compliant text */
   .status-pending {
-    @apply bg-warning/15 text-warning border border-warning;
+    @apply bg-warning text-warning-foreground border border-warning rounded-md;
   }
 
   .status-progress {
-    @apply bg-primary/10 text-primary border border-primary;
+    @apply bg-primary text-primary-foreground border border-primary rounded-md;
   }
 
   .status-completed {
-    @apply bg-success/10 text-success border border-success;
+    @apply bg-success text-success-foreground border border-success rounded-md;
   }
 
   .status-cancelled {
-    @apply bg-destructive/10 text-destructive border border-destructive;
+    @apply bg-destructive text-destructive-foreground border border-destructive rounded-md;
   }
 
   /* Animated border */
