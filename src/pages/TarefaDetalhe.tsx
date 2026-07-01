@@ -262,7 +262,7 @@ export default function TarefaDetalhe() {
                 {resultFiles.map((file) => (
                   <div
                     key={file.id}
-                    className="bg-background/50 rounded-lg p-4 flex items-center justify-between"
+                    className="bg-secondary rounded-lg p-4 flex items-center justify-between"
                   >
                     <div className="flex items-center gap-3">
                       {getFileIcon(file.file_type)}

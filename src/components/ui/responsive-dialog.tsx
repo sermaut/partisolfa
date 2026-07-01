@@ -126,7 +126,7 @@ const ResponsiveDialogFooter = ({ className, children }: ResponsiveDialogFooterP
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay: 0.2, duration: 0.3 }}
-    className={cn("flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-2 p-4 sm:p-6 pt-2 sm:pt-4 border-t border-border/50 shrink-0", className)} 
+    className={cn("flex flex-col-reverse sm:flex-row sm:justify-end gap-2 sm:gap-2 p-4 sm:p-6 pt-2 sm:pt-4 border-t border-border shrink-0", className)} 
   >
     {children}
   </motion.div>

@@ -64,7 +64,7 @@ export function Header() {
   const avatarUrl = (profile as any)?.avatar_url;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
@@ -256,7 +256,7 @@ export function Header() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="md:hidden py-4 border-t border-border/50"
+            className="md:hidden py-4 border-t border-border"
           >
             <nav className="flex flex-col gap-1">
               {/* Navigation links - Only show when NOT logged in */}
@@ -286,7 +286,7 @@ export function Header() {
                 </>
               )}
               
-              <div className={`flex flex-col gap-1 ${!user ? 'pt-4 border-t border-border/50 mt-2' : ''}`}>
+              <div className={`flex flex-col gap-1 ${!user ? 'pt-4 border-t border-border mt-2' : ''}`}>
                 {user ? (
                   <>
                     <div className="py-3 px-2">
