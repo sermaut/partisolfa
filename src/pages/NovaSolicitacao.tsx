@@ -55,7 +55,7 @@ export default function NovaSolicitacao() {
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
 
   const [serviceType, setServiceType] = useState<'arranjo' | 'transposicao' | null>(null);
   const [title, setTitle] = useState('');
