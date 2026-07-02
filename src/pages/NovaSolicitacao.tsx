@@ -417,28 +417,29 @@ export default function NovaSolicitacao() {
 
               <ResponsiveDialogSection delay={0.4}>
                 <div className="space-y-3">
-                  <Label>Ficheiros * (máx. {MAX_FILES})</Label>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
+                  <Label htmlFor="task-files-input">Ficheiros * (máx. {MAX_FILES})</Label>
+                  <FileDropzone
+                    id="task-files-input"
+                    label="Selecionar ficheiros"
                     multiple
-                    onChange={handleFileSelect}
-                    className="hidden"
                     accept={allowedAccept}
+                    maxSize={MAX_FILE_SIZE}
+                    disabled={files.length >= MAX_FILES}
+                    onFiles={handleFilesSelected}
+                    hint={
+                      serviceType === 'transposicao'
+                        ? 'Apenas imagens e áudios (MP3, WAV, AAC, JPG, PNG) — máx. 20MB cada'
+                        : 'PDFs, imagens e áudios (MP3, WAV, AAC, PDF, JPG, PNG) — máx. 20MB cada'
+                    }
                   />
-                  <Button
-                    variant="outline"
-                    className="w-full h-12 border-dashed border-2 hover:border-primary/50"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Selecionar Ficheiros
-                  </Button>
 
                   {files.length > 0 && (
-                    <div className="space-y-2">
+                    <ul className="space-y-2" aria-label="Ficheiros selecionados">
                       {files.map((file, index) => (
-                        <div key={index} className="flex items-center justify-between p-2.5 bg-secondary/50 rounded-lg border border-border">
+                        <li
+                          key={index}
+                          className="flex items-center justify-between p-2.5 bg-secondary/50 rounded-lg border border-border"
+                        >
                           <div className="flex items-center gap-2 min-w-0">
                             {getFileIcon(file.type)}
                             <span className="text-sm truncate">{file.file.name}</span>
@@ -446,19 +447,19 @@ export default function NovaSolicitacao() {
                               ({(file.file.size / (1024 * 1024)).toFixed(1)} MB)
                             </span>
                           </div>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeFile(index)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 shrink-0"
+                            onClick={() => removeFile(index)}
+                            aria-label={`Remover ${file.file.name}`}
+                          >
                             <X className="w-4 h-4" />
                           </Button>
-                        </div>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    {serviceType === 'transposicao'
-                      ? 'Apenas imagens e áudios (MP3, WAV, AAC, JPG, PNG) — máx. 20MB cada'
-                      : 'PDFs, imagens e áudios (MP3, WAV, AAC, PDF, JPG, PNG) — máx. 20MB cada'}
-                  </p>
-
                 </div>
               </ResponsiveDialogSection>
             </div>
