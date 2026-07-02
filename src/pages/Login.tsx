@@ -109,7 +109,7 @@ export default function Login() {
             <div className="flex justify-end">
               <Link
                 to="/recuperar-senha"
-                className="text-sm text-primary hover:underline"
+                className="text-sm text-primary underline underline-offset-2"
               >
                 Esqueceu a palavra-passe?
               </Link>
@@ -128,7 +128,7 @@ export default function Login() {
 
           <p className="text-center mt-6 text-muted-foreground">
             Não tem uma conta?{' '}
-            <Link to="/registar" className="text-primary hover:underline font-medium">
+            <Link to="/registar" className="text-primary underline underline-offset-2 font-medium">
               Criar conta
             </Link>
           </p>

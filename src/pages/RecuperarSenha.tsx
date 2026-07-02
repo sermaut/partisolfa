@@ -136,7 +136,7 @@ export default function RecuperarSenha() {
 
           <p className="text-center mt-6 text-muted-foreground">
             Lembrou-se da palavra-passe?{' '}
-            <Link to="/login" className="text-primary hover:underline font-medium">
+            <Link to="/login" className="text-primary underline underline-offset-2 font-medium">
               Entrar
             </Link>
           </p>

@@ -417,11 +417,11 @@ export default function Register() {
 
             <p className="text-xs text-muted-foreground">
               Ao criar conta, concorda com os nossos{' '}
-              <Link to="/termos" className="text-primary hover:underline">
+              <Link to="/termos" className="text-primary underline underline-offset-2">
                 Termos de Uso
               </Link>{' '}
               e{' '}
-              <Link to="/privacidade" className="text-primary hover:underline">
+              <Link to="/privacidade" className="text-primary underline underline-offset-2">
                 Política de Privacidade
               </Link>.
             </p>
@@ -439,7 +439,7 @@ export default function Register() {
 
           <p className="text-center mt-6 text-muted-foreground">
             Já tem uma conta?{' '}
-            <Link to="/login" className="text-primary hover:underline font-medium">
+            <Link to="/login" className="text-primary underline underline-offset-2 font-medium">
               Entrar
             </Link>
           </p>
