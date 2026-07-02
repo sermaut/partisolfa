@@ -221,7 +221,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <main className="min-h-dvh flex">
       {/* Left Side - Decorative */}
       <div className="hidden lg:flex w-1/2 bg-card items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial from-primary/10 via-transparent to-transparent" />
