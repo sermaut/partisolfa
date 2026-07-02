@@ -244,7 +244,9 @@ export function Header() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-foreground"
+            className="md:hidden p-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md"
+            aria-label={isMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+            aria-expanded={isMenuOpen}
           >
             {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -258,7 +260,7 @@ export function Header() {
             exit={{ opacity: 0, y: -20 }}
             className="md:hidden py-4 border-t border-border"
           >
-            <nav className="flex flex-col gap-1">
+            <nav className="flex flex-col gap-1" aria-label="Menu móvel">
               {/* Navigation links - Only show when NOT logged in */}
               {!user && (
                 <>

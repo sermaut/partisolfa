@@ -27,8 +27,8 @@ export function Footer() {
 
           {/* Links */}
           <div>
-            <h4 className="font-display text-lg font-semibold mb-4">Links Rápidos</h4>
-            <nav className="flex flex-col gap-2">
+            <h2 className="font-display text-lg font-semibold mb-4">Links Rápidos</h2>
+            <nav className="flex flex-col gap-2" aria-label="Links rápidos">
               <Link to="/" className="text-muted-foreground hover:text-primary transition-colors">
                 Início
               </Link>
@@ -46,8 +46,8 @@ export function Footer() {
 
           {/* Legal */}
           <div>
-            <h4 className="font-display text-lg font-semibold mb-4">Informações</h4>
-            <nav className="flex flex-col gap-2">
+            <h2 className="font-display text-lg font-semibold mb-4">Informações</h2>
+            <nav className="flex flex-col gap-2" aria-label="Informações legais">
               <Link to="/termos" className="text-muted-foreground hover:text-primary transition-colors">
                 Termos de Uso
               </Link>

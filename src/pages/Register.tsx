@@ -221,7 +221,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <main className="min-h-dvh flex">
       {/* Left Side - Decorative */}
       <div className="hidden lg:flex w-1/2 bg-card items-center justify-center relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-radial from-primary/10 via-transparent to-transparent" />
@@ -346,7 +346,9 @@ export default function Register() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md"
+                  aria-label={showPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
+                  aria-pressed={showPassword}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -415,11 +417,11 @@ export default function Register() {
 
             <p className="text-xs text-muted-foreground">
               Ao criar conta, concorda com os nossos{' '}
-              <Link to="/termos" className="text-primary hover:underline">
+              <Link to="/termos" className="text-primary underline underline-offset-2">
                 Termos de Uso
               </Link>{' '}
               e{' '}
-              <Link to="/privacidade" className="text-primary hover:underline">
+              <Link to="/privacidade" className="text-primary underline underline-offset-2">
                 Política de Privacidade
               </Link>.
             </p>
@@ -437,12 +439,12 @@ export default function Register() {
 
           <p className="text-center mt-6 text-muted-foreground">
             Já tem uma conta?{' '}
-            <Link to="/login" className="text-primary hover:underline font-medium">
+            <Link to="/login" className="text-primary underline underline-offset-2 font-medium">
               Entrar
             </Link>
           </p>
         </motion.div>
       </div>
-    </div>
+    </main>
   );
 }

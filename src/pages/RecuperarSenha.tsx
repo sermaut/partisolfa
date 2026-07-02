@@ -42,7 +42,7 @@ export default function RecuperarSenha() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <main className="min-h-dvh flex">
       {/* Left Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <motion.div
@@ -93,7 +93,7 @@ export default function RecuperarSenha() {
             <>
               <Link
                 to="/login"
-                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors mb-8"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Voltar ao login
@@ -136,7 +136,7 @@ export default function RecuperarSenha() {
 
           <p className="text-center mt-6 text-muted-foreground">
             Lembrou-se da palavra-passe?{' '}
-            <Link to="/login" className="text-primary hover:underline font-medium">
+            <Link to="/login" className="text-primary underline underline-offset-2 font-medium">
               Entrar
             </Link>
           </p>
@@ -186,6 +186,6 @@ export default function RecuperarSenha() {
           ♫
         </motion.div>
       </div>
-    </div>
+    </main>
   );
 }

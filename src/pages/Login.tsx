@@ -41,7 +41,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <main className="min-h-dvh flex">
       {/* Left Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <motion.div
@@ -97,7 +97,9 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md"
+                  aria-label={showPassword ? 'Ocultar palavra-passe' : 'Mostrar palavra-passe'}
+                  aria-pressed={showPassword}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -107,7 +109,7 @@ export default function Login() {
             <div className="flex justify-end">
               <Link
                 to="/recuperar-senha"
-                className="text-sm text-primary hover:underline"
+                className="text-sm text-primary underline underline-offset-2"
               >
                 Esqueceu a palavra-passe?
               </Link>
@@ -126,7 +128,7 @@ export default function Login() {
 
           <p className="text-center mt-6 text-muted-foreground">
             Não tem uma conta?{' '}
-            <Link to="/registar" className="text-primary hover:underline font-medium">
+            <Link to="/registar" className="text-primary underline underline-offset-2 font-medium">
               Criar conta
             </Link>
           </p>
@@ -176,6 +178,6 @@ export default function Login() {
           ♫
         </motion.div>
       </div>
-    </div>
+    </main>
   );
 }

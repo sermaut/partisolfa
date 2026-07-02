@@ -241,21 +241,21 @@ export default function Servicos() {
           </h2>
           <div className="max-w-2xl mx-auto space-y-4">
             <div className="glass-card rounded-xl p-6 text-left">
-              <h4 className="font-semibold mb-2">Que ficheiros posso enviar?</h4>
+              <h3 className="font-semibold mb-2">Que ficheiros posso enviar?</h3>
               <p className="text-sm text-muted-foreground">
                 Aceitamos ficheiros de áudio (MP3, WAV), imagens de partituras (JPG, PNG) e PDF. 
                 Se necessário, pode também enviar ficheiros MusicXML ou MIDI.
               </p>
             </div>
             <div className="glass-card rounded-xl p-6 text-left">
-              <h4 className="font-semibold mb-2">Como recebo o trabalho finalizado?</h4>
+              <h3 className="font-semibold mb-2">Como recebo o trabalho finalizado?</h3>
               <p className="text-sm text-muted-foreground">
                 O ficheiro final fica disponível directamente na sua conta, na secção de detalhes da solicitação. 
                 Receberá uma notificação assim que o trabalho estiver concluído.
               </p>
             </div>
             <div className="glass-card rounded-xl p-6 text-left">
-              <h4 className="font-semibold mb-2">Posso solicitar revisões?</h4>
+              <h3 className="font-semibold mb-2">Posso solicitar revisões?</h3>
               <p className="text-sm text-muted-foreground">
                 Sim, oferecemos uma revisão gratuita caso o resultado não corresponda às suas expectativas iniciais. 
                 Basta adicionar um comentário na sua solicitação.

@@ -120,6 +120,26 @@
     scroll-behavior: smooth;
   }
 
+  /* Global focus-visible: consistent, high-contrast ring on any focusable element */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  /* Native error/success states for form controls */
+  input[aria-invalid="true"],
+  textarea[aria-invalid="true"],
+  select[aria-invalid="true"] {
+    border-color: hsl(var(--destructive));
+    box-shadow: 0 0 0 1px hsl(var(--destructive) / 0.35);
+  }
+
+  input[aria-invalid="false"][data-valid="true"],
+  textarea[aria-invalid="false"][data-valid="true"] {
+    border-color: hsl(var(--success));
+  }
+
   #lovable-badge {
     display: none !important
   }
