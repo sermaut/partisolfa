@@ -186,6 +186,6 @@ export default function RecuperarSenha() {
           ♫
         </motion.div>
       </div>
-    </div>
+    </main>
   );
 }
