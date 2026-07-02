@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
@@ -34,6 +34,7 @@ import {
   ResponsiveDialogSection,
 } from '@/components/ui/responsive-dialog';
 import { Loader2 } from 'lucide-react';
+import { FileDropzone } from '@/components/ui/file-dropzone';
 
 const ACCEPTED_FILE_TYPES = {
   audio: ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/aac', 'audio/x-aac'],
@@ -54,7 +55,7 @@ export default function NovaSolicitacao() {
   const { user, profile, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  
 
   const [serviceType, setServiceType] = useState<'arranjo' | 'transposicao' | null>(null);
   const [title, setTitle] = useState('');
@@ -93,10 +94,7 @@ export default function NovaSolicitacao() {
     return null;
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files;
-    if (!selectedFiles) return;
-
+  const handleFilesSelected = (selectedFiles: File[]) => {
     const remainingSlots = MAX_FILES - files.length;
     if (selectedFiles.length > remainingSlots) {
       toast({
@@ -108,7 +106,7 @@ export default function NovaSolicitacao() {
     }
 
     const newFiles: UploadedFile[] = [];
-    Array.from(selectedFiles).forEach((file) => {
+    selectedFiles.forEach((file) => {
       if (file.size > MAX_FILE_SIZE) {
         toast({ title: 'Ficheiro demasiado grande', description: `${file.name} excede 20MB.`, variant: 'destructive' });
         return;
@@ -131,11 +129,9 @@ export default function NovaSolicitacao() {
       const uploadedFile: UploadedFile = { file, type: fileType };
       if (fileType === 'image') uploadedFile.preview = URL.createObjectURL(file);
       newFiles.push(uploadedFile);
-
     });
 
     setFiles((prev) => [...prev, ...newFiles]);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const removeFile = (index: number) => {
@@ -421,28 +417,29 @@ export default function NovaSolicitacao() {
 
               <ResponsiveDialogSection delay={0.4}>
                 <div className="space-y-3">
-                  <Label>Ficheiros * (máx. {MAX_FILES})</Label>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
+                  <Label htmlFor="task-files-input">Ficheiros * (máx. {MAX_FILES})</Label>
+                  <FileDropzone
+                    id="task-files-input"
+                    label="Selecionar ficheiros"
                     multiple
-                    onChange={handleFileSelect}
-                    className="hidden"
                     accept={allowedAccept}
+                    maxSize={MAX_FILE_SIZE}
+                    disabled={files.length >= MAX_FILES}
+                    onFiles={handleFilesSelected}
+                    hint={
+                      serviceType === 'transposicao'
+                        ? 'Apenas imagens e áudios (MP3, WAV, AAC, JPG, PNG) — máx. 20MB cada'
+                        : 'PDFs, imagens e áudios (MP3, WAV, AAC, PDF, JPG, PNG) — máx. 20MB cada'
+                    }
                   />
-                  <Button
-                    variant="outline"
-                    className="w-full h-12 border-dashed border-2 hover:border-primary/50"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Upload className="w-4 h-4 mr-2" />
-                    Selecionar Ficheiros
-                  </Button>
 
                   {files.length > 0 && (
-                    <div className="space-y-2">
+                    <ul className="space-y-2" aria-label="Ficheiros selecionados">
                       {files.map((file, index) => (
-                        <div key={index} className="flex items-center justify-between p-2.5 bg-secondary/50 rounded-lg border border-border">
+                        <li
+                          key={index}
+                          className="flex items-center justify-between p-2.5 bg-secondary/50 rounded-lg border border-border"
+                        >
                           <div className="flex items-center gap-2 min-w-0">
                             {getFileIcon(file.type)}
                             <span className="text-sm truncate">{file.file.name}</span>
@@ -450,19 +447,19 @@ export default function NovaSolicitacao() {
                               ({(file.file.size / (1024 * 1024)).toFixed(1)} MB)
                             </span>
                           </div>
-                          <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={() => removeFile(index)}>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 shrink-0"
+                            onClick={() => removeFile(index)}
+                            aria-label={`Remover ${file.file.name}`}
+                          >
                             <X className="w-4 h-4" />
                           </Button>
-                        </div>
+                        </li>
                       ))}
-                    </div>
+                    </ul>
                   )}
-                  <p className="text-xs text-muted-foreground">
-                    {serviceType === 'transposicao'
-                      ? 'Apenas imagens e áudios (MP3, WAV, AAC, JPG, PNG) — máx. 20MB cada'
-                      : 'PDFs, imagens e áudios (MP3, WAV, AAC, PDF, JPG, PNG) — máx. 20MB cada'}
-                  </p>
-
                 </div>
               </ResponsiveDialogSection>
             </div>
