@@ -443,6 +443,6 @@ export default function Register() {
           </p>
         </motion.div>
       </div>
-    </div>
+    </main>
   );
 }
