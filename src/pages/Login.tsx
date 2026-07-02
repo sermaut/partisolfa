@@ -41,7 +41,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <main className="min-h-dvh flex">
       {/* Left Side - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <motion.div
