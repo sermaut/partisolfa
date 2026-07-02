@@ -93,7 +93,7 @@ export default function RecuperarSenha() {
             <>
               <Link
                 to="/login"
-                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
+                className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors mb-8"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Voltar ao login
