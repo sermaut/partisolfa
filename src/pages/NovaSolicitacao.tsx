@@ -94,10 +94,7 @@ export default function NovaSolicitacao() {
     return null;
   };
 
-  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files;
-    if (!selectedFiles) return;
-
+  const handleFilesSelected = (selectedFiles: File[]) => {
     const remainingSlots = MAX_FILES - files.length;
     if (selectedFiles.length > remainingSlots) {
       toast({
@@ -109,7 +106,7 @@ export default function NovaSolicitacao() {
     }
 
     const newFiles: UploadedFile[] = [];
-    Array.from(selectedFiles).forEach((file) => {
+    selectedFiles.forEach((file) => {
       if (file.size > MAX_FILE_SIZE) {
         toast({ title: 'Ficheiro demasiado grande', description: `${file.name} excede 20MB.`, variant: 'destructive' });
         return;
@@ -132,11 +129,9 @@ export default function NovaSolicitacao() {
       const uploadedFile: UploadedFile = { file, type: fileType };
       if (fileType === 'image') uploadedFile.preview = URL.createObjectURL(file);
       newFiles.push(uploadedFile);
-
     });
 
     setFiles((prev) => [...prev, ...newFiles]);
-    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const removeFile = (index: number) => {
