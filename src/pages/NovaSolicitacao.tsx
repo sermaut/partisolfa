@@ -34,6 +34,7 @@ import {
   ResponsiveDialogSection,
 } from '@/components/ui/responsive-dialog';
 import { Loader2 } from 'lucide-react';
+import { FileDropzone } from '@/components/ui/file-dropzone';
 
 const ACCEPTED_FILE_TYPES = {
   audio: ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/aac', 'audio/x-aac'],
