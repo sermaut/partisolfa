@@ -260,7 +260,7 @@ export function Header() {
             exit={{ opacity: 0, y: -20 }}
             className="md:hidden py-4 border-t border-border"
           >
-            <nav className="flex flex-col gap-1">
+            <nav className="flex flex-col gap-1" aria-label="Menu móvel">
               {/* Navigation links - Only show when NOT logged in */}
               {!user && (
                 <>
