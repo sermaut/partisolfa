@@ -154,6 +154,7 @@ export default function AdminTarefas() {
   const [showResultDialog, setShowResultDialog] = useState(false);
   const [resultDescription, setResultDescription] = useState('');
   const [resultFiles, setResultFiles] = useState<File[]>([]);
+  const [resultProgress, setResultProgress] = useState<FileProgress[]>([]);
   
   // Assign task to collaborators
   const [showAssignDialog, setShowAssignDialog] = useState(false);
@@ -537,27 +538,22 @@ export default function AdminTarefas() {
   const openResultDialog = () => {
     setResultDescription('');
     setResultFiles([]);
+    setResultProgress([]);
     setShowResultDialog(true);
   };
 
-  const handleResultFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFiles = e.target.files;
-    if (!selectedFiles) return;
-
+  const handleResultFilesSelected = (selectedFiles: File[]) => {
     const currentResultFiles = taskFiles.filter(f => f.is_result).length;
-    if (currentResultFiles + resultFiles.length + selectedFiles.length > MAX_RESULT_FILES) {
+    const remaining = MAX_RESULT_FILES - currentResultFiles - resultFiles.length;
+    if (selectedFiles.length > remaining) {
       toast({
         title: 'Limite de ficheiros',
-        description: `Pode enviar no máximo ${MAX_RESULT_FILES} ficheiros de resultado.`,
+        description: `Pode adicionar no máximo mais ${Math.max(0, remaining)} ficheiro(s) de resultado.`,
         variant: 'destructive',
       });
       return;
     }
-
-    setResultFiles(prev => [...prev, ...Array.from(selectedFiles)]);
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    setResultFiles(prev => [...prev, ...selectedFiles]);
   };
 
   const removeResultFile = (index: number) => {
@@ -575,33 +571,61 @@ export default function AdminTarefas() {
     }
 
     setIsUploading(true);
+    setResultProgress(resultFiles.map((f) => ({ name: f.name, status: 'uploading' })));
     try {
-      // Upload all files in parallel for speed
-      const uploadPromises = resultFiles.map(async (file) => {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `${selectedTask.user_id}/${selectedTask.id}/${fileName}`;
+      // Upload all files in parallel with per-file status tracking
+      const results = await Promise.allSettled(
+        resultFiles.map(async (file, idx) => {
+          try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `${selectedTask.user_id}/${selectedTask.id}/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
-          .from('result-files')
-          .upload(filePath, file, { cacheControl: '3600' });
+            const { error: uploadError } = await supabase.storage
+              .from('result-files')
+              .upload(filePath, file, { cacheControl: '3600' });
+            if (uploadError) throw uploadError;
 
-        if (uploadError) throw uploadError;
+            const record = {
+              task_id: selectedTask.id,
+              file_name: file.name,
+              file_path: filePath,
+              file_type: file.type.includes('audio') ? 'audio' : file.type.includes('image') ? 'image' : 'document',
+              file_size: file.size,
+              is_result: true,
+            };
+            const { error: insertError } = await supabase.from('task_files').insert(record);
+            if (insertError) throw insertError;
 
-        return {
-          task_id: selectedTask.id,
-          file_name: file.name,
-          file_path: filePath,
-          file_type: file.type.includes('audio') ? 'audio' : file.type.includes('image') ? 'image' : 'document',
-          file_size: file.size,
-          is_result: true,
-        };
-      });
+            setResultProgress((prev) =>
+              prev.map((p, i) => (i === idx ? { ...p, status: 'success' } : p)),
+            );
+          } catch (err) {
+            const message = err instanceof Error ? err.message : 'Falha desconhecida';
+            setResultProgress((prev) =>
+              prev.map((p, i) => (i === idx ? { ...p, status: 'error', error: message } : p)),
+            );
+            throw err;
+          }
+        }),
+      );
 
-      const fileRecords = await Promise.all(uploadPromises);
-      
-      // Insert all file records in one batch
-      await supabase.from('task_files').insert(fileRecords);
+      const failed = results.filter((r) => r.status === 'rejected').length;
+      if (failed === resultFiles.length) {
+        toast({
+          title: 'Falha no envio',
+          description: 'Nenhum ficheiro foi enviado. Verifique a ligação e tente novamente.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (failed > 0) {
+        toast({
+          title: 'Envio parcial',
+          description: `${failed} ficheiro(s) falharam. Os restantes foram enviados.`,
+          variant: 'destructive',
+        });
+      }
 
       // Update task with result comment
       await supabase
@@ -625,12 +649,13 @@ export default function AdminTarefas() {
       setShowResultDialog(false);
       setResultDescription('');
       setResultFiles([]);
+      setResultProgress([]);
       openTaskDetail(selectedTask);
     } catch (error) {
       console.error('Error uploading result:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível enviar o resultado.',
+        description: 'Não foi possível concluir o envio.',
         variant: 'destructive',
       });
     } finally {
