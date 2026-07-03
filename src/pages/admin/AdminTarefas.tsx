@@ -1359,6 +1359,7 @@ export default function AdminTarefas() {
         if (!open) {
           setResultDescription('');
           setResultFiles([]);
+          setResultProgress([]);
         }
         setShowResultDialog(open);
       }}>
@@ -1388,41 +1389,41 @@ export default function AdminTarefas() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm">Ficheiros</Label>
-                <input 
-                  ref={fileInputRef} 
-                  type="file" 
-                  multiple 
-                  onChange={handleResultFileSelect} 
-                  className="hidden" 
+                <Label htmlFor="result-files-input" className="text-sm">Ficheiros</Label>
+                <FileDropzone
+                  id="result-files-input"
+                  label="Selecionar ficheiros de resultado"
+                  multiple
                   accept=".mp3,.wav,.aac,.pdf,.jpg,.jpeg,.png"
+                  maxSize={20 * 1024 * 1024}
+                  disabled={isUploading}
+                  onFiles={handleResultFilesSelected}
+                  hint={`MP3, WAV, AAC, PDF, JPG, PNG · até 20MB cada (máx. ${MAX_RESULT_FILES})`}
                 />
-                <Button 
-                  variant="outline" 
-                  className="w-full h-10 sm:h-12 border-dashed border-2 hover:border-success/50 hover:bg-success/5 text-sm" 
-                  onClick={() => fileInputRef.current?.click()}
-                >
-                  <Upload className="w-4 h-4 mr-2" />
-                  Selecionar Ficheiros
-                </Button>
-                
+
                 {resultFiles.length > 0 && (
-                  <div className="space-y-2 mt-2 sm:mt-3">
+                  <ul className="space-y-2 mt-2 sm:mt-3" aria-label="Ficheiros selecionados">
                     {resultFiles.map((file, index) => (
-                      <div key={index} className="flex items-center justify-between p-2 sm:p-3 bg-secondary/50 rounded-lg border border-border hover:border-success/30 transition-colors">
+                      <li key={index} className="flex items-center justify-between p-2 sm:p-3 bg-secondary/50 rounded-lg border border-border">
                         <span className="text-xs sm:text-sm truncate flex-1">{file.name}</span>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           className="h-6 w-6 sm:h-7 sm:w-7 ml-2 hover:bg-destructive/10 hover:text-destructive shrink-0"
                           onClick={() => removeResultFile(index)}
+                          aria-label={`Remover ${file.name}`}
+                          disabled={isUploading}
                         >
                           <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                         </Button>
-                      </div>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 )}
+
+                <UploadProgressList items={resultProgress} />
+              </div>
+
                 <p className="text-[10px] sm:text-xs text-muted-foreground">
                   Formatos aceites: MP3, WAV, AAC, PDF, JPG, PNG (até {MAX_RESULT_FILES} ficheiros)
                 </p>
