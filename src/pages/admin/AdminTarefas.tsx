@@ -1424,10 +1424,6 @@ export default function AdminTarefas() {
                 <UploadProgressList items={resultProgress} />
               </div>
 
-                <p className="text-[10px] sm:text-xs text-muted-foreground">
-                  Formatos aceites: MP3, WAV, AAC, PDF, JPG, PNG (até {MAX_RESULT_FILES} ficheiros)
-                </p>
-              </div>
             </ResponsiveDialogSection>
           </ResponsiveDialogBody>
           <ResponsiveDialogFooter>
