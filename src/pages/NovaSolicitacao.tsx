@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/responsive-dialog';
 import { Loader2 } from 'lucide-react';
 import { FileDropzone } from '@/components/ui/file-dropzone';
+import { UploadProgressList, type FileProgress } from '@/components/ui/upload-progress-list';
 
 const ACCEPTED_FILE_TYPES = {
   audio: ['audio/mp3', 'audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/aac', 'audio/x-aac'],
@@ -66,6 +67,7 @@ export default function NovaSolicitacao() {
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showFormModal, setShowFormModal] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<FileProgress[]>([]);
 
   const getServiceCost = () => {
     if (serviceType === 'arranjo') return { credits: 3, kz: 450 };
@@ -169,6 +171,7 @@ export default function NovaSolicitacao() {
     }
 
     setIsSubmitting(true);
+    setUploadProgress(files.map((f) => ({ name: f.file.name, status: 'uploading' })));
     try {
       const { data: task, error: taskError } = await supabase
         .from('tasks')
@@ -187,31 +190,58 @@ export default function NovaSolicitacao() {
 
       if (taskError) throw taskError;
 
+      // Upload files in parallel with per-file status tracking
+      const results = await Promise.allSettled(
+        files.map(async (uploadedFile, idx) => {
+          try {
+            const fileExt = uploadedFile.file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `${user!.id}/${task.id}/${fileName}`;
 
-      // Upload files in parallel
-      await Promise.all(files.map(async (uploadedFile) => {
-        const fileExt = uploadedFile.file.name.split('.').pop();
-        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `${user!.id}/${task.id}/${fileName}`;
+            const { error: uploadError } = await supabase.storage
+              .from('task-files')
+              .upload(filePath, uploadedFile.file);
+            if (uploadError) throw uploadError;
 
-        const { error: uploadError } = await supabase.storage
-          .from('task-files')
-          .upload(filePath, uploadedFile.file);
+            const { error: insertError } = await supabase.from('task_files').insert({
+              task_id: task.id,
+              file_name: uploadedFile.file.name,
+              file_path: filePath,
+              file_type: uploadedFile.type,
+              file_size: uploadedFile.file.size,
+              is_result: false,
+            });
+            if (insertError) throw insertError;
 
-        if (uploadError) {
-          console.error('Upload error:', uploadError);
-          return;
-        }
+            setUploadProgress((prev) =>
+              prev.map((p, i) => (i === idx ? { ...p, status: 'success' } : p)),
+            );
+          } catch (err) {
+            const message = err instanceof Error ? err.message : 'Falha desconhecida';
+            setUploadProgress((prev) =>
+              prev.map((p, i) => (i === idx ? { ...p, status: 'error', error: message } : p)),
+            );
+            throw err;
+          }
+        }),
+      );
 
-        await supabase.from('task_files').insert({
-          task_id: task.id,
-          file_name: uploadedFile.file.name,
-          file_path: filePath,
-          file_type: uploadedFile.type,
-          file_size: uploadedFile.file.size,
-          is_result: false,
+      const failed = results.filter((r) => r.status === 'rejected').length;
+      if (failed === files.length) {
+        toast({
+          title: 'Falha no envio',
+          description: 'Nenhum ficheiro foi enviado. Tente novamente.',
+          variant: 'destructive',
         });
-      }));
+        return;
+      }
+      if (failed > 0) {
+        toast({
+          title: 'Envio parcial',
+          description: `${failed} ficheiro(s) falharam. A solicitação foi criada com os restantes.`,
+          variant: 'destructive',
+        });
+      }
 
       // Notify all admins about the new task
       const { data: adminRoles } = await supabase
@@ -223,7 +253,7 @@ export default function NovaSolicitacao() {
         const adminNotifications = adminRoles.map((r) => ({
           user_id: r.user_id,
           title: 'Nova solicitação recebida!',
-          message: `${profile?.full_name || 'Um utilizador'} enviou uma nova solicitação: "${title}" (${files.length} ficheiro${files.length > 1 ? 's' : ''}).`,
+          message: `${profile?.full_name || 'Um utilizador'} enviou uma nova solicitação: "${title}" (${files.length - failed} ficheiro${files.length - failed !== 1 ? 's' : ''}).`,
         }));
         await supabase.from('notifications').insert(adminNotifications);
       }
@@ -460,6 +490,8 @@ export default function NovaSolicitacao() {
                       ))}
                     </ul>
                   )}
+
+                  <UploadProgressList items={uploadProgress} />
                 </div>
               </ResponsiveDialogSection>
             </div>
