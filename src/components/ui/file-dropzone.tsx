@@ -131,9 +131,9 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
           multiple={multiple}
           disabled={disabled}
           onChange={(e) => {
-            const picked = e.target.files;
-            // Reset first so a repeat selection re-fires change even before
-            // the deferred processing runs.
+            // Snapshot the File[] before resetting the input so the reference
+            // survives the value clear (which empties the FileList).
+            const picked = e.target.files ? Array.from(e.target.files) : [];
             e.target.value = '';
             processFiles(picked);
           }}
