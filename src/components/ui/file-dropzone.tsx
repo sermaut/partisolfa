@@ -131,9 +131,11 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
           multiple={multiple}
           disabled={disabled}
           onChange={(e) => {
-            processFiles(e.target.files);
-            // Reset so selecting the same file again re-triggers change
+            const picked = e.target.files;
+            // Reset first so a repeat selection re-fires change even before
+            // the deferred processing runs.
             e.target.value = '';
+            processFiles(picked);
           }}
           className="sr-only"
           aria-describedby={hint ? hintId : undefined}
