@@ -236,8 +236,8 @@ export default function TarefaDetalhe() {
                   )}
                 </div>
                 <div>
-                  <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">
-                    {task.title}
+                  <h1 className="font-display text-2xl md:text-3xl font-bold mb-1 line-clamp-2" title={task.title}>
+                    {limitTitleWords(task.title)}
                   </h1>
                   <p className="text-muted-foreground">
                     {serviceLabels[task.service_type as keyof typeof serviceLabels]}
