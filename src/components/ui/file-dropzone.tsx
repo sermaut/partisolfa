@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Upload } from 'lucide-react';
+import { Upload, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface FileDropzoneProps {
