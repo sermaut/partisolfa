@@ -190,21 +190,33 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
             'transition-colors focus-within:border-primary focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2',
             'hover:border-primary/60 hover:bg-secondary/60',
             isDragging && 'border-primary bg-primary/5',
+            isProcessing && 'border-primary/70 bg-primary/5',
             disabled && 'cursor-not-allowed opacity-60 hover:border-border hover:bg-secondary/40',
           )}
+          aria-busy={isProcessing || undefined}
         >
-          <Upload
-            aria-hidden="true"
-            className={cn(
-              'h-6 w-6 text-muted-foreground transition-colors',
-              isDragging && 'text-primary',
-            )}
-          />
+          {isProcessing ? (
+            <Loader2 aria-hidden="true" className="h-6 w-6 animate-spin text-primary" />
+          ) : (
+            <Upload
+              aria-hidden="true"
+              className={cn(
+                'h-6 w-6 text-muted-foreground transition-colors',
+                isDragging && 'text-primary',
+              )}
+            />
+          )}
           <span className="text-sm font-medium text-foreground">
-            {isDragging ? 'Solte para adicionar' : label}
+            {isProcessing
+              ? 'A processar ficheiros…'
+              : isDragging
+                ? 'Solte para adicionar'
+                : label}
           </span>
           <span className="text-xs text-muted-foreground">
-            Arraste e solte, ou pressione Enter para procurar
+            {isProcessing
+              ? 'A preparar para envio'
+              : 'Arraste e solte, ou pressione Enter para procurar'}
           </span>
         </label>
 
