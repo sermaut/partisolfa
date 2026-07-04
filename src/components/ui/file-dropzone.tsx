@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Upload, Loader2 } from 'lucide-react';
+import { Upload, Loader2, AlertCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export interface FileDropzoneProps {
@@ -9,7 +9,7 @@ export interface FileDropzoneProps {
   multiple?: boolean;
   /** Max size per file in bytes. Files above this are rejected. */
   maxSize?: number;
-  /** Fired with the accepted File[] after client-side size validation */
+  /** Fired with the accepted File[] after client-side validation */
   onFiles: (files: File[]) => void;
   /** Disables interaction */
   disabled?: boolean;
@@ -22,13 +22,49 @@ export interface FileDropzoneProps {
   className?: string;
 }
 
+/** Parse an HTML `accept` attribute into extensions and MIME matchers. */
+function parseAccept(accept?: string) {
+  if (!accept) return null;
+  const tokens = accept
+    .split(',')
+    .map((t) => t.trim().toLowerCase())
+    .filter(Boolean);
+  const extensions: string[] = [];
+  const mimes: string[] = [];
+  for (const t of tokens) {
+    if (t.startsWith('.')) extensions.push(t);
+    else mimes.push(t);
+  }
+  return { extensions, mimes };
+}
+
+function fileMatchesAccept(
+  file: File,
+  parsed: ReturnType<typeof parseAccept>,
+): boolean {
+  if (!parsed) return true;
+  const { extensions, mimes } = parsed;
+  if (extensions.length === 0 && mimes.length === 0) return true;
+  const name = file.name.toLowerCase();
+  const type = (file.type || '').toLowerCase();
+  if (extensions.some((ext) => name.endsWith(ext))) return true;
+  if (
+    mimes.some((m) => {
+      if (m.endsWith('/*')) return type.startsWith(m.slice(0, -1));
+      return type === m;
+    })
+  )
+    return true;
+  return false;
+}
+
 /**
  * Accessible file upload area with:
- * - Native <input type="file"> as the source of truth (keyboard + AT support)
- * - A visible drop area that is also a keyboard-activatable trigger
- *   (Enter/Space open the file picker)
- * - Drag & drop with clear visual + aria-live feedback
- * - Client-side size validation with screen-reader announcements
+ * - Native <input type="file"> as the focusable source of truth (keyboard + AT)
+ * - Visible drop area labelled to the input; focus ring driven by focus-within
+ * - Drag & drop with aria-live status announcements
+ * - Client-side size + type validation with visible inline error and
+ *   assertive screen-reader announcement, plus focus returned to the input
  */
 export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps>(
   (
@@ -49,6 +85,7 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
     const inputId = id ?? `file-dropzone-${reactId}`;
     const hintId = `${inputId}-hint`;
     const statusId = `${inputId}-status`;
+    const errorId = `${inputId}-error`;
 
     const innerRef = React.useRef<HTMLInputElement>(null);
     React.useImperativeHandle(ref, () => innerRef.current as HTMLInputElement);
@@ -56,7 +93,9 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
     const [isDragging, setIsDragging] = React.useState(false);
     const [isProcessing, setIsProcessing] = React.useState(false);
     const [status, setStatus] = React.useState('');
+    const [error, setError] = React.useState('');
     const dragCounter = React.useRef(0);
+    const parsedAccept = React.useMemo(() => parseAccept(accept), [accept]);
 
     const openPicker = React.useCallback(() => {
       if (disabled) return;
@@ -69,43 +108,55 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
         const incoming = Array.from(list);
         if (incoming.length === 0) return;
 
-        // Immediate feedback — flip to "processing" so the UI reflects the
-        // selection in the same frame, before any validation/preview work.
+        setError('');
         setIsProcessing(true);
         setStatus(
           `A processar ${incoming.length} ficheiro${incoming.length > 1 ? 's' : ''}…`,
         );
 
-        // Defer heavy work (size checks, MIME sniffing, preview URL creation
-        // done by the parent) to the next frame so the browser can paint the
-        // loading state first. Falls back to microtask when rAF is missing.
         const run = () => {
           try {
             const accepted: File[] = [];
-            const rejected: string[] = [];
+            const tooLarge: string[] = [];
+            const wrongType: string[] = [];
             for (const f of incoming) {
+              if (!fileMatchesAccept(f, parsedAccept)) {
+                wrongType.push(f.name);
+                continue;
+              }
               if (maxSize && f.size > maxSize) {
-                rejected.push(f.name);
+                tooLarge.push(f.name);
                 continue;
               }
               accepted.push(f);
             }
-            if (accepted.length > 0) {
-              onFiles(accepted);
+            if (accepted.length > 0) onFiles(accepted);
+
+            const errorParts: string[] = [];
+            if (wrongType.length > 0) {
+              errorParts.push(
+                `${wrongType.length === 1 ? 'Tipo de ficheiro não suportado' : `${wrongType.length} ficheiros com tipo não suportado`}: ${wrongType.join(', ')}.`,
+              );
             }
-            let msg = '';
-            if (accepted.length > 0) {
-              msg = `${accepted.length} ficheiro${accepted.length > 1 ? 's' : ''} adicionado${
-                accepted.length > 1 ? 's' : ''
-              }.`;
-            }
-            if (rejected.length > 0) {
+            if (tooLarge.length > 0) {
               const mb = maxSize ? Math.round(maxSize / (1024 * 1024)) : 0;
-              msg = `${msg ? msg + ' ' : ''}${rejected.length} recusado${
-                rejected.length > 1 ? 's' : ''
-              } por exceder ${mb}MB.`;
+              errorParts.push(
+                `${tooLarge.length === 1 ? 'Ficheiro excede' : `${tooLarge.length} ficheiros excedem`} ${mb}MB: ${tooLarge.join(', ')}.`,
+              );
             }
-            setStatus(msg);
+
+            if (errorParts.length > 0) {
+              const msg = errorParts.join(' ');
+              setError(msg);
+              setStatus('');
+              // Return focus to the input so the error is discoverable and the
+              // user can immediately retry with the keyboard.
+              requestAnimationFrame(() => innerRef.current?.focus());
+            } else {
+              setStatus(
+                `${accepted.length} ficheiro${accepted.length > 1 ? 's' : ''} adicionado${accepted.length > 1 ? 's' : ''}.`,
+              );
+            }
           } finally {
             setIsProcessing(false);
           }
@@ -117,12 +168,21 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
           queueMicrotask(run);
         }
       },
-      [maxSize, onFiles],
+      [maxSize, onFiles, parsedAccept],
     );
+
+    const describedBy = [hint ? hintId : null, error ? errorId : null, statusId]
+      .filter(Boolean)
+      .join(' ');
+
+    const accessibleName = isProcessing
+      ? 'A processar ficheiros'
+      : isDragging
+        ? 'Solte para adicionar ficheiros'
+        : `${label}. Arraste ficheiros ou pressione Enter para procurar.`;
 
     return (
       <div className={cn('w-full', className)}>
-        {/* Native input — visible only to assistive tech / keyboard focus */}
         <input
           ref={innerRef}
           id={inputId}
@@ -130,18 +190,17 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
           accept={accept}
           multiple={multiple}
           disabled={disabled}
+          aria-label={accessibleName}
+          aria-describedby={describedBy || undefined}
+          aria-invalid={error ? true : undefined}
           onChange={(e) => {
-            // Snapshot the File[] before resetting the input so the reference
-            // survives the value clear (which empties the FileList).
             const picked = e.target.files ? Array.from(e.target.files) : [];
             e.target.value = '';
             processFiles(picked);
           }}
           className="sr-only"
-          aria-describedby={hint ? hintId : undefined}
         />
 
-        {/* Drop area — labels the input and doubles as an activatable trigger */}
         <label
           htmlFor={inputId}
           onDragEnter={(e) => {
@@ -178,12 +237,6 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
               processFiles(dropped);
             }
           }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              openPicker();
-            }
-          }}
           className={cn(
             'group relative flex w-full cursor-pointer flex-col items-center justify-center gap-2',
             'rounded-lg border-2 border-dashed border-border bg-secondary/40 p-6 text-center',
@@ -191,6 +244,7 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
             'hover:border-primary/60 hover:bg-secondary/60',
             isDragging && 'border-primary bg-primary/5',
             isProcessing && 'border-primary/70 bg-primary/5',
+            error && 'border-destructive bg-destructive/5',
             disabled && 'cursor-not-allowed opacity-60 hover:border-border hover:bg-secondary/40',
           )}
           aria-busy={isProcessing || undefined}
@@ -203,6 +257,7 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
               className={cn(
                 'h-6 w-6 text-muted-foreground transition-colors',
                 isDragging && 'text-primary',
+                error && 'text-destructive',
               )}
             />
           )}
@@ -226,7 +281,18 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
           </p>
         )}
 
-        {/* Screen-reader announcements for add / reject events */}
+        {error && (
+          <p
+            id={errorId}
+            role="alert"
+            aria-live="assertive"
+            className="mt-2 flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/10 p-2 text-xs text-destructive"
+          >
+            <AlertCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
+            <span>{error}</span>
+          </p>
+        )}
+
         <p id={statusId} role="status" aria-live="polite" className="sr-only">
           {status}
         </p>
