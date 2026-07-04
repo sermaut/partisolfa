@@ -464,31 +464,53 @@ export default function NovaSolicitacao() {
                   />
 
                   {files.length > 0 && (
-                    <ul className="space-y-2" aria-label="Ficheiros selecionados">
-                      {files.map((file, index) => (
-                        <li
-                          key={index}
-                          className="flex items-center justify-between p-2.5 bg-secondary/50 rounded-lg border border-border"
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground">
+                          {files.length} ficheiro{files.length > 1 ? 's' : ''} selecionado{files.length > 1 ? 's' : ''}
+                        </p>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 text-xs text-destructive hover:text-destructive"
+                          onClick={() => {
+                            files.forEach((f) => f.preview && URL.revokeObjectURL(f.preview));
+                            setFiles([]);
+                            setUploadProgress([]);
+                          }}
+                          aria-label="Remover todos os ficheiros selecionados"
                         >
-                          <div className="flex items-center gap-2 min-w-0">
-                            {getFileIcon(file.type)}
-                            <span className="text-sm truncate">{file.file.name}</span>
-                            <span className="text-xs text-muted-foreground shrink-0">
-                              ({(file.file.size / (1024 * 1024)).toFixed(1)} MB)
-                            </span>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-7 w-7 shrink-0"
-                            onClick={() => removeFile(index)}
-                            aria-label={`Remover ${file.file.name}`}
+                          <X className="w-3.5 h-3.5 mr-1" />
+                          Remover todos
+                        </Button>
+                      </div>
+                      <ul className="space-y-2" aria-label="Ficheiros selecionados">
+                        {files.map((file, index) => (
+                          <li
+                            key={index}
+                            className="flex items-center justify-between p-2.5 bg-secondary/50 rounded-lg border border-border"
                           >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
+                            <div className="flex items-center gap-2 min-w-0">
+                              {getFileIcon(file.type)}
+                              <span className="text-sm truncate">{file.file.name}</span>
+                              <span className="text-xs text-muted-foreground shrink-0">
+                                ({(file.file.size / (1024 * 1024)).toFixed(1)} MB)
+                              </span>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-7 w-7 shrink-0"
+                              onClick={() => removeFile(index)}
+                              aria-label={`Remover ${file.file.name}`}
+                            >
+                              <X className="w-4 h-4" />
+                            </Button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
                   )}
 
                   <UploadProgressList items={uploadProgress} />
