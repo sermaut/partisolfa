@@ -54,6 +54,7 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
     React.useImperativeHandle(ref, () => innerRef.current as HTMLInputElement);
 
     const [isDragging, setIsDragging] = React.useState(false);
+    const [isProcessing, setIsProcessing] = React.useState(false);
     const [status, setStatus] = React.useState('');
     const dragCounter = React.useRef(0);
 
@@ -66,31 +67,54 @@ export const FileDropzone = React.forwardRef<HTMLInputElement, FileDropzoneProps
       (list: FileList | File[] | null) => {
         if (!list) return;
         const incoming = Array.from(list);
-        const accepted: File[] = [];
-        const rejected: string[] = [];
-        for (const f of incoming) {
-          if (maxSize && f.size > maxSize) {
-            rejected.push(f.name);
-            continue;
-          }
-          accepted.push(f);
-        }
-        if (accepted.length > 0) {
-          onFiles(accepted);
-          setStatus(
-            `${accepted.length} ficheiro${accepted.length > 1 ? 's' : ''} adicionado${
-              accepted.length > 1 ? 's' : ''
-            }.`,
-          );
-        }
-        if (rejected.length > 0) {
-          const mb = maxSize ? Math.round(maxSize / (1024 * 1024)) : 0;
-          setStatus(
-            (prev) =>
-              `${prev ? prev + ' ' : ''}${rejected.length} recusado${
+        if (incoming.length === 0) return;
+
+        // Immediate feedback — flip to "processing" so the UI reflects the
+        // selection in the same frame, before any validation/preview work.
+        setIsProcessing(true);
+        setStatus(
+          `A processar ${incoming.length} ficheiro${incoming.length > 1 ? 's' : ''}…`,
+        );
+
+        // Defer heavy work (size checks, MIME sniffing, preview URL creation
+        // done by the parent) to the next frame so the browser can paint the
+        // loading state first. Falls back to microtask when rAF is missing.
+        const run = () => {
+          try {
+            const accepted: File[] = [];
+            const rejected: string[] = [];
+            for (const f of incoming) {
+              if (maxSize && f.size > maxSize) {
+                rejected.push(f.name);
+                continue;
+              }
+              accepted.push(f);
+            }
+            if (accepted.length > 0) {
+              onFiles(accepted);
+            }
+            let msg = '';
+            if (accepted.length > 0) {
+              msg = `${accepted.length} ficheiro${accepted.length > 1 ? 's' : ''} adicionado${
+                accepted.length > 1 ? 's' : ''
+              }.`;
+            }
+            if (rejected.length > 0) {
+              const mb = maxSize ? Math.round(maxSize / (1024 * 1024)) : 0;
+              msg = `${msg ? msg + ' ' : ''}${rejected.length} recusado${
                 rejected.length > 1 ? 's' : ''
-              } por exceder ${mb}MB.`,
-          );
+              } por exceder ${mb}MB.`;
+            }
+            setStatus(msg);
+          } finally {
+            setIsProcessing(false);
+          }
+        };
+
+        if (typeof requestAnimationFrame !== 'undefined') {
+          requestAnimationFrame(run);
+        } else {
+          queueMicrotask(run);
         }
       },
       [maxSize, onFiles],
