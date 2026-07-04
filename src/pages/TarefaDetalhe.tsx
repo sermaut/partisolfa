@@ -178,6 +178,12 @@ export default function TarefaDetalhe() {
     return `${(size / 1024 / 1024).toFixed(2)} MB`;
   };
 
+  const limitTitleWords = (title: string, maxWords = 12) => {
+    const words = title.trim().split(/\s+/);
+    if (words.length <= maxWords) return title;
+    return words.slice(0, maxWords).join(' ') + '…';
+  };
+
   if (authLoading || isLoading) {
     return (
       <Layout showFooter={false}>
@@ -230,8 +236,8 @@ export default function TarefaDetalhe() {
                   )}
                 </div>
                 <div>
-                  <h1 className="font-display text-2xl md:text-3xl font-bold mb-1">
-                    {task.title}
+                  <h1 className="font-display text-2xl md:text-3xl font-bold mb-1 line-clamp-2" title={task.title}>
+                    {limitTitleWords(task.title)}
                   </h1>
                   <p className="text-muted-foreground">
                     {serviceLabels[task.service_type as keyof typeof serviceLabels]}
