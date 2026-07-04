@@ -178,6 +178,12 @@ export default function TarefaDetalhe() {
     return `${(size / 1024 / 1024).toFixed(2)} MB`;
   };
 
+  const limitTitleWords = (title: string, maxWords = 12) => {
+    const words = title.trim().split(/\s+/);
+    if (words.length <= maxWords) return title;
+    return words.slice(0, maxWords).join(' ') + '…';
+  };
+
   if (authLoading || isLoading) {
     return (
       <Layout showFooter={false}>
