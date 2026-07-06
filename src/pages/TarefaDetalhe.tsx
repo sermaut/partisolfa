@@ -364,12 +364,12 @@ export default function TarefaDetalhe() {
                 {uploadedFiles.map((file) => (
                   <div
                     key={file.id}
-                    className="bg-secondary/50 rounded-lg p-4 flex items-center justify-between"
+                    className="bg-secondary/50 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                   >
-                    <div className="flex items-center gap-3">
-                      {getFileIcon(file.file_type)}
-                      <div>
-                        <p className="font-medium">{file.file_name}</p>
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="shrink-0">{getFileIcon(file.file_type)}</div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate" title={file.file_name}>{file.file_name}</p>
                         <p className="text-sm text-muted-foreground">
                           {formatFileSize(file.file_size)}
                         </p>
@@ -380,6 +380,7 @@ export default function TarefaDetalhe() {
                       size="sm"
                       onClick={() => downloadFile(file)}
                       disabled={downloadingFile === file.id}
+                      className="w-full sm:w-auto shrink-0"
                     >
                       {downloadingFile === file.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -389,6 +390,7 @@ export default function TarefaDetalhe() {
                     </Button>
                   </div>
                 ))}
+
               </div>
             </details>
           )}
