@@ -1,65 +1,31 @@
-## Corrigir upload de resultados no admin + adicionar indicador de progresso acessível
+## 1. Correção do layout — botão "Descarregar" sempre visível
 
-### Problema 1 — Admin não consegue selecionar ficheiros ao enviar resultado
+**Problema:** em `src/pages/TarefaDetalhe.tsx` (linhas 269–297 e o bloco equivalente dos ficheiros enviados em ~370–390), a linha do ficheiro usa `flex items-center justify-between` sem quebra e sem truncagem do `file_name`. Em ecrãs pequenos, um nome de ficheiro longo empurra o botão para fora do cartão. O mesmo padrão existe no cabeçalho (`h1` + badge de estado) em ~229–252.
 
-Em `src/pages/admin/AdminTarefas.tsx` (diálogo "Enviar Resultado", ~linha 1363-1380), o upload usa um padrão frágil: um `<input type="file" className="hidden">` disparado programaticamente por `fileInputRef.current?.click()` a partir de um `Button` **dentro de um Radix Dialog**. Este padrão falha silenciosamente em vários browsers (especialmente mobile/Safari e quando o Dialog gere focus trap), o que explica o "nada acontece" ao clicar.
+**Alterações (apenas UI, sem lógica):**
 
-O padrão correcto — já usado com sucesso em `NovaSolicitacao` — é o componente `FileDropzone` (`src/components/ui/file-dropzone.tsx`), que usa `<label htmlFor>` a envolver um `<input class="sr-only">`. O clique/tap/Enter/Espaço vai directamente pelo `<label>` nativo, sem passar por JS, e funciona sempre.
+- **Cartão "Resultado Disponível"** (e cartão dos ficheiros enviados, mesmo padrão):
+  - Trocar o container por `flex flex-col sm:flex-row sm:items-center gap-3` com `sm:justify-between`, para que em mobile o botão desça para baixo do nome em vez de sair do ecrã.
+  - Envolver o bloco de metadados (ícone + nome + tamanho) em `min-w-0 flex-1` e aplicar `truncate` (com `title={file.file_name}`) ao `<p>` do nome, para o nome encolher sem esmagar o botão.
+  - Botão "Descarregar" recebe `w-full sm:w-auto shrink-0` e mantém o spinner de estado.
 
-### Problema 2 — Sem feedback de progresso durante o upload
+- **Cabeçalho da tarefa** (título + badge de estado):
+  - `min-w-0` no wrapper do título e `flex-shrink-0` explícito no badge.
+  - Em mobile, o badge alinha à esquerda por baixo do título (`self-start`), evitando corte.
 
-Tanto em `NovaSolicitacao.handleSubmit` como em `AdminTarefas.handleResultUpload`, os ficheiros são enviados em paralelo com `Promise.all` mas o utilizador só vê um spinner global. Se um ficheiro falhar (`console.error` + `return`), não há aviso visível nem anúncio para leitores de ecrã.
+- Nenhuma mudança em Supabase, upload, ou noutras páginas.
 
----
+## 2. Resposta — notificações externas para o admin no plano gratuito
 
-### Alterações
+Isto é uma pergunta, não vou implementar nada. Resposta curta:
 
-**1. `src/pages/admin/AdminTarefas.tsx` — substituir input escondido por `FileDropzone`**
-- Remover o `<input ref={fileInputRef} type="file" hidden>` e o `<Button onClick={fileInputRef.current?.click()}>`.
-- Renderizar `<FileDropzone label="Selecionar ficheiros de resultado" accept=".mp3,.wav,.aac,.pdf,.jpg,.jpeg,.png" multiple maxSize={20*1024*1024} onFiles={handleResultFilesSelected} hint="MP3, WAV, AAC, PDF, JPG, PNG · até 20MB cada" />`.
-- Refactor `handleResultFileSelect(e)` → `handleResultFilesSelected(files: File[])` a receber o array já validado.
+- **Dentro da app (grátis):** o admin já recebe notificações em tempo real na campainha (`notifications` do Lovable Cloud) para novas solicitações e depósitos — sem custo.
+- **Email (grátis, recomendado):** o Lovable Cloud tem envio de email transacional integrado. Dá para disparar um email ao admin em cada nova tarefa/depósito sem chaves externas nem custos adicionais.
+- **WhatsApp / SMS / Facebook:** exigem sempre um fornecedor externo (Twilio, GatewayAPI, Meta Cloud API…). Todos são pagos por mensagem — não há via 100% gratuita e sustentável para produção. WhatsApp Business API exige ainda verificação de número.
+- **PWA push (grátis):** como já é PWA, dá para adicionar notificações push no telemóvel do admin (via Service Worker), sem custos.
 
-**2. Estado de upload por ficheiro (ambos os fluxos)**
-
-Introduzir um tipo partilhado local:
-```ts
-type UploadStatus = 'idle' | 'uploading' | 'success' | 'error';
-type FileProgress = { name: string; status: UploadStatus; error?: string };
-```
-- Adicionar `const [fileProgress, setFileProgress] = useState<FileProgress[]>([])` em ambos os componentes.
-- No início de `handleSubmit` / `handleResultUpload`, semear com `{name, status:'uploading'}` para cada ficheiro.
-- Envolver cada upload individual num `try/catch` que actualiza esse item para `'success'` ou `'error'` (com mensagem).
-- Substituir os `return` silenciosos por erros propagados de forma controlada (sem abortar os restantes) — usar `Promise.allSettled` em vez de `Promise.all`.
-- Se algum ficheiro terminar em erro, mostrar toast destrutivo com contagem e manter o modal aberto para o admin re-tentar apenas os falhados; se todos falharem, não avançar o estado da tarefa.
-
-**3. UI do progresso (dentro dos modais, abaixo da lista de ficheiros)**
-
-Para cada ficheiro em `fileProgress`, renderizar uma linha com:
-- Nome do ficheiro + ícone de estado (`Loader2` a girar, `CheckCircle2`, `AlertCircle`).
-- Barra `<Progress>` (indeterminada durante `uploading`, 100% em `success`, vazia em `error`).
-- Texto de erro em `text-destructive` quando aplicável.
-
-**4. Acessibilidade — anúncio a leitores de ecrã**
-
-Adicionar em cada modal uma região viva única:
-```tsx
-<p role="status" aria-live="polite" aria-atomic="true" className="sr-only">
-  {liveMessage}
-</p>
-```
-`liveMessage` é derivada de `fileProgress`:
-- Ao começar: `"A enviar N ficheiros…"`.
-- A cada conclusão: `"<nome> enviado (X de N)"`.
-- A cada erro: `"Falha ao enviar <nome>: <motivo>"` (usar `aria-live="assertive"` numa segunda região só para erros, para garantir interrupção).
-
-**5. Não alterar RLS, storage, nem lógica de negócio.** Apenas UI + tratamento de erro + acessibilidade.
+Se quiser, no próximo passo posso planear "email + push PWA ao admin" como solução gratuita completa.
 
 ---
 
-### Ficheiros tocados
-- `src/pages/admin/AdminTarefas.tsx` — troca input→FileDropzone, estado de progresso, `Promise.allSettled`, UI de progresso, regiões live.
-- `src/pages/NovaSolicitacao.tsx` — estado de progresso, `Promise.allSettled`, UI de progresso, regiões live.
-
-### Verificação
-- Build limpo (typecheck automático).
-- Playwright: abrir admin → tarefa → "Enviar Resultado", confirmar que `FileDropzone` responde ao clique dentro do Dialog e que as linhas de progresso aparecem.
+**Ficheiros a alterar (apenas fase 1):** `src/pages/TarefaDetalhe.tsx`

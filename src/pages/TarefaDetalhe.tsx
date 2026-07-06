@@ -227,7 +227,7 @@ export default function TarefaDetalhe() {
             </Button>
 
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 min-w-0 flex-1">
                 <div className="w-14 h-14 rounded-xl bg-gradient-gold/20 flex items-center justify-center flex-shrink-0">
                   {task.service_type === 'arranjo' ? (
                     <FileMusic className="w-7 h-7 text-primary" />
@@ -235,8 +235,8 @@ export default function TarefaDetalhe() {
                     <Music className="w-7 h-7 text-primary" />
                   )}
                 </div>
-                <div>
-                  <h1 className="font-display text-2xl md:text-3xl font-bold mb-1 line-clamp-2" title={task.title}>
+                <div className="min-w-0 flex-1">
+                  <h1 className="font-display text-2xl md:text-3xl font-bold mb-1 line-clamp-2 break-words" title={task.title}>
                     {limitTitleWords(task.title)}
                   </h1>
                   <p className="text-muted-foreground">
@@ -245,11 +245,12 @@ export default function TarefaDetalhe() {
                 </div>
               </div>
 
-              <span className={`px-4 py-2 rounded-full text-sm font-medium ${status.class} flex items-center gap-2`}>
+              <span className={`self-start md:self-auto flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium ${status.class} flex items-center gap-2`}>
                 <StatusIcon className="w-4 h-4" />
                 {status.label}
               </span>
             </div>
+
           </div>
 
           {/* Status Message */}
@@ -268,12 +269,12 @@ export default function TarefaDetalhe() {
                 {resultFiles.map((file) => (
                   <div
                     key={file.id}
-                    className="bg-secondary rounded-lg p-4 flex items-center justify-between"
+                    className="bg-secondary rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                   >
-                    <div className="flex items-center gap-3">
-                      {getFileIcon(file.file_type)}
-                      <div>
-                        <p className="font-medium">{file.file_name}</p>
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="shrink-0">{getFileIcon(file.file_type)}</div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate" title={file.file_name}>{file.file_name}</p>
                         <p className="text-sm text-muted-foreground">
                           {formatFileSize(file.file_size)}
                         </p>
@@ -284,6 +285,7 @@ export default function TarefaDetalhe() {
                       size="sm"
                       onClick={() => downloadFile(file)}
                       disabled={downloadingFile === file.id}
+                      className="w-full sm:w-auto shrink-0"
                     >
                       {downloadingFile === file.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -296,6 +298,7 @@ export default function TarefaDetalhe() {
                     </Button>
                   </div>
                 ))}
+
               </div>
             </div>
           )}
@@ -361,12 +364,12 @@ export default function TarefaDetalhe() {
                 {uploadedFiles.map((file) => (
                   <div
                     key={file.id}
-                    className="bg-secondary/50 rounded-lg p-4 flex items-center justify-between"
+                    className="bg-secondary/50 rounded-lg p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
                   >
-                    <div className="flex items-center gap-3">
-                      {getFileIcon(file.file_type)}
-                      <div>
-                        <p className="font-medium">{file.file_name}</p>
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="shrink-0">{getFileIcon(file.file_type)}</div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium truncate" title={file.file_name}>{file.file_name}</p>
                         <p className="text-sm text-muted-foreground">
                           {formatFileSize(file.file_size)}
                         </p>
@@ -377,6 +380,7 @@ export default function TarefaDetalhe() {
                       size="sm"
                       onClick={() => downloadFile(file)}
                       disabled={downloadingFile === file.id}
+                      className="w-full sm:w-auto shrink-0"
                     >
                       {downloadingFile === file.id ? (
                         <Loader2 className="w-4 h-4 animate-spin" />
@@ -386,6 +390,7 @@ export default function TarefaDetalhe() {
                     </Button>
                   </div>
                 ))}
+
               </div>
             </details>
           )}
