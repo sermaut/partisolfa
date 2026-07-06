@@ -227,7 +227,7 @@ export default function TarefaDetalhe() {
             </Button>
 
             <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 min-w-0 flex-1">
                 <div className="w-14 h-14 rounded-xl bg-gradient-gold/20 flex items-center justify-center flex-shrink-0">
                   {task.service_type === 'arranjo' ? (
                     <FileMusic className="w-7 h-7 text-primary" />
@@ -235,8 +235,8 @@ export default function TarefaDetalhe() {
                     <Music className="w-7 h-7 text-primary" />
                   )}
                 </div>
-                <div>
-                  <h1 className="font-display text-2xl md:text-3xl font-bold mb-1 line-clamp-2" title={task.title}>
+                <div className="min-w-0 flex-1">
+                  <h1 className="font-display text-2xl md:text-3xl font-bold mb-1 line-clamp-2 break-words" title={task.title}>
                     {limitTitleWords(task.title)}
                   </h1>
                   <p className="text-muted-foreground">
@@ -245,11 +245,12 @@ export default function TarefaDetalhe() {
                 </div>
               </div>
 
-              <span className={`px-4 py-2 rounded-full text-sm font-medium ${status.class} flex items-center gap-2`}>
+              <span className={`self-start md:self-auto flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium ${status.class} flex items-center gap-2`}>
                 <StatusIcon className="w-4 h-4" />
                 {status.label}
               </span>
             </div>
+
           </div>
 
           {/* Status Message */}
