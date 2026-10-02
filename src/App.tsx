@@ -73,7 +73,24 @@ const LazyFallback = () => (
   </div>
 );
 
-const AppContent = () => (
+// Bloqueio temporário do site — definir como false para reativar
+const SITE_BLOCKED = true;
+
+const SiteBlocked = () => (
+  <div className="min-h-screen flex flex-col items-center justify-center bg-background px-6 text-center">
+    <div className="max-w-md space-y-4">
+      <div className="mx-auto w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
+      <h1 className="text-2xl md:text-3xl font-bold">Site bloqueado temporariamente</h1>
+      <p className="text-muted-foreground">
+        O PARTISOLFA está temporariamente indisponível. Voltaremos em breve. Obrigado pela compreensão.
+      </p>
+    </div>
+  </div>
+);
+
+const AppContent = () => SITE_BLOCKED ? <SiteBlocked /> : (
   <>
     <ProfileCompletionWrapper />
     <Suspense fallback={<LazyFallback />}>
