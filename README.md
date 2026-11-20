@@ -1,73 +1,101 @@
-# Welcome to your Lovable project
+# PartiSolfa: Your Music Solution
 
-## Project info
+Cria uma plataforma web profissional chamada PARTISOLFA, destinada à recepção e devolução de tarefas musicais, com sistema de contas, créditos, upload de ficheiros e painel administrativo.
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+OBJETIVO DA PLATAFORMA
+A PartiSolfa funciona como uma plataforma automática onde os usuários solicitam serviços musicais, enviando ficheiros (áudio, imagens e PDFs) e recebendo o resultado resolvido directamente na sua conta.  
+A comunicação com o usuário deve transmitir que é a própria plataforma que analisa e resolve as solicitações, sem qualquer referência a administradores.
 
-## How can I edit this code?
+SERVIÇOS DISPONÍVEIS
+1. Aperfeiçoamento de músicas e partituras
+2. Criação de arranjos musicais
 
-There are several ways of editing your application.
+Em ambos os casos:
+- O usuário envia ficheiros e recomendações
+- O resultado final é devolvido na conta do usuário
 
-**Use Lovable**
+SISTEMA DE CONTAS
+- Registo e login por e-mail e palavra-passe
+- Cada nova conta recebe automaticamente 1.5 créditos
+- Dashboard do usuário com:
+  - Saldo de créditos
+  - Nova solicitação
+  - Histórico de tarefas
+  - Estado das solicitações
+  - Download dos resultados
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+SISTEMA DE CRÉDITOS
+- 1 crédito = 150 Kwanza (Kz)
+- Cada serviço consome 1 crédito
+- Bloquear novas solicitações se o saldo for insuficiente
 
-Changes made via Lovable will be committed automatically to this repo.
+DEPÓSITO DE CRÉDITOS
+- Sistema de depósito manual
+- O usuário informa o valor e anexa comprovativo de transferência
+- Dados bancários:
+  IBAN: 0040 0000 63929866101 68
+  Banco: BAI – Angola
+- As solicitações de depósito vão para o painel administrativo
+- Após aprovação, o sistema converte automaticamente:
+  150 Kz = 1 crédito
 
-**Use your preferred IDE**
+UPLOAD DE FICHEIROS
+- Tipos permitidos:
+  - Áudio (mp3, wav)
+  - Imagens (jpg, png)
+  - Documentos (PDF)
+- Os ficheiros e resultados devem ser visíveis apenas ao usuário solicitante
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+PAINEL ADMINISTRATIVO
+- Gestão de solicitações
+- Aprovação de depósitos
+- Conversão automática de valores em créditos
+- Upload dos resultados
+- Alteração do estado das tarefas
+- Sistema de notificações internas
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+PÁGINAS DO SITE
+- Página Inicial (textos comerciais claros e profissionais)
+- Criar Conta / Login
+- Painel do Usuário
+- Nova Solicitação
+- Depósito de Créditos
+- Histórico de Tarefas
+- Termos de Uso
+- Aviso Legal
+- Política de Privacidade
+- Painel Administrativo
 
-Follow these steps:
+EXPERIÊNCIA DO USUÁRIO
+- Interface moderna, simples e profissional
+- Linguagem em português de Angola
+- Comunicação baseada em confiança e clareza
+- Site responsivo para telemóvel e computador
+
+SEGURANÇA E CONFIANÇA
+- Protecção dos dados dos usuários
+- Acesso restrito aos ficheiros
+- Estrutura preparada para crescimento futuro
+
+This project was built with [Lovable](https://lovable.dev).
+
+**Live app**: https://partisolfa.lovable.app
+
+## Build with Lovable
+
+Continue developing this project in the [Lovable editor](https://lovable.dev/projects/92939889-fcf7-40d1-8c92-1ac91e9d0252).
+
+- **Ship faster**: describe what you want to build and Lovable handles the code.
+- **Stay in sync**: every change made in Lovable is committed straight to this repository.
+- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
+
+## Development
+
+Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
+git clone <this-repository-url>
+cd <repository-name>
 npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
