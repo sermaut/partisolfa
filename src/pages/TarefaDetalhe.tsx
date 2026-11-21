@@ -255,13 +255,13 @@ export default function TarefaDetalhe() {
           </div>
 
           {/* Status Message */}
-          <div className="glass-card rounded-xl p-4 mb-6">
+          <div className="section-card section-card--tasks glass-card rounded-xl p-4 mb-6">
             <p className="text-muted-foreground">{status.description}</p>
           </div>
 
           {/* Result Files (Expanded by default, prominent) */}
           {resultFiles.length > 0 && (
-            <div className="glass-card rounded-xl p-5 mb-6 border-success/50 bg-success/5">
+            <div className="section-card section-card--tasks glass-card rounded-xl p-5 mb-6 border-success/50 bg-success/5">
               <h2 className="font-display text-lg font-semibold mb-4 flex items-center gap-2 text-success">
                 <Download className="w-5 h-5" />
                 Resultado Disponível
@@ -305,7 +305,7 @@ export default function TarefaDetalhe() {
           )}
 
           {/* Collapsible sections - other details */}
-          <details className="glass-card rounded-xl mb-4 group" open={resultFiles.length === 0}>
+          <details className="section-card section-card--tasks glass-card rounded-xl mb-4 group" open={resultFiles.length === 0}>
             <summary className="cursor-pointer p-5 font-display text-lg font-semibold flex items-center justify-between">
               Detalhes da Solicitação
               <span className="text-sm text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
@@ -335,7 +335,7 @@ export default function TarefaDetalhe() {
           </details>
 
           {task.description && (
-            <details className="glass-card rounded-xl mb-4 group">
+            <details className="section-card section-card--tasks glass-card rounded-xl mb-4 group">
               <summary className="cursor-pointer p-5 font-display text-lg font-semibold flex items-center justify-between">
                 Descrição
                 <span className="text-sm text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
@@ -345,7 +345,7 @@ export default function TarefaDetalhe() {
           )}
 
           {task.recommendations && (
-            <details className="glass-card rounded-xl mb-4 group">
+            <details className="section-card section-card--tasks glass-card rounded-xl mb-4 group">
               <summary className="cursor-pointer p-5 font-display text-lg font-semibold flex items-center justify-between">
                 Recomendações
                 <span className="text-sm text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
@@ -358,7 +358,7 @@ export default function TarefaDetalhe() {
 
           {/* Uploaded Files */}
           {uploadedFiles.length > 0 && (
-            <details className="glass-card rounded-xl mb-4 group">
+            <details className="section-card section-card--tasks glass-card rounded-xl mb-4 group">
               <summary className="cursor-pointer p-5 font-display text-lg font-semibold flex items-center justify-between">
                 Ficheiros Enviados ({uploadedFiles.length})
                 <span className="text-sm text-muted-foreground group-open:rotate-180 transition-transform">▼</span>
