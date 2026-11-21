@@ -205,7 +205,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="glass-card rounded-xl p-4 md:p-6"
+            className="section-card section-card--dashboard glass-card rounded-xl p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -224,7 +224,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="glass-card rounded-xl p-4 md:p-6"
+            className="section-card section-card--dashboard glass-card rounded-xl p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent/20 flex items-center justify-center">
@@ -241,7 +241,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="glass-card rounded-xl p-4 md:p-6"
+            className="section-card section-card--dashboard glass-card rounded-xl p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-warning/20 flex items-center justify-center">
@@ -258,7 +258,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="glass-card rounded-xl p-4 md:p-6"
+            className="section-card section-card--dashboard glass-card rounded-xl p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-success/20 flex items-center justify-center">
@@ -275,7 +275,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="glass-card rounded-xl p-4 md:p-6 col-span-2 md:col-span-1"
+            className="section-card section-card--dashboard glass-card rounded-xl p-4 md:p-6 col-span-2 md:col-span-1"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-destructive/20 flex items-center justify-center">
@@ -297,7 +297,7 @@ export default function Dashboard() {
             transition={{ delay: 0.32 }}
             className="mb-8"
           >
-            <Link to="/perfil" className="glass-card rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 hover:border-primary/50 transition-colors block">
+            <Link to="/perfil" className="section-card section-card--dashboard glass-card rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 hover:border-primary/50 transition-colors block">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-gold/20 flex items-center justify-center">
                   <Gift className="w-6 h-6 text-primary" />
@@ -390,7 +390,7 @@ export default function Dashboard() {
               {notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  className="glass-card rounded-xl p-4 flex items-start justify-between gap-4"
+                  className="section-card section-card--dashboard glass-card rounded-xl p-4 flex items-start justify-between gap-4"
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -428,7 +428,7 @@ export default function Dashboard() {
           </div>
 
           {tasks.length === 0 ? (
-            <div className="glass-card rounded-xl p-12 text-center">
+            <div className="section-card section-card--dashboard glass-card rounded-xl p-12 text-center">
               <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">
                 Nenhuma solicitação ainda
@@ -453,7 +453,7 @@ export default function Dashboard() {
                   <Link
                     key={task.id}
                     to={`/tarefa/${task.id}`}
-                    className="glass-card rounded-xl p-4 flex items-center justify-between gap-4 hover:border-primary/50 transition-colors block"
+                    className="section-card section-card--dashboard glass-card rounded-xl p-4 flex items-center justify-between gap-4 hover:border-primary/50 transition-colors block"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-gradient-gold/20 flex items-center justify-center">
