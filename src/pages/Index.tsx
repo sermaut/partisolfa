@@ -163,7 +163,7 @@ export default function Index() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="glass-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 group"
+              className="section-card section-card--support glass-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 group"
             >
               <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <FileMusic className="w-6 h-6 text-primary-foreground" />
@@ -186,7 +186,7 @@ export default function Index() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="glass-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 group"
+              className="section-card section-card--support glass-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 group"
             >
               <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <Music className="w-6 h-6 text-primary-foreground" />
