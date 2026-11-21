@@ -177,7 +177,7 @@ export default function Deposito() {
           </p>
 
           {/* Current Balance */}
-          <div className="glass-card rounded-xl p-6 mb-8">
+          <div className="section-card section-card--finance glass-card rounded-xl p-6 mb-8">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Saldo actual</p>
@@ -192,7 +192,7 @@ export default function Deposito() {
           </div>
 
           {/* Bank Details */}
-          <div className="glass-card rounded-xl p-6 mb-8">
+          <div className="section-card section-card--finance glass-card rounded-xl p-6 mb-8">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-primary" />
@@ -231,7 +231,7 @@ export default function Deposito() {
           </div>
 
           {/* Conversion Rate */}
-          <div className="glass-card rounded-xl p-4 mb-8 bg-primary/5 border-primary/30">
+          <div className="section-card section-card--finance glass-card rounded-xl p-4 mb-8 bg-primary/5 border-primary/30">
             <div className="flex items-center gap-3">
               <Calculator className="w-5 h-5 text-primary" />
               <p className="text-sm">
@@ -278,7 +278,7 @@ export default function Deposito() {
               {!proofFile ? (
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="glass-card rounded-xl p-8 border-dashed border-2 border-border hover:border-primary/50 transition-colors cursor-pointer text-center"
+                  className="section-card section-card--finance glass-card rounded-xl p-8 border-dashed border-2 border-border hover:border-primary/50 transition-colors cursor-pointer text-center"
                 >
                   <FileImage className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
                   <p className="font-medium">Clique para selecionar</p>
@@ -287,7 +287,7 @@ export default function Deposito() {
                   </p>
                 </div>
               ) : (
-                <div className="glass-card rounded-xl p-4">
+                <div className="section-card section-card--finance glass-card rounded-xl p-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {proofPreview ? (
@@ -335,7 +335,7 @@ export default function Deposito() {
             {/* Submit Button */}
             <Button
               type="submit"
-              variant="premium"
+              variant="finance"
               size="lg"
               className="w-full"
               disabled={isSubmitting || !amount || !proofFile}
