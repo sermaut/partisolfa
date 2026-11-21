@@ -20,6 +20,7 @@ import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { TaskReview } from '@/components/TaskReview';
 
 interface Task {
   id: string;
@@ -352,6 +353,8 @@ export default function TarefaDetalhe() {
               <p className="px-5 pb-5 text-muted-foreground whitespace-pre-wrap">{task.recommendations}</p>
             </details>
           )}
+
+          <TaskReview taskId={id!} taskStatus={task.status} />
 
           {/* Uploaded Files */}
           {uploadedFiles.length > 0 && (
