@@ -568,3 +568,25 @@ input, textarea, select, [role="combobox"] {
 .mobile-menu-item.is-active svg { color: #103b43; }
 .mobile-menu-footer { color: rgba(224,255,244,.7); border-top-color: rgba(151,226,210,.3); }
 .mobile-menu-drawer, .mobile-menu-backdrop { animation: none !important; transition: none !important; }
+
+
+/* Mobile navigation should cover the complete viewport, with no right gutter */
+@media (max-width: 767px) {
+  .mobile-menu-drawer {
+    inset: 0;
+    width: 100vw;
+    max-width: none;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    box-sizing: border-box;
+    border-radius: 0;
+    border-top: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-left: 5px solid #20c978;
+    padding-left: max(24px, calc(env(safe-area-inset-left) + 24px));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+}
