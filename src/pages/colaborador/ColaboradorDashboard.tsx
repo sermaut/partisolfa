@@ -106,6 +106,7 @@ export default function ColaboradorDashboard() {
       description: `${stats.pendingAssignments} pendentes`,
       icon: ClipboardList,
       href: '/colaborador/tarefas',
+      color: 'tasks',
       badge: stats.pendingAssignments > 0 ? stats.pendingAssignments : null,
     },
     {
@@ -113,18 +114,21 @@ export default function ColaboradorDashboard() {
       description: 'Levantar saldo',
       icon: ArrowDownCircle,
       href: '/colaborador/levantamento',
+      color: 'finance',
     },
     {
       title: 'Depositar Créditos',
       description: 'Adicionar saldo',
       icon: Wallet,
       href: '/deposito',
+      color: 'finance',
     },
     {
       title: 'Notificações',
       description: 'Ver mensagens',
       icon: Bell,
       href: '/notificacoes',
+      color: 'alert',
     },
   ];
 
@@ -217,7 +221,7 @@ export default function ColaboradorDashboard() {
               <Link
                 key={link.title}
                 to={link.href}
-                className="section-card section-card--tasks rounded-xl p-4 hover:border-primary/50 transition-colors group relative"
+                className={`section-card section-card--${link.color} rounded-xl p-4 hover:border-primary/50 transition-colors group relative`}
               >
                 <link.icon className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
                 <p className="font-medium">{link.title}</p>
