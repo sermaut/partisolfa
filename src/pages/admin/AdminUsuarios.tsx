@@ -435,7 +435,7 @@ export default function AdminUsuarios() {
 
           {/* Users List */}
           {filteredProfiles.length === 0 ? (
-            <div className="glass-card rounded-xl p-8 sm:p-12 text-center">
+            <div className="section-card section-card--users glass-card rounded-xl p-8 sm:p-12 text-center">
               <Users className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">
                 Nenhum usuário encontrado
@@ -451,7 +451,7 @@ export default function AdminUsuarios() {
                   key={profile.id}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="glass-card rounded-xl p-4 sm:p-5 cursor-pointer transition-all hover:border-primary/30"
+                  className="section-card section-card--users glass-card rounded-xl p-4 sm:p-5 cursor-pointer transition-all hover:border-primary/30"
                   onClick={() => openDetailsDialog(profile)}
                 >
                   <div className="flex items-start justify-between mb-3 sm:mb-4">
