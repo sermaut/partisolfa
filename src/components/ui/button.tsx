@@ -11,13 +11,13 @@ const buttonVariants = cva(
       variant: {
         default: "bg-gradient-to-r from-blue-700 to-sky-600 text-white hover:brightness-110 shadow-sm hover:shadow-md",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border-[1.5px] border-slate-300 bg-white text-slate-800 shadow-sm hover:bg-blue-50 hover:border-blue-300",
-        secondary: "bg-emerald-100 text-emerald-900 border-[1.5px] border-emerald-200 hover:bg-emerald-200",
-        ghost: "bg-white text-slate-700 border-[1.5px] border-slate-200 hover:bg-slate-50",
-        link: "bg-blue-50 text-blue-800 underline-offset-4 hover:bg-blue-100",
+        outline: "border-[1.5px] border-slate-300 bg-white text-[#173b68] font-semibold shadow-sm hover:bg-blue-50 hover:border-blue-400",
+        secondary: "bg-emerald-100 text-emerald-950 border-[1.5px] border-emerald-200 font-semibold hover:bg-emerald-200",
+        ghost: "bg-white text-[#173b68] font-semibold border-[1.5px] border-slate-200 hover:bg-blue-50 hover:border-blue-300",
+        link: "bg-blue-50 text-blue-950 font-semibold underline-offset-4 hover:bg-blue-100",
         premium: "bg-gradient-to-r from-blue-700 to-sky-600 text-white font-semibold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",
         hero: "bg-gradient-to-r from-blue-700 to-sky-600 text-white font-semibold text-base px-8 py-6 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]",
-        glass: "bg-white border-[1.5px] border-slate-300 text-slate-800 hover:bg-blue-50 hover:border-blue-300 shadow-sm",
+        glass: "bg-white border-[1.5px] border-slate-300 text-[#173b68] font-semibold hover:bg-blue-50 hover:border-blue-400 shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",
