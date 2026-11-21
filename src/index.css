@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700;800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700;800&display=swap');
 
 /*
   PARTISOLFA Design System
@@ -706,4 +706,92 @@ body *::marker {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+
+/* Corporate Blue — consistent treatment across every application section */
+@layer base {
+  :root { color-scheme: light; }
+  body { background: #f2f8f6; color: #203247; }
+  ::selection { background: #cfe3fb; color: #173b68; }
+  a { transition: color .18s ease; }
+  input, textarea, select, [role="combobox"] {
+    border: 1.5px solid #cbd5df;
+    border-radius: .55rem;
+    background: #fff;
+  }
+  input:focus, textarea:focus, select:focus, [role="combobox"]:focus {
+    border-color: #5791cf;
+    box-shadow: 0 0 0 3px rgba(36,99,181,.12);
+  }
+}
+@layer components {
+  /* Header, navigation and dropdown surfaces */
+  header.fixed { background: #173b68 !important; border-color: #315b87 !important; }
+  header.fixed nav a { color: #eaf3ff !important; }
+  header.fixed nav a:hover, header.fixed nav a[aria-current="page"] { color: #9ed9f2 !important; }
+  [data-radix-popper-content-wrapper] [role="menu"],
+  [data-radix-popper-content-wrapper] [role="listbox"] {
+    border: 1.5px solid #cbd9e8;
+    border-radius: .75rem;
+    box-shadow: 0 12px 32px rgba(23,59,104,.14);
+  }
+  /* Reusable cards and panels */
+  .glass-card, .surface-solid, [data-card="true"] {
+    border: 1.5px solid #d3dde5;
+    border-radius: .875rem;
+    background: #fff;
+    box-shadow: 0 3px 12px rgba(23,54,77,.055);
+  }
+  .surface-blue { background: #eff6ff; border: 1.5px solid #bfdbfe; color: #173b68; }
+  .surface-green { background: #ecfdf5; border: 1.5px solid #a7f3d0; color: #14532d; }
+  .surface-orange { background: #fff7ed; border: 1.5px solid #fed7aa; color: #7c2d12; }
+  .surface-pink { background: #fdf2f8; border: 1.5px solid #fbcfe8; color: #831843; }
+  .surface-violet { background: #f5f3ff; border: 1.5px solid #ddd6fe; color: #4c1d95; }
+  .surface-cyan { background: #ecfeff; border: 1.5px solid #a5f3fc; color: #164e63; }
+  /* Form fields */
+  input:not([type="checkbox"]):not([type="radio"]), textarea, select, [role="combobox"] {
+    min-height: 2.5rem;
+    border-width: 1.5px !important;
+    border-color: #cbd5df !important;
+    background-color: #fff !important;
+    color: #203247 !important;
+  }
+  input[type="checkbox"], input[type="radio"] { accent-color: #2463b5; }
+  /* Tabs, tables and alerts */
+  [role="tablist"] { border: 1.5px solid #d6e0e9; background: #eaf1f8; border-radius: .75rem; }
+  [role="tab"][data-state="active"] { color: #174b83; background: #fff; box-shadow: 0 2px 7px rgba(23,59,104,.12); }
+  table { border-collapse: separate; border-spacing: 0; }
+  thead { background: #edf4fb; }
+  th { color: #294c70; font-weight: 700; }
+  tbody tr:hover { background: #f3f8fd; }
+  tbody tr td, thead tr th { border-bottom: 1px solid #dce5ed; }
+  [role="alert"] { border-width: 1.5px; border-radius: .75rem; }
+  /* Consistent section rhythm and restrained hover feedback */
+  main section { scroll-margin-top: 6rem; }
+  .glass-card, .stat-card, .surface-blue, .surface-green, .surface-orange,
+  .surface-pink, .surface-violet, .surface-cyan {
+    transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+  }
+  .glass-card:hover, .stat-card:hover {
+    border-color: #b7cce0;
+    box-shadow: 0 8px 22px rgba(23,59,104,.09);
+  }
+}
+.dark {
+  color-scheme: dark;
+}
+.dark input:not([type="checkbox"]):not([type="radio"]),
+.dark textarea, .dark select, .dark [role="combobox"] {
+  background-color: hsl(215 25% 14%) !important;
+  color: hsl(210 30% 96%) !important;
+  border-color: hsl(215 16% 30%) !important;
+}
+.dark thead { background: hsl(215 25% 18%); }
+.dark th { color: hsl(210 30% 88%); }
+.dark tbody tr:hover { background: hsl(215 25% 18%); }
+@media (max-width: 640px) {
+  .container { width: 100%; }
+  .glass-card { border-radius: .75rem; }
+  table { min-width: 36rem; }
 }
