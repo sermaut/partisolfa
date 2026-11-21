@@ -178,7 +178,7 @@ export default function AdminDashboard() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
-            <div className="glass-card rounded-xl p-6">
+            <div className="section-card section-card--dashboard glass-card rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 rounded-lg bg-warning/20 flex items-center justify-center">
                   <Clock className="w-5 h-5 text-warning" />
@@ -188,7 +188,7 @@ export default function AdminDashboard() {
               <p className="text-sm text-muted-foreground">Tarefas Pendentes</p>
             </div>
 
-            <div className="glass-card rounded-xl p-6">
+            <div className="section-card section-card--dashboard glass-card rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                   <AlertCircle className="w-5 h-5 text-primary" />
@@ -198,7 +198,7 @@ export default function AdminDashboard() {
               <p className="text-sm text-muted-foreground">Em Progresso</p>
             </div>
 
-            <div className="glass-card rounded-xl p-6">
+            <div className="section-card section-card--dashboard glass-card rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center">
                   <CheckCircle className="w-5 h-5 text-success" />
@@ -208,7 +208,7 @@ export default function AdminDashboard() {
               <p className="text-sm text-muted-foreground">Concluídas</p>
             </div>
 
-            <div className="glass-card rounded-xl p-6">
+            <div className="section-card section-card--dashboard glass-card rounded-xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
                   <CreditCard className="w-5 h-5 text-accent" />
@@ -220,11 +220,11 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick Links */}
-          <Link to="/admin/avaliacoes" className="glass-card rounded-xl p-5 mb-5 flex items-center justify-between hover:border-primary/50"><span className="flex items-center gap-3"><MessageSquare className="text-amber-700" /><span><strong>Avaliações dos clientes</strong><span className="block text-sm text-muted-foreground">Gerir comentários e satisfação</span></span></span><ArrowRight className="text-primary" /></Link>
+          <Link to="/admin/avaliacoes" className="section-card section-card--dashboard glass-card rounded-xl p-5 mb-5 flex items-center justify-between hover:border-primary/50"><span className="flex items-center gap-3"><MessageSquare className="text-amber-700" /><span><strong>Avaliações dos clientes</strong><span className="block text-sm text-muted-foreground">Gerir comentários e satisfação</span></span></span><ArrowRight className="text-primary" /></Link>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               to="/admin/tarefas"
-              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+              className="section-card section-card--dashboard glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -244,7 +244,7 @@ export default function AdminDashboard() {
 
             <Link
               to="/admin/depositos"
-              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+              className="section-card section-card--dashboard glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -264,7 +264,7 @@ export default function AdminDashboard() {
 
             <Link
               to="/admin/usuarios"
-              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+              className="section-card section-card--dashboard glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -284,7 +284,7 @@ export default function AdminDashboard() {
 
             <Link
               to="/admin/referrals"
-              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+              className="section-card section-card--dashboard glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -304,7 +304,7 @@ export default function AdminDashboard() {
 
             <Link
               to="/admin/colaboradores"
-              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+              className="section-card section-card--dashboard glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -324,7 +324,7 @@ export default function AdminDashboard() {
 
             <Link
               to="/admin/levantamentos"
-              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+              className="section-card section-card--dashboard glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
