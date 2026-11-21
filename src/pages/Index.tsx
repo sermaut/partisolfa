@@ -163,9 +163,9 @@ export default function Index() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.1 }}
-              className="glass-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 group"
+              className="glass-card surface-blue rounded-2xl p-6 hover:shadow-md transition-all duration-300 group"
             >
-              <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-blue-700 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <FileMusic className="w-6 h-6 text-primary-foreground" />
               </div>
               <h3 className="font-display text-xl font-semibold mb-3">
@@ -186,9 +186,9 @@ export default function Index() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.2 }}
-              className="glass-card rounded-2xl p-6 hover:border-primary/50 transition-all duration-300 group"
+              className="glass-card surface-green rounded-2xl p-6 hover:shadow-md transition-all duration-300 group"
             >
-              <div className="w-12 h-12 rounded-xl bg-gradient-gold flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-emerald-700 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <Music className="w-6 h-6 text-primary-foreground" />
               </div>
               <h3 className="font-display text-xl font-semibold mb-3">

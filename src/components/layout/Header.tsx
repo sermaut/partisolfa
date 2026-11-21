@@ -83,7 +83,7 @@ export function Header() {
   const avatarUrl = (profile as any)?.avatar_url;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-[#17364d] text-white border-b border-[#2a596e] shadow-md">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-[#173b68] text-white border-b border-[#315b87] shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
@@ -112,7 +112,7 @@ export function Header() {
             )}
             <Link
               to="/servicos"
-              className="text-base text-muted-foreground hover:text-foreground transition-colors py-2"
+              className="text-base text-white/85 hover:text-sky-200 transition-colors py-2"
             >
               Nossos Serviços
             </Link>

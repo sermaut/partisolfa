@@ -116,9 +116,9 @@ export default {
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
       },
       backgroundImage: {
-        "gradient-gold": "linear-gradient(135deg, hsl(146, 71%, 19%) 0%, hsl(43, 71%, 47%) 100%)",
-        "gradient-dark": "linear-gradient(180deg, hsl(42, 45%, 97%) 0%, hsl(42, 40%, 92%) 100%)",
-        "gradient-card": "linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(42, 40%, 96%) 100%)",
+        "gradient-gold": "linear-gradient(135deg, hsl(213, 78%, 42%) 0%, hsl(195, 72%, 48%) 100%)",
+        "gradient-dark": "linear-gradient(180deg, hsl(140, 30%, 98%) 0%, hsl(145, 38%, 93%) 100%)",
+        "gradient-card": "linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(140, 30%, 97%) 100%)",
         "gradient-radial": "radial-gradient(ellipse at center, var(--tw-gradient-stops))",
       },
     },

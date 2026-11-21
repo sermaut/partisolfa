@@ -1,0 +1,30 @@
+name: PARTISOLFA validation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - feat/corporate-blue-visual-2026-11-22
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run lint
+        run: npm run lint
+      - name: Build production bundle
+        run: npm run build

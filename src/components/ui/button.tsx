@@ -9,15 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-emerald-800 via-green-700 to-yellow-600 text-white hover:brightness-110 btn-glow",
+        default: "bg-gradient-to-r from-blue-700 to-sky-600 text-white hover:brightness-110 shadow-sm hover:shadow-md",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-emerald-800/30 bg-white text-emerald-950 shadow-sm hover:bg-emerald-50",
-        secondary: "bg-gradient-to-r from-amber-100 to-emerald-100 text-emerald-950 border border-amber-300 hover:brightness-105",
-        ghost: "bg-white text-emerald-950 border border-emerald-900/10 hover:bg-emerald-50",
-        link: "bg-emerald-50 text-emerald-900 underline-offset-4 hover:bg-emerald-100",
-        premium: "bg-gradient-gold text-primary-foreground font-semibold btn-glow hover:scale-[1.02] active:scale-[0.98]",
-        hero: "bg-gradient-gold text-primary-foreground font-semibold text-base px-8 py-6 btn-glow hover:scale-[1.02] active:scale-[0.98]",
-        glass: "bg-white border border-emerald-900/20 text-emerald-950 hover:bg-emerald-50 shadow-sm",
+        outline: "border-[1.5px] border-slate-300 bg-white text-slate-800 shadow-sm hover:bg-blue-50 hover:border-blue-300",
+        secondary: "bg-emerald-100 text-emerald-900 border-[1.5px] border-emerald-200 hover:bg-emerald-200",
+        ghost: "bg-white text-slate-700 border-[1.5px] border-slate-200 hover:bg-slate-50",
+        link: "bg-blue-50 text-blue-800 underline-offset-4 hover:bg-blue-100",
+        premium: "bg-gradient-to-r from-blue-700 to-sky-600 text-white font-semibold shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",
+        hero: "bg-gradient-to-r from-blue-700 to-sky-600 text-white font-semibold text-base px-8 py-6 shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98]",
+        glass: "bg-white border-[1.5px] border-slate-300 text-slate-800 hover:bg-blue-50 hover:border-blue-300 shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",

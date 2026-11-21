@@ -1,0 +1,50 @@
+name: PARTISOLFA mobile preview
+
+on:
+  push:
+    branches:
+      - feat/corporate-blue-visual-2026-11-22
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: partisolfa-preview
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout preview branch
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Run lint
+        run: npm run lint
+      - name: Build preview
+        run: npm run build
+        env:
+          GITHUB_PAGES: "true"
+      - name: Add SPA fallback
+        run: cp dist/index.html dist/404.html
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload preview artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - name: Deploy preview
+        id: deployment
+        uses: actions/deploy-pages@v4

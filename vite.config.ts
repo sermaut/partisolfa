@@ -19,6 +19,8 @@ const emitBuildVersion = () => ({
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  // GitHub Pages preview uses the repository subpath; normal hosting remains at root.
+  base: process.env.GITHUB_PAGES === "true" ? "/partisolfa/" : "/",
   server: {
     host: "::",
     port: 8080,
