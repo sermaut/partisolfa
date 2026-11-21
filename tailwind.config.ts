@@ -14,7 +14,7 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Noto Serif"', 'serif'],
+        display: ['Inter', 'sans-serif'],
         sans: ['"Noto Serif"', 'serif'],
         mono: ['"Noto Serif"', 'serif'],
       },
