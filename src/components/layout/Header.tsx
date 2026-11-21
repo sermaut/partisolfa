@@ -327,7 +327,7 @@ export function Header() {
                       </Avatar>
                       <div className="min-w-0">
                         <p className="font-bold truncate">{profile?.full_name || 'Minha Conta'}</p>
-                        <p className="text-sm font-semibold text-amber-300">{profile?.credits?.toFixed(1)} créditos</p>
+                        <p className="text-sm font-semibold text-amber-300">{profile?.credits?.toFixed(4)} créditos</p>
                       </div>
                     </div>
 
