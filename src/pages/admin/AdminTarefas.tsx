@@ -853,7 +853,7 @@ export default function AdminTarefas() {
           </div>
 
           {filteredTasks.length === 0 ? (
-            <div className="glass-card rounded-xl p-12 text-center">
+            <div className="section-card section-card--tasks glass-card rounded-xl p-12 text-center">
               <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">Nenhuma tarefa encontrada</h3>
               <p className="text-muted-foreground">
@@ -881,7 +881,7 @@ export default function AdminTarefas() {
                 const StatusIcon = status.icon;
 
                 return (
-                  <div key={task.id} className="glass-card rounded-xl p-5">
+                  <div key={task.id} className="section-card section-card--tasks glass-card rounded-xl p-5">
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-xl bg-gradient-gold/20 flex items-center justify-center flex-shrink-0">
@@ -1256,7 +1256,7 @@ export default function AdminTarefas() {
                   <div className="divider-gradient mb-3 sm:mb-4" />
                   <Label className="mb-2 sm:mb-3 block text-xs sm:text-sm">Enviar Resultado (até {MAX_RESULT_FILES} ficheiros)</Label>
                   <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3">
-                    <Button variant="premium" onClick={openResultDialog} disabled={isUploading} className="w-full sm:w-auto">
+                    <Button variant="success" onClick={openResultDialog} disabled={isUploading} className="w-full sm:w-auto">
                       <Upload className="w-4 h-4 mr-2" />
                       Carregar Resultado
                     </Button>
@@ -1346,7 +1346,7 @@ export default function AdminTarefas() {
             <Button variant="outline" onClick={() => setShowAssignDialog(false)} className="w-full sm:w-auto">
               Cancelar
             </Button>
-            <Button onClick={handleAssignTask} disabled={selectedCollaborators.length === 0 || isAssigning} className="w-full sm:w-auto">
+            <Button variant="info" onClick={handleAssignTask} disabled={selectedCollaborators.length === 0 || isAssigning} className="w-full sm:w-auto">
               {isAssigning && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               Atribuir
             </Button>
