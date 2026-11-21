@@ -205,7 +205,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="section-card section-card--dashboard glass-card rounded-xl p-4 md:p-6"
+            className="section-card section-card--finance glass-card rounded-xl p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -224,7 +224,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="section-card section-card--dashboard glass-card rounded-xl p-4 md:p-6"
+            className="section-card section-card--finance glass-card rounded-xl p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent/20 flex items-center justify-center">
@@ -241,7 +241,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="section-card section-card--dashboard glass-card rounded-xl p-4 md:p-6"
+            className="section-card section-card--tasks glass-card rounded-xl p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-warning/20 flex items-center justify-center">
@@ -258,7 +258,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="section-card section-card--dashboard glass-card rounded-xl p-4 md:p-6"
+            className="section-card section-card--success glass-card rounded-xl p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-success/20 flex items-center justify-center">
@@ -275,7 +275,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="section-card section-card--dashboard glass-card rounded-xl p-4 md:p-6 col-span-2 md:col-span-1"
+            className="section-card section-card--alert glass-card rounded-xl p-4 md:p-6 col-span-2 md:col-span-1"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-destructive/20 flex items-center justify-center">
@@ -297,7 +297,7 @@ export default function Dashboard() {
             transition={{ delay: 0.32 }}
             className="mb-8"
           >
-            <Link to="/perfil" className="section-card section-card--dashboard glass-card rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 hover:border-primary/50 transition-colors block">
+            <Link to="/perfil" className="section-card section-card--users glass-card rounded-xl p-6 flex flex-col md:flex-row items-center justify-between gap-4 hover:border-primary/50 transition-colors block">
               <div className="flex items-center gap-4">
                 <div className="w-12 h-12 rounded-xl bg-gradient-gold/20 flex items-center justify-center">
                   <Gift className="w-6 h-6 text-primary" />
@@ -362,14 +362,14 @@ export default function Dashboard() {
             </Link>
           </Button>
 
-          <Button variant="outline" size="lg" asChild className="h-auto py-6 flex-col gap-2">
+          <Button variant="finance" size="lg" asChild className="h-auto py-6 flex-col gap-2">
             <Link to="/deposito">
               <CreditCard className="w-6 h-6" />
               <span>Depositar Créditos</span>
             </Link>
           </Button>
 
-          <Button variant="outline" size="lg" asChild className="h-auto py-6 flex-col gap-2">
+          <Button variant="info" size="lg" asChild className="h-auto py-6 flex-col gap-2">
             <Link to="/historico">
               <History className="w-6 h-6" />
               <span>Ver Histórico</span>
@@ -390,7 +390,7 @@ export default function Dashboard() {
               {notifications.map((notif) => (
                 <div
                   key={notif.id}
-                  className="section-card section-card--dashboard glass-card rounded-xl p-4 flex items-start justify-between gap-4"
+                  className="section-card section-card--alert glass-card rounded-xl p-4 flex items-start justify-between gap-4"
                 >
                   <div className="flex items-start gap-3">
                     <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center flex-shrink-0">
@@ -428,7 +428,7 @@ export default function Dashboard() {
           </div>
 
           {tasks.length === 0 ? (
-            <div className="section-card section-card--dashboard glass-card rounded-xl p-12 text-center">
+            <div className="section-card section-card--tasks glass-card rounded-xl p-12 text-center">
               <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">
                 Nenhuma solicitação ainda
@@ -436,7 +436,7 @@ export default function Dashboard() {
               <p className="text-muted-foreground mb-4">
                 Comece criando a sua primeira solicitação de serviço musical.
               </p>
-              <Button variant="premium" asChild disabled={(profile?.credits || 0) < 1}>
+              <Button variant="info" asChild disabled={(profile?.credits || 0) < 1}>
                 <Link to="/nova-solicitacao">
                   <Plus className="w-4 h-4 mr-2" />
                   Nova Solicitação
@@ -453,7 +453,7 @@ export default function Dashboard() {
                   <Link
                     key={task.id}
                     to={`/tarefa/${task.id}`}
-                    className="section-card section-card--dashboard glass-card rounded-xl p-4 flex items-center justify-between gap-4 hover:border-primary/50 transition-colors block"
+                    className="section-card section-card--tasks glass-card rounded-xl p-4 flex items-center justify-between gap-4 hover:border-primary/50 transition-colors block"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-gradient-gold/20 flex items-center justify-center">
