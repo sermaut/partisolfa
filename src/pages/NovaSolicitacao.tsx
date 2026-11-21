@@ -304,7 +304,7 @@ export default function NovaSolicitacao() {
                   key={service.key}
                   type="button"
                   onClick={() => setServiceType(service.key)}
-                  className={`glass-card rounded-xl p-6 text-left transition-all relative ${
+                  className={`section-card section-card--tasks glass-card rounded-xl p-6 text-left transition-all relative ${
                     serviceType === service.key ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
                   }`}
                 >
@@ -329,7 +329,7 @@ export default function NovaSolicitacao() {
           </div>
 
           {!hasEnoughCredits && serviceType && (
-            <div className="glass-card rounded-xl p-4 mb-6 border-warning/50 bg-warning/10">
+            <div className="section-card section-card--tasks glass-card rounded-xl p-4 mb-6 border-warning/50 bg-warning/10">
               <div className="flex items-center gap-3">
                 <AlertCircle className="w-5 h-5 text-warning" />
                 <div>
