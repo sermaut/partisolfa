@@ -85,7 +85,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     let mounted = true;
-    let refreshInterval: ReturnType<typeof setInterval>;
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, currentSession) => {
@@ -139,7 +138,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initializeSession();
 
     // Proactively refresh session every 10 minutes to prevent expiry
-    refreshInterval = setInterval(async () => {
+    const refreshInterval = setInterval(async () => {
       try {
         const { data, error } = await supabase.auth.refreshSession();
         if (!error && data.session && mounted) {
