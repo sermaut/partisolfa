@@ -83,7 +83,7 @@ export function Header() {
   const avatarUrl = (profile as any)?.avatar_url;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-[#17364d] text-white border-b border-[#2a596e] shadow-md">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-background/95 backdrop-blur-xl border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
@@ -95,7 +95,7 @@ export function Header() {
             >
               <Music2 className="w-5 h-5 text-primary-foreground" />
             </motion.div>
-            <span className="font-display text-xl md:text-2xl font-bold text-white">
+            <span className="font-display text-xl md:text-2xl font-bold text-gradient-gold">
               PARTISOLFA
             </span>
           </Link>
@@ -105,7 +105,7 @@ export function Header() {
             {!user && (
               <Link
                 to="/"
-                className="text-base text-white/85 hover:text-[#62dfbd] transition-colors py-2"
+                className="text-base text-muted-foreground hover:text-foreground transition-colors py-2"
               >
                 Início
               </Link>
@@ -154,7 +154,7 @@ export function Header() {
                     <p className="font-semibold text-base">{profile?.full_name}</p>
                     <p className="text-sm text-muted-foreground">{profile?.email}</p>
                     <p className="text-base text-primary font-bold mt-2">
-                      {profile?.credits?.toFixed(4)} créditos
+                      {profile?.credits?.toFixed(1)} créditos
                     </p>
                   </div>
                   <DropdownMenuSeparator className="bg-border" />
@@ -263,7 +263,7 @@ export function Header() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2.5 text-white rounded-xl border-2 border-white/30 bg-white/10 hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#62dfbd] focus-visible:ring-offset-2"
+            className="md:hidden p-2.5 text-foreground rounded-xl border-2 border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label={isMenuOpen ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={isMenuOpen}
           >
@@ -274,13 +274,20 @@ export function Header() {
         {/* Global mobile menu overlay and drawer */}
         {isMenuOpen && (
           <>
-            <button
+            <motion.button
               type="button"
               aria-label="Fechar menu e voltar à página"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setIsMenuOpen(false)}
               className="mobile-menu-backdrop"
             />
-            <aside
+            <motion.aside
+              initial={{ x: '-100%', opacity: 0.9 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '-100%', opacity: 0.9 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 34 }}
               className="mobile-menu-drawer"
               aria-label="Menu principal"
               aria-modal="true"
@@ -327,7 +334,7 @@ export function Header() {
                       </Avatar>
                       <div className="min-w-0">
                         <p className="font-bold truncate">{profile?.full_name || 'Minha Conta'}</p>
-                        <p className="text-sm font-semibold text-amber-300">{profile?.credits?.toFixed(4)} créditos</p>
+                        <p className="text-sm font-semibold text-amber-300">{profile?.credits?.toFixed(1)} créditos</p>
                       </div>
                     </div>
 
@@ -385,7 +392,7 @@ export function Header() {
                 )}
               </nav>
               <div className="mobile-menu-footer">PARTISOLFA · Serviços Musicais</div>
-            </aside>
+            </motion.aside>
           </>
         )}
       </div>
