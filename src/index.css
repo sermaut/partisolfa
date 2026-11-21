@@ -367,3 +367,19 @@
     to { opacity: 1; transform: translateY(0); }
   }
 }
+
+/*
+ * Global typography lock:
+ * Every text-bearing element, UI control, portal, SVG label and pseudo-element
+ * must use Noto Serif, even when a component/library defines another font.
+ */
+html,
+body,
+body *,
+body *::before,
+body *::after,
+body *::placeholder,
+body *::file-selector-button,
+body *::marker {
+  font-family: 'Noto Serif', serif !important;
+}
