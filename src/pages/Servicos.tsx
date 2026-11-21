@@ -106,7 +106,7 @@ export default function Servicos() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`relative glass-card rounded-2xl p-6 ${
+                className={`relative section-card section-card--support glass-card rounded-2xl p-6 ${
                   service.popular ? 'border-primary/50' : ''
                 }`}
               >
@@ -185,7 +185,7 @@ export default function Servicos() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.4 + index * 0.1 }}
-                  className="glass-card rounded-xl p-6 text-center"
+                  className="section-card section-card--support glass-card rounded-xl p-6 text-center"
                 >
                   <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mx-auto mb-4">
                     <Icon className="w-6 h-6 text-primary" />
@@ -203,7 +203,7 @@ export default function Servicos() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="glass-card rounded-2xl p-8 text-center animated-border"
+          className="section-card section-card--support glass-card rounded-2xl p-8 text-center animated-border"
         >
           <Wand2 className="w-12 h-12 text-primary mx-auto mb-4" />
           <h3 className="font-display text-2xl font-bold mb-2">
@@ -240,21 +240,21 @@ export default function Servicos() {
             Perguntas Frequentes
           </h2>
           <div className="max-w-2xl mx-auto space-y-4">
-            <div className="glass-card rounded-xl p-6 text-left">
+            <div className="section-card section-card--support glass-card rounded-xl p-6 text-left">
               <h3 className="font-semibold mb-2">Que ficheiros posso enviar?</h3>
               <p className="text-sm text-muted-foreground">
                 Aceitamos ficheiros de áudio (MP3, WAV), imagens de partituras (JPG, PNG) e PDF. 
                 Se necessário, pode também enviar ficheiros MusicXML ou MIDI.
               </p>
             </div>
-            <div className="glass-card rounded-xl p-6 text-left">
+            <div className="section-card section-card--support glass-card rounded-xl p-6 text-left">
               <h3 className="font-semibold mb-2">Como recebo o trabalho finalizado?</h3>
               <p className="text-sm text-muted-foreground">
                 O ficheiro final fica disponível directamente na sua conta, na secção de detalhes da solicitação. 
                 Receberá uma notificação assim que o trabalho estiver concluído.
               </p>
             </div>
-            <div className="glass-card rounded-xl p-6 text-left">
+            <div className="section-card section-card--support glass-card rounded-xl p-6 text-left">
               <h3 className="font-semibold mb-2">Posso solicitar revisões?</h3>
               <p className="text-sm text-muted-foreground">
                 Sim, oferecemos uma revisão gratuita caso o resultado não corresponda às suas expectativas iniciais. 
