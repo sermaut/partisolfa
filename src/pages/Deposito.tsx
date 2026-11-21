@@ -236,7 +236,7 @@ export default function Deposito() {
               <Calculator className="w-5 h-5 text-primary" />
               <p className="text-sm">
                 <span className="font-semibold text-primary">{KZ_PER_CREDIT} Kz = 1 crédito</span>
-                {' '}• Transposição: 250 Kz ≈ 1,6667 créditos • Arranjo: 450 Kz = 3 créditos
+                {' '}• Transposição: 250 Kz ≈ 1,6667 créditos • Arranjo: 395 Kz ≈ 2,6333 créditos
               </p>
             </div>
           </div>
