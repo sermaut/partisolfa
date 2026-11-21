@@ -74,7 +74,7 @@ const LazyFallback = () => (
 );
 
 // Bloqueio temporário do site — definir como false para reativar
-const SITE_BLOCKED = true;
+const SITE_BLOCKED = false;
 
 const SiteBlocked = () => (
   <div className="min-h-screen flex flex-col items-center justify-center bg-background px-6 text-center">
