@@ -183,13 +183,13 @@ export default function SolicitacoesRecentes() {
               </p>
             </div>
 
-            <Button variant="premium" onClick={() => navigate('/nova-solicitacao')}>
+            <Button variant="info" onClick={() => navigate('/nova-solicitacao')}>
               Nova Solicitação
             </Button>
           </div>
 
           {tasks.length === 0 ? (
-            <div className="glass-card rounded-xl p-12 text-center">
+            <div className="section-card section-card--tasks glass-card rounded-xl p-12 text-center">
               <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">
                 Nenhuma solicitação
@@ -197,7 +197,7 @@ export default function SolicitacoesRecentes() {
               <p className="text-muted-foreground mb-6">
                 Você ainda não tem solicitações. Crie a sua primeira solicitação agora!
               </p>
-              <Button variant="premium" onClick={() => navigate('/nova-solicitacao')}>
+              <Button variant="info" onClick={() => navigate('/nova-solicitacao')}>
                 Criar Solicitação
               </Button>
             </div>
@@ -210,7 +210,7 @@ export default function SolicitacoesRecentes() {
                 return (
                   <div
                     key={task.id}
-                    className="glass-card rounded-xl p-5"
+                    className="section-card section-card--tasks glass-card rounded-xl p-5"
                   >
                     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                       <div className="flex items-start gap-4">
