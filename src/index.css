@@ -602,3 +602,53 @@ input, textarea, select, [role="combobox"] {
 @media (max-width: 767px) {
   .mobile-menu-drawer { border-left: 0 !important; }
 }
+
+
+/* Semantic color system for PARTISOLFA cards and actions */
+:root {
+  --section-dashboard: 32 92% 52%;
+  --section-tasks: 205 78% 43%;
+  --section-finance: 151 58% 38%;
+  --section-users: 267 62% 56%;
+  --section-support: 188 72% 38%;
+  --section-alert: 5 72% 52%;
+  --section-neutral: 210 24% 42%;
+}
+.section-card {
+  --section-color: var(--section-neutral);
+  position: relative;
+  overflow: hidden;
+  border: 1px solid hsl(var(--section-color) / .22) !important;
+  background: linear-gradient(145deg, hsl(var(--section-color) / .11), hsl(var(--section-color) / .035) 58%, #fff 100%) !important;
+  box-shadow: 0 8px 24px -17px hsl(var(--section-color) / .45), 0 2px 8px hsl(var(--section-color) / .06) !important;
+  transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.section-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  background: hsl(var(--section-color));
+}
+.section-card:hover {
+  transform: translateY(-2px);
+  border-color: hsl(var(--section-color) / .42) !important;
+  box-shadow: 0 13px 28px -17px hsl(var(--section-color) / .55) !important;
+}
+.section-card--dashboard { --section-color: var(--section-dashboard); }
+.section-card--tasks { --section-color: var(--section-tasks); }
+.section-card--finance { --section-color: var(--section-finance); }
+.section-card--users { --section-color: var(--section-users); }
+.section-card--support { --section-color: var(--section-support); }
+.section-card--alert { --section-color: var(--section-alert); }
+.section-card--neutral { --section-color: var(--section-neutral); }
+.section-icon {
+  color: hsl(var(--section-color));
+  background: hsl(var(--section-color) / .13);
+  border: 1px solid hsl(var(--section-color) / .2);
+  border-radius: 13px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .section-card { transition: none; }
+  .section-card:hover { transform: none; }
+}
