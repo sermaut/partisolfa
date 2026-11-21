@@ -29,8 +29,8 @@ const services = [
       'Partes instrumentais/vocais separadas por partições',
       'Aceita PDFs, imagens e áudios',
     ],
-    price: '450 Kz',
-    credits: '3 créditos',
+    price: '395 Kz',
+    credits: '≈ 2,6333 créditos',
     delivery: 'Até 3 dias',
     popular: true,
   },
@@ -47,7 +47,7 @@ const services = [
       'Aceita apenas imagens e áudios',
     ],
     price: '250 Kz',
-    credits: '1.67 créditos',
+    credits: '≈ 1,6667 créditos',
     delivery: 'Até 3 dias',
     popular: false,
   },
@@ -106,7 +106,7 @@ export default function Servicos() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className={`relative glass-card rounded-2xl p-8 ${
+                className={`relative glass-card rounded-2xl p-6 ${
                   service.popular ? 'border-primary/50' : ''
                 }`}
               >
@@ -119,7 +119,7 @@ export default function Servicos() {
                   </div>
                 )}
 
-                <div className="flex items-start gap-4 mb-6">
+                <div className="flex items-start gap-4 mb-5">
                   <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center flex-shrink-0">
                     <Icon className="w-7 h-7 text-primary" />
                   </div>
@@ -129,7 +129,7 @@ export default function Servicos() {
                   </div>
                 </div>
 
-                <ul className="space-y-3 mb-8">
+                <ul className="space-y-2.5 mb-6">
                   {service.features.map((feature, i) => (
                     <li key={i} className="flex items-center gap-3">
                       <CheckCircle className="w-5 h-5 text-success flex-shrink-0" />
@@ -138,7 +138,7 @@ export default function Servicos() {
                   ))}
                 </ul>
 
-                <div className="flex items-center justify-between pt-6 border-t border-border">
+                <div className="flex items-center justify-between pt-5 border-t border-border">
                   <div>
                     <p className="text-sm text-muted-foreground">Preço</p>
                     <p className="text-2xl font-display font-bold text-primary">{service.price}</p>
@@ -153,7 +153,7 @@ export default function Servicos() {
 
                 <Button 
                   variant={service.popular ? 'premium' : 'outline'} 
-                  className="w-full mt-6"
+                  className="w-full mt-5"
                   asChild
                 >
                   <Link to="/nova-solicitacao">

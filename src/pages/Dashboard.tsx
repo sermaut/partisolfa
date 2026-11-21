@@ -214,7 +214,7 @@ export default function Dashboard() {
               <div>
                 <p className="text-xs md:text-sm text-muted-foreground">Saldo</p>
                 <p className="text-lg md:text-2xl font-display font-bold text-primary">
-                  {profile?.credits?.toFixed(1)}
+                  {profile?.credits?.toFixed(4)}
                 </p>
               </div>
             </div>
@@ -232,7 +232,7 @@ export default function Dashboard() {
               </div>
               <div>
                 <p className="text-xs md:text-sm text-muted-foreground">Total Gasto</p>
-                <p className="text-lg md:text-2xl font-display font-bold">{totalCreditsUsed.toFixed(1)}</p>
+                <p className="text-lg md:text-2xl font-display font-bold">{totalCreditsUsed.toFixed(4)}</p>
               </div>
             </div>
           </motion.div>
@@ -330,7 +330,7 @@ export default function Dashboard() {
                     <span className="text-xs">Ganhos</span>
                   </div>
                   <p className="text-xl font-display font-bold text-primary">
-                    {referralStats.bonusCredits.toFixed(1)}
+                    {referralStats.bonusCredits.toFixed(4)}
                   </p>
                 </div>
               </div>

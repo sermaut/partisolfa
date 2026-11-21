@@ -415,7 +415,7 @@ body *::marker {
   color: #fffdf4;
   background: linear-gradient(155deg, #123f2b 0%, #0b2e20 58%, #09251a 100%);
   border: 2px solid #d6a928;
-  border-left: 5px solid #e1b638;
+  border-left: 0;
   border-radius: 0 24px 24px 0;
   box-shadow: 18px 0 55px rgba(0,0,0,.38), inset -1px 0 0 rgba(255,255,255,.12);
 }
@@ -554,7 +554,7 @@ input, textarea, select, [role="combobox"] {
 .mobile-menu-drawer {
   background: linear-gradient(160deg, #17364d 0%, #124b58 100%);
   border-color: #4cc9ad;
-  border-left-color: #20c978;
+  border-left-color: transparent;
 }
 .mobile-menu-heading { color: #d9fff2; border-bottom-color: rgba(98,223,189,.45); }
 .mobile-menu-logo { color: #fff; background: linear-gradient(135deg,#1c9189,#20c978); border-color: #a9f5dc; }
@@ -585,8 +585,20 @@ input, textarea, select, [role="combobox"] {
     border-top: 0;
     border-right: 0;
     border-bottom: 0;
-    border-left: 5px solid #20c978;
+    border-left: 0;
     padding-left: max(24px, calc(env(safe-area-inset-left) + 24px));
     padding-right: max(20px, env(safe-area-inset-right));
   }
+}
+
+
+/* Requested refinements: focused cards and a clean full-screen drawer edge */
+.glass-card, .surface-solid {
+  background: linear-gradient(145deg, #f5fcfb 0%, #e7f5f2 100%) !important;
+  border: 1px solid #b9dcd4 !important;
+  box-shadow: 0 10px 28px -16px rgba(23,54,77,.34), 0 3px 10px rgba(28,145,137,.09) !important;
+}
+.mobile-menu-drawer { border-left: 0 !important; }
+@media (max-width: 767px) {
+  .mobile-menu-drawer { border-left: 0 !important; }
 }

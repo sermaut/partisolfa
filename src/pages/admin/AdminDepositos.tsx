@@ -187,7 +187,7 @@ export default function AdminDepositos() {
         await supabase.from('notifications').insert({
           user_id: selectedDeposit.user_id,
           title: 'Depósito aprovado!',
-          message: `O seu depósito de ${selectedDeposit.amount_kz} Kz foi aprovado. ${selectedDeposit.credits_amount} créditos foram adicionados à sua conta.`,
+          message: `O seu depósito de ${selectedDeposit.amount_kz} Kz foi aprovado. ${selectedDeposit.credits_amount.toFixed(4)} créditos foram adicionados à sua conta.`,
         });
       } else {
         // Send rejection notification
@@ -346,7 +346,7 @@ export default function AdminDepositos() {
                         </div>
                         <div>
                           <h3 className="font-semibold">
-                            {deposit.amount_kz.toLocaleString()} Kz → {deposit.credits_amount} créditos
+                            {deposit.amount_kz.toLocaleString()} Kz → {deposit.credits_amount.toFixed(4)} créditos
                           </h3>
                           <p className="text-sm text-muted-foreground">
                             {formatDate(deposit.created_at)}
@@ -424,7 +424,7 @@ export default function AdminDepositos() {
                 </div>
                 <div>
                   <p className="text-muted-foreground">Saldo Actual</p>
-                  <p className="font-medium">{selectedDeposit.profiles?.credits?.toFixed(1)} créditos</p>
+                  <p className="font-medium">{selectedDeposit.profiles?.credits?.toFixed(4)} créditos</p>
                 </div>
               </div>
 

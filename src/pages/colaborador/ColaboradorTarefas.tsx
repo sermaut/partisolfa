@@ -705,7 +705,7 @@ export default function ColaboradorTarefas() {
                 </div>
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Créditos</p>
-                  <p className="font-medium">{selectedAssignment?.task?.credits_used}</p>
+                  <p className="font-medium">{selectedAssignment?.task?.credits_used?.toFixed(4)}</p>
                 </div>
               </div>
               

@@ -329,7 +329,7 @@ export default function TarefaDetalhe() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground mb-1">Créditos utilizados</p>
-                <p className="text-sm font-medium">{task.credits_used}</p>
+                <p className="text-sm font-medium">{task.credits_used.toFixed(4)}</p>
               </div>
             </div>
           </details>

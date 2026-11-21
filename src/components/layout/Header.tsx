@@ -154,7 +154,7 @@ export function Header() {
                     <p className="font-semibold text-base">{profile?.full_name}</p>
                     <p className="text-sm text-muted-foreground">{profile?.email}</p>
                     <p className="text-base text-primary font-bold mt-2">
-                      {profile?.credits?.toFixed(1)} créditos
+                      {profile?.credits?.toFixed(4)} créditos
                     </p>
                   </div>
                   <DropdownMenuSeparator className="bg-border" />
@@ -327,7 +327,7 @@ export function Header() {
                       </Avatar>
                       <div className="min-w-0">
                         <p className="font-bold truncate">{profile?.full_name || 'Minha Conta'}</p>
-                        <p className="text-sm font-semibold text-amber-300">{profile?.credits?.toFixed(1)} créditos</p>
+                        <p className="text-sm font-semibold text-amber-300">{profile?.credits?.toFixed(4)} créditos</p>
                       </div>
                     </div>
 
