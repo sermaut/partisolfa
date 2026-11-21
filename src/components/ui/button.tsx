@@ -5,19 +5,19 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-[#1c9189] text-white border border-[#167a73] shadow-md hover:bg-[#167a73] hover:shadow-lg active:scale-[0.98]",
-        destructive: "bg-rose-600 text-white border border-rose-700 shadow-sm hover:bg-rose-700 active:scale-[0.98]",
-        outline: "border-2 border-[#1c9189] bg-white text-[#17364d] shadow-sm hover:bg-[#e9f7f4] active:scale-[0.98]",
-        secondary: "bg-[#e9f7f4] text-[#17364d] border border-[#c9e4dc] shadow-sm hover:bg-[#d8f1e9] active:scale-[0.98]",
-        ghost: "bg-transparent text-[#17364d] border border-transparent hover:bg-[#e9f7f4]",
-        link: "bg-transparent text-[#168b80] underline-offset-4 hover:underline",
-        premium: "bg-[#20c978] text-[#103b32] border border-[#16a960] font-bold shadow-md hover:bg-[#19b96b] hover:shadow-lg active:scale-[0.98]",
-        hero: "bg-[#1c9189] text-white border border-[#167a73] font-bold text-base px-8 py-6 shadow-lg hover:bg-[#167a73] hover:shadow-xl active:scale-[0.98]",
-        glass: "bg-white border border-[#c9ded9] text-[#17364d] hover:bg-[#e9f7f4] shadow-sm",
+        default: "bg-gradient-to-r from-emerald-800 via-green-700 to-yellow-600 text-white hover:brightness-110 btn-glow",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
+        outline: "border border-emerald-800/30 bg-white text-emerald-950 shadow-sm hover:bg-emerald-50",
+        secondary: "bg-gradient-to-r from-amber-100 to-emerald-100 text-emerald-950 border border-amber-300 hover:brightness-105",
+        ghost: "bg-white text-emerald-950 border border-emerald-900/10 hover:bg-emerald-50",
+        link: "bg-emerald-50 text-emerald-900 underline-offset-4 hover:bg-emerald-100",
+        premium: "bg-gradient-gold text-primary-foreground font-semibold btn-glow hover:scale-[1.02] active:scale-[0.98]",
+        hero: "bg-gradient-gold text-primary-foreground font-semibold text-base px-8 py-6 btn-glow hover:scale-[1.02] active:scale-[0.98]",
+        glass: "bg-white border border-emerald-900/20 text-emerald-950 hover:bg-emerald-50 shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",

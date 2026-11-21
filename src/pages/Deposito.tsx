@@ -182,7 +182,7 @@ export default function Deposito() {
               <div>
                 <p className="text-sm text-muted-foreground">Saldo actual</p>
                 <p className="text-3xl font-display font-bold text-primary">
-                  {profile?.credits?.toFixed(4)} <span className="text-lg font-normal text-muted-foreground">créditos</span>
+                  {profile?.credits?.toFixed(1)} <span className="text-lg font-normal text-muted-foreground">créditos</span>
                 </p>
               </div>
               <div className="w-14 h-14 rounded-xl bg-primary/20 flex items-center justify-center">
@@ -236,7 +236,7 @@ export default function Deposito() {
               <Calculator className="w-5 h-5 text-primary" />
               <p className="text-sm">
                 <span className="font-semibold text-primary">{KZ_PER_CREDIT} Kz = 1 crédito</span>
-                {' '}• Transposição: 250 Kz ≈ 1,6667 créditos • Arranjo: 395 Kz ≈ 2,6333 créditos
+                {' '}• Serviços: 1.5 a 2 créditos
               </p>
             </div>
           </div>
@@ -263,7 +263,7 @@ export default function Deposito() {
               </div>
               {amount && parseFloat(amount) >= KZ_PER_CREDIT && (
                 <p className="text-sm text-success">
-                  Você receberá <span className="font-semibold">{calculatedCredits.toFixed(4)} créditos</span>
+                  Você receberá <span className="font-semibold">{calculatedCredits.toFixed(1)} créditos</span>
                 </p>
               )}
             </div>

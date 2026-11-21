@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['Inter', 'sans-serif'],
-        sans: ['Inter', 'sans-serif'],
-        mono: ['ui-monospace', 'SFMono-Regular', 'monospace'],
+        display: ['"Noto Serif"', 'serif'],
+        sans: ['"Noto Serif"', 'serif'],
+        mono: ['"Noto Serif"', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",

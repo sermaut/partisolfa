@@ -329,7 +329,7 @@ export default function Perfil() {
                 <div className="bg-secondary/50 rounded-lg p-4 flex items-center justify-between">
                   <span className="text-muted-foreground">Saldo disponível</span>
                   <span className="text-xl font-display font-bold text-primary">
-                    {profile?.credits?.toFixed(4)} créditos
+                    {profile?.credits?.toFixed(1)} créditos
                   </span>
                 </div>
               </div>
