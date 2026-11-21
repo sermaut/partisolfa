@@ -229,7 +229,7 @@ export default function Notificacoes() {
 
             <div className="flex gap-2">
               {unreadCount > 0 && (
-                <Button variant="outline" size="sm" onClick={markAllAsRead}>
+                <Button variant="success" size="sm" onClick={markAllAsRead}>
                   <CheckCircle className="w-4 h-4 mr-2" />
                   Marcar todas como lidas
                 </Button>
@@ -262,7 +262,7 @@ export default function Notificacoes() {
           </div>
 
           {notifications.length === 0 ? (
-            <div className="glass-card rounded-xl p-12 text-center">
+            <div className="section-card section-card--alert glass-card rounded-xl p-12 text-center">
               <Bell className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">
                 Nenhuma notificação
@@ -277,7 +277,7 @@ export default function Notificacoes() {
                 <motion.div
                   key={notification.id}
                   whileTap={{ scale: 0.99 }}
-                  className={`glass-card rounded-xl p-4 transition-colors cursor-pointer hover:border-primary/30 ${
+                  className={`section-card section-card--alert glass-card rounded-xl p-4 transition-colors cursor-pointer hover:border-primary/30 ${
                     !notification.is_read ? 'border-primary/50 bg-primary/5' : ''
                   }`}
                   onClick={() => openNotification(notification)}
