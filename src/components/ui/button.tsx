@@ -9,15 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 btn-glow",
+        default: "bg-gradient-to-r from-emerald-800 via-green-700 to-yellow-600 text-white hover:brightness-110 btn-glow",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-border bg-transparent hover:bg-secondary hover:text-secondary-foreground",
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-secondary hover:text-secondary-foreground",
-        link: "text-primary underline-offset-4 hover:underline",
+        outline: "border border-emerald-800/30 bg-white text-emerald-950 shadow-sm hover:bg-emerald-50",
+        secondary: "bg-gradient-to-r from-amber-100 to-emerald-100 text-emerald-950 border border-amber-300 hover:brightness-105",
+        ghost: "bg-white text-emerald-950 border border-emerald-900/10 hover:bg-emerald-50",
+        link: "bg-emerald-50 text-emerald-900 underline-offset-4 hover:bg-emerald-100",
         premium: "bg-gradient-gold text-primary-foreground font-semibold btn-glow hover:scale-[1.02] active:scale-[0.98]",
         hero: "bg-gradient-gold text-primary-foreground font-semibold text-base px-8 py-6 btn-glow hover:scale-[1.02] active:scale-[0.98]",
-        glass: "bg-card border border-border text-foreground hover:bg-secondary shadow-sm",
+        glass: "bg-white border border-emerald-900/20 text-emerald-950 hover:bg-emerald-50 shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",
