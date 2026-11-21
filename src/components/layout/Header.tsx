@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { 
   Menu, 
@@ -34,12 +34,31 @@ export function Header() {
   const [unreadCount, setUnreadCount] = useState(0);
   const { user, profile, isAdmin, isCollaborator, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isActivePath = (path: string) => location.pathname === path || (path !== '/' && location.pathname.startsWith(`${path}/`));
+  const mobileLinkClass = (path: string) => `mobile-menu-item${isActivePath(path) ? ' is-active' : ''}`;
 
   useEffect(() => {
-    if (user) {
-      fetchUnreadCount();
-    }
+    if (user) fetchUnreadCount();
   }, [user]);
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsMenuOpen(false);
+    };
+    window.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isMenuOpen]);
+
+  useEffect(() => {
+    setIsMenuOpen(false);
+  }, [location.pathname]);
 
   const fetchUnreadCount = async () => {
     if (!user) return;
@@ -64,7 +83,7 @@ export function Header() {
   const avatarUrl = (profile as any)?.avatar_url;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-xl border-b border-border">
+    <header className="fixed top-0 left-0 right-0 z-[100] bg-background/95 backdrop-blur-xl border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
@@ -244,7 +263,7 @@ export function Header() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2 text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 rounded-md"
+            className="md:hidden p-2.5 text-foreground rounded-xl border-2 border-primary/30 bg-primary/5 hover:bg-primary/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             aria-label={isMenuOpen ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={isMenuOpen}
           >
@@ -252,176 +271,129 @@ export function Header() {
           </button>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Global mobile menu overlay and drawer */}
         {isMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="md:hidden py-4 border-t border-border"
-          >
-            <nav className="flex flex-col gap-1" aria-label="Menu móvel">
-              {/* Navigation links - Only show when NOT logged in */}
-              {!user && (
-                <>
-                  <Link 
-                    to="/" 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-base text-muted-foreground hover:text-foreground transition-colors py-3 px-2 rounded-lg hover:bg-secondary"
-                  >
-                    Início
-                  </Link>
-                  <Link 
-                    to="/servicos" 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-base text-muted-foreground hover:text-foreground transition-colors py-3 px-2 rounded-lg hover:bg-secondary"
-                  >
-                    Serviços
-                  </Link>
-                  <Link 
-                    to="/termos-uso" 
-                    onClick={() => setIsMenuOpen(false)}
-                    className="text-base text-muted-foreground hover:text-foreground transition-colors py-3 px-2 rounded-lg hover:bg-secondary"
-                  >
-                    Termos
-                  </Link>
-                </>
-              )}
-              
-              <div className={`flex flex-col gap-1 ${!user ? 'pt-4 border-t border-border mt-2' : ''}`}>
-                {user ? (
-                  <>
-                    <div className="py-3 px-2">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-10 h-10">
-                          <AvatarImage src={avatarUrl} alt={profile?.full_name} />
-                          <AvatarFallback className="bg-primary/20 text-primary">
-                            {profile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-semibold">{profile?.full_name}</p>
-                          <p className="text-sm text-primary font-medium">{profile?.credits?.toFixed(1)} créditos</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Link 
-                      to="/dashboard" 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
-                    >
-                      <LayoutDashboard className="w-5 h-5" />
-                      Painel
-                    </Link>
-                    
-                    <Link 
-                      to="/servicos" 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
-                    >
-                      <FileText className="w-5 h-5" />
-                      Nossos Serviços
-                    </Link>
-                    
-                    <Link 
-                      to="/nova-solicitacao" 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
-                    >
-                      <PlusCircle className="w-5 h-5" />
-                      Nova Solicitação
-                    </Link>
+          <>
+            <motion.button
+              type="button"
+              aria-label="Fechar menu e voltar à página"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsMenuOpen(false)}
+              className="mobile-menu-backdrop"
+            />
+            <motion.aside
+              initial={{ x: '-100%', opacity: 0.9 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: '-100%', opacity: 0.9 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 34 }}
+              className="mobile-menu-drawer"
+              aria-label="Menu principal"
+              aria-modal="true"
+              role="dialog"
+            >
+              <div className="mobile-menu-heading">
+                <Link to="/" onClick={() => setIsMenuOpen(false)} className="flex items-center gap-3 min-w-0">
+                  <span className="mobile-menu-logo"><Music2 className="w-6 h-6" /></span>
+                  <span className="font-bold text-xl tracking-tight">PARTISOLFA</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setIsMenuOpen(false)}
+                  aria-label="Fechar menu"
+                  className="mobile-menu-close"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
 
-                    
-                    <Link 
-                      to="/notificacoes" 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
-                    >
-                      <Bell className="w-5 h-5" />
-                      Notificações
-                      {unreadCount > 0 && (
-                        <Badge variant="destructive" className="ml-auto h-5 min-w-5 px-1.5 text-xs">
-                          {unreadCount > 9 ? '9+' : unreadCount}
-                        </Badge>
-                      )}
-                    </Link>
-                    
-                    <Link 
-                      to="/solicitacoes" 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
-                    >
-                      <History className="w-5 h-5" />
-                      Solicitações Feitas
-                    </Link>
-                    
-                    <Link 
-                      to="/deposito" 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
-                    >
-                      <CreditCard className="w-5 h-5" />
-                      Depositar Créditos
-                    </Link>
-                    
-                    <Link 
-                      to="/perfil" 
-                      onClick={() => setIsMenuOpen(false)}
-                      className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
-                    >
-                      <User className="w-5 h-5" />
-                      Meu Perfil
-                    </Link>
-                    
-                    {isAdmin && (
-                      <Link 
-                        to="/admin" 
-                        onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
-                      >
-                        <Settings className="w-5 h-5" />
-                        Administração
-                      </Link>
-                    )}
-                    
-                    {isCollaborator && (
-                      <Link 
-                        to="/colaborador" 
-                        onClick={() => setIsMenuOpen(false)}
-                        className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base"
-                      >
-                        <Users className="w-5 h-5" />
-                        Painel Colaborador
-                      </Link>
-                    )}
-                    
-                    <button 
-                      onClick={() => { handleSignOut(); setIsMenuOpen(false); }}
-                      className="flex items-center gap-3 py-3 px-2 rounded-lg hover:bg-secondary text-base text-destructive w-full text-left mt-2"
-                    >
-                      <LogOut className="w-5 h-5" />
-                      Sair
-                    </button>
-                  </>
-                ) : (
+              <nav className="mobile-menu-nav" aria-label="Navegação principal">
+                {!user && (
                   <>
-                    <Button variant="ghost" size="lg" asChild className="w-full">
-                      <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                        Entrar
-                      </Link>
-                    </Button>
-                    <Button variant="premium" size="lg" asChild className="w-full">
-                      <Link to="/registar" onClick={() => setIsMenuOpen(false)}>
-                        Criar Conta
-                      </Link>
-                    </Button>
+                    <Link to="/" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/')}>
+                      <LayoutDashboard className="w-5 h-5" /> <span>Início</span>
+                    </Link>
+                    <Link to="/servicos" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/servicos')}>
+                      <FileText className="w-5 h-5" /> <span>Nossos Serviços</span>
+                    </Link>
+                    <Link to="/termos-uso" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/termos-uso')}>
+                      <FileText className="w-5 h-5" /> <span>Termos</span>
+                    </Link>
                   </>
                 )}
-              </div>
-            </nav>
-          </motion.div>
+
+                {user && (
+                  <>
+                    <div className="mobile-menu-profile">
+                      <Avatar className="w-12 h-12 border-2 border-amber-400/70">
+                        <AvatarImage src={avatarUrl} alt={profile?.full_name} />
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {profile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="font-bold truncate">{profile?.full_name || 'Minha Conta'}</p>
+                        <p className="text-sm font-semibold text-amber-300">{profile?.credits?.toFixed(1)} créditos</p>
+                      </div>
+                    </div>
+
+                    <Link to="/dashboard" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/dashboard')}>
+                      <LayoutDashboard className="w-5 h-5" /><span>Painel</span>
+                    </Link>
+                    <Link to="/servicos" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/servicos')}>
+                      <FileText className="w-5 h-5" /><span>Nossos Serviços</span>
+                    </Link>
+                    <Link to="/nova-solicitacao" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/nova-solicitacao')}>
+                      <PlusCircle className="w-5 h-5" /><span>Nova Solicitação</span>
+                    </Link>
+                    <Link to="/notificacoes" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/notificacoes')}>
+                      <Bell className="w-5 h-5" /><span>Notificações</span>
+                      {unreadCount > 0 && <Badge variant="destructive" className="ml-auto">{unreadCount > 9 ? '9+' : unreadCount}</Badge>}
+                    </Link>
+                    <Link to="/solicitacoes" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/solicitacoes')}>
+                      <History className="w-5 h-5" /><span>Solicitações Feitas</span>
+                    </Link>
+                    <Link to="/deposito" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/deposito')}>
+                      <CreditCard className="w-5 h-5" /><span>Depositar Créditos</span>
+                    </Link>
+                    <Link to="/perfil" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/perfil')}>
+                      <User className="w-5 h-5" /><span>Meu Perfil</span>
+                    </Link>
+                    {isAdmin && (
+                      <Link to="/admin" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/admin')}>
+                        <Settings className="w-5 h-5" /><span>Administração</span>
+                      </Link>
+                    )}
+                    {isCollaborator && (
+                      <Link to="/colaborador" onClick={() => setIsMenuOpen(false)} className={mobileLinkClass('/colaborador')}>
+                        <Users className="w-5 h-5" /><span>Painel Colaborador</span>
+                      </Link>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => { void handleSignOut(); setIsMenuOpen(false); }}
+                      className="mobile-menu-item mobile-menu-logout"
+                    >
+                      <LogOut className="w-5 h-5" /><span>Sair</span>
+                    </button>
+                  </>
+                )}
+
+                {!user && (
+                  <div className="grid grid-cols-1 gap-3 pt-4">
+                    <Button variant="outline" size="lg" asChild className="w-full border-2">
+                      <Link to="/login" onClick={() => setIsMenuOpen(false)}>Entrar</Link>
+                    </Button>
+                    <Button variant="premium" size="lg" asChild className="w-full">
+                      <Link to="/registar" onClick={() => setIsMenuOpen(false)}>Criar Conta</Link>
+                    </Button>
+                  </div>
+                )}
+              </nav>
+              <div className="mobile-menu-footer">PARTISOLFA · Serviços Musicais</div>
+            </motion.aside>
+          </>
         )}
       </div>
     </header>
