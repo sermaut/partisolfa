@@ -12,7 +12,8 @@ import {
   AlertCircle,
   Gift,
   UserCog,
-  Wallet
+  Wallet,
+  MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
@@ -219,6 +220,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Quick Links */}
+          <Link to="/admin/avaliacoes" className="glass-card rounded-xl p-5 mb-5 flex items-center justify-between hover:border-primary/50"><span className="flex items-center gap-3"><MessageSquare className="text-amber-700" /><span><strong>Avaliações dos clientes</strong><span className="block text-sm text-muted-foreground">Gerir comentários e satisfação</span></span></span><ArrowRight className="text-primary" /></Link>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               to="/admin/tarefas"
