@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any -- Campos/tabelas legados ainda não constam nos tipos gerados do Supabase; manter a lógica existente. */
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft, MessageSquare, Star, Trash2, Loader2 } from "lucide-react";
