@@ -19,6 +19,7 @@ const emitBuildVersion = () => ({
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  base: mode === "github-pages-preview" ? "/partisolfa/" : "/",
   server: {
     host: "::",
     port: 8080,
@@ -70,8 +71,8 @@ export default defineConfig(({ mode }) => ({
         background_color: "#0f1117",
         display: "standalone",
         orientation: "portrait-primary",
-        start_url: "/",
-        scope: "/",
+        start_url: mode === "github-pages-preview" ? "/partisolfa/" : "/",
+        scope: mode === "github-pages-preview" ? "/partisolfa/" : "/",
         icons: [
           { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
           { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png" },
