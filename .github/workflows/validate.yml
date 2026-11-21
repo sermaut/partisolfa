@@ -24,7 +24,7 @@ jobs:
           node-version: 20
           cache: npm
       - name: Instalar dependências
-        run: npm ci
+        run: npm install --no-audit --no-fund
       - name: Verificar lint
         run: npm run lint
       - name: Compilar aplicação
