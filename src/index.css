@@ -11,7 +11,7 @@
 
 @layer base {
   :root {
-    /* Background - warm cream */
+    /* Background - soft green-white */
     --background: 140 30% 97%;
     --foreground: 215 28% 17%;
 
@@ -23,11 +23,11 @@
     --popover: 0 0% 100%;
     --popover-foreground: 215 28% 17%;
 
-    /* Primary - Deep green */
+    /* Primary - corporate blue */
     --primary: 213 78% 42%;
     --primary-foreground: 0 0% 100%;
 
-    /* Secondary - Warm cream deeper */
+    /* Secondary - soft green tint */
     --secondary: 145 38% 93%;
     --secondary-foreground: 215 25% 20%;
 
@@ -35,11 +35,11 @@
     --muted: 210 25% 95%;
     --muted-foreground: 215 12% 40%;
 
-    /* Accent - Gold */
+    /* Accent - violet */
     --accent: 268 62% 55%;
     --accent-foreground: 0 0% 100%;
 
-    /* Destructive - Terracotta red */
+    /* Destructive - rose */
     --destructive: 337 72% 46%;
     --destructive-foreground: 0 0% 100%;
 
@@ -51,7 +51,7 @@
     --warning: 28 88% 42%;
     --warning-foreground: 0 0% 100%;
 
-    /* Borders & inputs - solid warm gray */
+    /* Borders & inputs - neutral gray */
     --border: 210 14% 76%;
     --input: 210 14% 76%;
     --ring: 213 78% 42%;
@@ -164,7 +164,7 @@
 
   /* Standard surface card - solid, unified border & shadow */
   .glass-card {
-    @apply bg-card border border-[1.5px] border-border rounded-lg;
+    @apply bg-card border-[1.5px] border-border rounded-lg;
     box-shadow: var(--shadow-card);
   }
 
@@ -293,8 +293,8 @@
   .icon-container-premium {
     @apply relative inline-flex items-center justify-center rounded-xl p-3;
     background: linear-gradient(135deg, 
-      hsl(43, 71%, 47%, 0.22) 0%, 
-      hsl(146, 71%, 19%, 0.12) 100%
+      hsl(195, 72%, 48%, 0.22) 0%, 
+      hsl(213, 78%, 42%, 0.12) 100%
     );
     box-shadow: 0 4px 15px -3px hsla(213, 78%, 42%, 0.25);
   }
@@ -544,3 +544,17 @@ body *::marker {
   .dashboard-stats-grid > :nth-child(5) { background: #fbe8f0; border-color: #e7b4c9; }
   .dashboard-stats-grid > * { border-width: 1.5px; }
 }
+
+
+.dark .dashboard-stats-grid > :nth-child(1) { background: hsl(213 45% 19%); border-color: hsl(213 35% 34%); }
+.dark .dashboard-stats-grid > :nth-child(2) { background: hsl(268 35% 20%); border-color: hsl(268 30% 36%); }
+.dark .dashboard-stats-grid > :nth-child(3) { background: hsl(28 40% 19%); border-color: hsl(28 35% 34%); }
+.dark .dashboard-stats-grid > :nth-child(4) { background: hsl(151 35% 18%); border-color: hsl(151 30% 33%); }
+.dark .dashboard-stats-grid > :nth-child(5) { background: hsl(337 35% 20%); border-color: hsl(337 30% 36%); }
+.dark .surface-blue, .dark .surface-green, .dark .surface-orange, .dark .surface-pink, .dark .surface-violet, .dark .surface-cyan { color: hsl(210 30% 96%); }
+.dark .surface-blue { background: hsl(213 45% 19%); border-color: hsl(213 35% 34%); }
+.dark .surface-green { background: hsl(151 35% 18%); border-color: hsl(151 30% 33%); }
+.dark .surface-orange { background: hsl(28 40% 19%); border-color: hsl(28 35% 34%); }
+.dark .surface-pink { background: hsl(337 35% 20%); border-color: hsl(337 30% 36%); }
+.dark .surface-violet { background: hsl(268 35% 20%); border-color: hsl(268 30% 36%); }
+.dark .surface-cyan { background: hsl(180 35% 18%); border-color: hsl(180 30% 33%); }
