@@ -4,6 +4,19 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 
+const buildVersion = new Date().toISOString();
+
+const emitBuildVersion = () => ({
+  name: "partisolfa-build-version",
+  generateBundle() {
+    this.emitFile({
+      type: "asset",
+      fileName: "version.json",
+      source: JSON.stringify({ version: buildVersion }),
+    });
+  },
+});
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
@@ -13,21 +26,32 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(),
     mode === "development" && componentTagger(),
+    emitBuildVersion(),
     VitePWA({
-      // Install the new service worker and activate it automatically.
       registerType: "autoUpdate",
-      // Registration is explicit in src/main.tsx to guarantee immediate startup.
       injectRegister: false,
       includeAssets: ["favicon.ico", "robots.txt"],
       workbox: {
         clientsClaim: true,
         skipWaiting: true,
         cleanupOutdatedCaches: true,
-        navigateFallbackDenylist: [/^\/~oauth/],
+        // Never serve an old precached index.html for a normal online visit.
+        navigateFallback: null,
         globPatterns: [
           "**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,woff,woff2,ttf,webmanifest}",
         ],
         runtimeCaching: [
+          {
+            // Online page visits must revalidate against the published site.
+            urlPattern: ({ request }) => request.mode === "navigate",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "partisolfa-pages",
+              networkTimeoutSeconds: 10,
+              fetchOptions: { cache: "no-store" },
+              expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 },
+            },
+          },
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
             handler: "NetworkFirst",
@@ -49,16 +73,8 @@ export default defineConfig(({ mode }) => ({
         start_url: "/",
         scope: "/",
         icons: [
-          {
-            src: "/pwa-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "/pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
+          { src: "/pwa-192x192.png", sizes: "192x192", type: "image/png" },
+          { src: "/pwa-512x512.png", sizes: "512x512", type: "image/png" },
           {
             src: "/pwa-512x512.png",
             sizes: "512x512",
