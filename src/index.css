@@ -643,3 +643,69 @@ body *::marker {
   border: 1.5px solid #c6d9ed !important;
 }
 .mobile-menu-profile .text-amber-300 { color: #c9e2ff !important; }
+
+
+
+/* PARTISOLFA Corporate Blue — unified visual model */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  body {
+    font-family: 'Inter', 'Noto Sans', sans-serif;
+    background: hsl(150 22% 98%);
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Inter', 'Noto Sans', sans-serif;
+    letter-spacing: -0.025em;
+  }
+  :root {
+    --background: 150 22% 98%;
+    --foreground: 215 28% 17%;
+    --card: 0 0% 100%;
+    --card-foreground: 215 28% 17%;
+    --primary: 213 78% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 215 28% 22%;
+    --muted: 210 25% 95%;
+    --muted-foreground: 215 14% 42%;
+    --accent: 195 72% 42%;
+    --accent-foreground: 0 0% 100%;
+    --border: 210 14% 78%;
+    --input: 210 14% 78%;
+    --ring: 213 78% 42%;
+    --radius: 0.75rem;
+  }
+}
+
+@layer components {
+  .surface-blue { background: #eff6ff; border-color: #bfdbfe; }
+  .surface-green { background: #ecfdf5; border-color: #a7f3d0; }
+  .surface-orange { background: #fff7ed; border-color: #fed7aa; }
+  .surface-pink { background: #fdf2f8; border-color: #fbcfe8; }
+  .surface-violet { background: #f5f3ff; border-color: #ddd6fe; }
+  .surface-cyan { background: #ecfeff; border-color: #a5f3fc; }
+  .glass-card {
+    background: #fff;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 0.875rem;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, .045);
+  }
+  .text-gradient-gold {
+    background-image: linear-gradient(120deg, #1d4ed8 0%, #0891b2 100%);
+  }
+  .dashboard-stats-grid > *:nth-child(1) { background: #eff6ff; border-color: #bfdbfe; }
+  .dashboard-stats-grid > *:nth-child(2) { background: #ecfeff; border-color: #a5f3fc; }
+  .dashboard-stats-grid > *:nth-child(3) { background: #fff7ed; border-color: #fed7aa; }
+  .dashboard-stats-grid > *:nth-child(4) { background: #ecfdf5; border-color: #a7f3d0; }
+  .dashboard-stats-grid > *:nth-child(5) { background: #f5f3ff; border-color: #ddd6fe; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
