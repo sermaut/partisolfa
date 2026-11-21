@@ -527,3 +527,179 @@ body *::marker {
 @media (prefers-reduced-motion: reduce) {
   .mobile-menu-item, .mobile-menu-close { transition: none; }
 }
+
+
+/* PARTISOLFA — identidade visual verde-marinho, menta e dourado */
+@layer base {
+  :root {
+    --background: 165 28% 97%;
+    --foreground: 204 48% 13%;
+    --card: 0 0% 100%;
+    --card-foreground: 204 48% 13%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 204 48% 13%;
+    --primary: 174 62% 32%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 174 34% 91%;
+    --secondary-foreground: 204 48% 17%;
+    --muted: 174 22% 94%;
+    --muted-foreground: 201 19% 39%;
+    --accent: 44 55% 54%;
+    --accent-foreground: 204 48% 13%;
+    --success: 153 58% 34%;
+    --success-foreground: 0 0% 100%;
+    --warning: 39 78% 42%;
+    --warning-foreground: 204 48% 12%;
+    --destructive: 4 66% 46%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 174 18% 82%;
+    --input: 174 18% 82%;
+    --ring: 171 65% 42%;
+    --radius: 0.9rem;
+    --sidebar-background: 204 52% 15%;
+    --sidebar-foreground: 165 30% 96%;
+    --sidebar-primary: 164 61% 69%;
+    --sidebar-primary-foreground: 204 48% 13%;
+    --sidebar-accent: 202 38% 23%;
+    --sidebar-accent-foreground: 165 30% 96%;
+    --sidebar-border: 201 30% 29%;
+    --sidebar-ring: 164 61% 69%;
+    --gradient-gold: linear-gradient(125deg, hsl(174 62% 32%), hsl(164 61% 69%));
+    --gradient-dark: linear-gradient(145deg, hsl(204 52% 15%), hsl(197 55% 21%));
+    --gradient-card: linear-gradient(145deg, #ffffff, hsl(165 28% 97%));
+    --gradient-hero: linear-gradient(135deg, hsl(165 35% 97%), hsl(174 38% 91%));
+    --shadow-gold: 0 8px 22px -10px hsla(174, 62%, 32%, .55);
+    --shadow-card: 0 4px 18px -12px rgba(16, 48, 59, .32), 0 1px 3px rgba(16, 48, 59, .07);
+    --shadow-elevated: 0 16px 38px -18px rgba(8, 35, 48, .35);
+  }
+  .dark {
+    --background: 204 52% 10%;
+    --foreground: 165 30% 95%;
+    --card: 204 45% 14%;
+    --card-foreground: 165 30% 95%;
+    --popover: 204 45% 14%;
+    --popover-foreground: 165 30% 95%;
+    --primary: 164 61% 69%;
+    --primary-foreground: 204 52% 10%;
+    --secondary: 202 38% 22%;
+    --secondary-foreground: 165 30% 95%;
+    --muted: 202 34% 19%;
+    --muted-foreground: 174 18% 70%;
+    --accent: 44 62% 60%;
+    --accent-foreground: 204 52% 10%;
+    --border: 201 30% 27%;
+    --input: 201 30% 27%;
+    --ring: 164 61% 69%;
+    --sidebar-background: 204 58% 8%;
+    --sidebar-foreground: 165 30% 95%;
+    --sidebar-primary: 164 61% 69%;
+    --sidebar-primary-foreground: 204 52% 10%;
+    --sidebar-accent: 202 38% 18%;
+    --sidebar-accent-foreground: 165 30% 95%;
+    --sidebar-border: 201 30% 22%;
+    --sidebar-ring: 164 61% 69%;
+  }
+  body {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    letter-spacing: -0.025em;
+  }
+}
+@layer components {
+  .glass-card, .surface-solid {
+    background: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border)) !important;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-card) !important;
+    backdrop-filter: none !important;
+  }
+  .stat-card {
+    background: linear-gradient(145deg, hsl(var(--card)), hsl(var(--secondary)));
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    box-shadow: var(--shadow-card);
+  }
+  .text-gradient-gold {
+    background-image: linear-gradient(120deg, hsl(174 62% 32%), hsl(164 61% 58%));
+  }
+  .btn-glow { box-shadow: var(--shadow-gold); }
+  .notification-premium {
+    color: hsl(var(--foreground));
+    background: linear-gradient(135deg, #fff, hsl(165 35% 96%));
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    box-shadow: var(--shadow-elevated);
+  }
+  input, textarea, select, [role="combobox"] {
+    background-color: hsl(var(--card));
+    border-color: hsl(var(--border));
+    border-radius: .75rem;
+  }
+}
+.mobile-menu-backdrop {
+  background: rgba(5, 24, 34, .62);
+  -webkit-backdrop-filter: blur(8px) saturate(.8);
+  backdrop-filter: blur(8px) saturate(.8);
+}
+.mobile-menu-drawer {
+  color: #effffb;
+  background: linear-gradient(155deg, #17384b 0%, #123b4b 58%, #0e3442 100%);
+  border: 2px solid #54cbb2;
+  border-left: 6px solid #29bd91;
+  border-radius: 0 30px 30px 0;
+  box-shadow: 18px 0 55px rgba(0,0,0,.38), inset -1px 0 0 rgba(255,255,255,.12);
+}
+.mobile-menu-heading { border-bottom-color: rgba(100, 213, 190, .34); color: #eafff8; }
+.mobile-menu-logo {
+  color: #073b3b;
+  background: linear-gradient(135deg, #b8f4e2, #25bd91);
+  border-color: #d8fff2;
+}
+.mobile-menu-close {
+  color: #eafff8;
+  border-color: rgba(226, 205, 133, .65);
+  background: rgba(255,255,255,.07);
+}
+.mobile-menu-profile {
+  background: rgba(255,255,255,.075);
+  border-color: rgba(226, 205, 133, .42);
+}
+.mobile-menu-item {
+  color: #f4fffc;
+  background: rgba(255,255,255,.055);
+  border-color: rgba(130, 211, 202, .32);
+  border-radius: 17px;
+}
+.mobile-menu-item svg { color: #79dfca; }
+.mobile-menu-item:hover {
+  color: #fff;
+  background: rgba(99, 211, 187, .13);
+  border-color: #6bdac4;
+}
+.mobile-menu-item.is-active {
+  color: #103c43;
+  background: linear-gradient(110deg, #c8f7e9, #55d6b1);
+  border: 2px solid #e4fff6;
+  box-shadow: 0 5px 18px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.65);
+}
+.mobile-menu-item.is-active svg { color: #103c43; }
+.mobile-menu-item.mobile-menu-logout {
+  color: #ffd9d5;
+  border-color: rgba(255,143,132,.55);
+  background: rgba(155,39,35,.2);
+}
+.mobile-menu-footer {
+  color: rgba(218, 250, 242, .68);
+  border-top-color: rgba(100, 213, 190, .25);
+}
+@media (max-width: 767px) {
+  .mobile-menu-drawer {
+    width: min(90vw, 410px);
+    padding-left: max(20px, calc(env(safe-area-inset-left) + 20px));
+  }
+}
