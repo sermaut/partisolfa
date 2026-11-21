@@ -14,11 +14,19 @@ export default defineConfig(({ mode }) => ({
     react(),
     mode === "development" && componentTagger(),
     VitePWA({
+      // Install the new service worker and activate it automatically.
       registerType: "autoUpdate",
+      // Registration is explicit in src/main.tsx to guarantee immediate startup.
+      injectRegister: false,
       includeAssets: ["favicon.ico", "robots.txt"],
       workbox: {
+        clientsClaim: true,
+        skipWaiting: true,
+        cleanupOutdatedCaches: true,
         navigateFallbackDenylist: [/^\/~oauth/],
-        globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
+        globPatterns: [
+          "**/*.{js,css,html,ico,png,svg,webp,jpg,jpeg,woff,woff2,ttf,webmanifest}",
+        ],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\.supabase\.co\/.*/i,
