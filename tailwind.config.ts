@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Playfair Display"', 'serif'],
-        sans: ['Inter', 'sans-serif'],
+        display: ['"Noto Serif"', 'serif'],
+        sans: ['"Noto Serif"', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
