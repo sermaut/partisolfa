@@ -241,7 +241,7 @@ export default function Perfil() {
             Gerencie as suas informações pessoais.
           </p>
 
-          <div className="glass-card rounded-xl p-6 space-y-6">
+          <div className="section-card section-card--users glass-card rounded-xl p-6 space-y-6">
             {/* Avatar Upload */}
             <div className="flex flex-col items-center">
               <div className="relative">
@@ -354,7 +354,7 @@ export default function Perfil() {
           </div>
 
           {/* Referral Section */}
-          <div className="glass-card rounded-xl p-6 mt-6 space-y-4">
+          <div className="section-card section-card--users glass-card rounded-xl p-6 mt-6 space-y-4">
             <div className="flex items-center gap-3 mb-2">
               <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
                 <Gift className="w-5 h-5 text-primary" />
