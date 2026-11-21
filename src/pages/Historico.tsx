@@ -137,13 +137,13 @@ export default function Historico() {
               </p>
             </div>
 
-            <Button variant="premium" asChild>
+            <Button variant="info" asChild>
               <Link to="/nova-solicitacao">Nova Solicitação</Link>
             </Button>
           </div>
 
           {/* Filters */}
-          <div className="glass-card rounded-xl p-4 mb-6">
+          <div className="section-card section-card--tasks glass-card rounded-xl p-4 mb-6">
             <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2">
                 <Filter className="w-4 h-4 text-muted-foreground" />
@@ -179,7 +179,7 @@ export default function Historico() {
 
           {/* Tasks List */}
           {filteredTasks.length === 0 ? (
-            <div className="glass-card rounded-xl p-12 text-center">
+            <div className="section-card section-card--tasks glass-card rounded-xl p-12 text-center">
               <Music className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">
                 Nenhuma solicitação encontrada
@@ -190,7 +190,7 @@ export default function Historico() {
                   : 'Tente ajustar os filtros.'}
               </p>
               {tasks.length === 0 && (
-                <Button variant="premium" asChild>
+                <Button variant="info" asChild>
                   <Link to="/nova-solicitacao">Nova Solicitação</Link>
                 </Button>
               )}
@@ -210,7 +210,7 @@ export default function Historico() {
                   >
                     <Link
                       to={`/tarefa/${task.id}`}
-                      className="glass-card rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-primary/50 transition-colors block"
+                      className="section-card section-card--tasks glass-card rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 hover:border-primary/50 transition-colors block"
                     >
                       <div className="flex items-start gap-4">
                         <div className="w-12 h-12 rounded-xl bg-gradient-gold/20 flex items-center justify-center flex-shrink-0">
