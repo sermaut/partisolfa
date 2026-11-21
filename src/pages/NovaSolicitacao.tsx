@@ -298,7 +298,7 @@ export default function NovaSolicitacao() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {([
                 { key: 'arranjo' as const, label: 'Arranjo Musical', desc: 'Arranjo profissional com correcção harmónica', cost: '450 Kz (3 créditos)', icon: FileMusic },
-                { key: 'transposicao' as const, label: 'Transposição Musical', desc: 'Cópia fiel sem intervenção no arranjo', cost: '250 Kz (1.67 créditos)', icon: Music },
+                { key: 'transposicao' as const, label: 'Transposição Musical', desc: 'Cópia fiel sem intervenção no arranjo', cost: '250 Kz (≈ 1,6667 créditos)', icon: Music },
               ]).map((service) => (
                 <button
                   key={service.key}
@@ -335,7 +335,7 @@ export default function NovaSolicitacao() {
                 <div>
                   <p className="font-medium text-warning">Saldo insuficiente</p>
                   <p className="text-sm text-muted-foreground">
-                    Precisa de {serviceCost} créditos.{' '}
+                    Precisa de {serviceCost.toFixed(4)} créditos.{' '}
                     <Button variant="link" className="p-0 h-auto text-primary" onClick={() => navigate('/deposito')}>
                       Depositar créditos
                     </Button>
@@ -529,7 +529,7 @@ export default function NovaSolicitacao() {
               className="w-full sm:w-auto"
             >
               {isSubmitting && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-              Enviar ({serviceCost} créditos)
+              Enviar ({serviceCost.toFixed(4)} créditos)
             </Button>
           </ResponsiveDialogFooter>
         </ResponsiveDialogContent>
