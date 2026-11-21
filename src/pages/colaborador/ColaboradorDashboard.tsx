@@ -217,7 +217,7 @@ export default function ColaboradorDashboard() {
               <Link
                 key={link.title}
                 to={link.href}
-                className="section-card section-card--support rounded-xl p-4 hover:border-primary/50 transition-colors group relative"
+                className="section-card section-card--tasks rounded-xl p-4 hover:border-primary/50 transition-colors group relative"
               >
                 <link.icon className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
                 <p className="font-medium">{link.title}</p>
