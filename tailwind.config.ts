@@ -16,6 +16,7 @@ export default {
       fontFamily: {
         display: ['"Noto Serif"', 'serif'],
         sans: ['"Noto Serif"', 'serif'],
+        mono: ['"Noto Serif"', 'serif'],
       },
       colors: {
         border: "hsl(var(--border))",
