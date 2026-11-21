@@ -11,7 +11,7 @@ async function checkPublishedVersion() {
   try {
     // A unique query and no-store prevent the browser/CDN from reusing
     // an old version marker.
-    const response = await fetch(`/version.json?check=${Date.now()}`, {
+    const response = await fetch(`${import.meta.env.BASE_URL}version.json?check=${Date.now()}`, {
       cache: "no-store",
       headers: { "Cache-Control": "no-cache" },
     });
