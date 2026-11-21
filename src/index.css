@@ -604,146 +604,73 @@ input, textarea, select, [role="combobox"] {
 }
 
 
-/* PARTISOLFA — Clássico Premium visual layer */
+
+/* PARTISOLFA — cartões e botões */
 :root {
   --brand-navy: #142c46;
   --brand-gold: #98733a;
   --brand-white: #ffffff;
   --brand-pearl: #f3f5f7;
-
-  --background: 210 20% 98%;
-  --foreground: 213 55% 18%;
-  --card: 0 0% 100%;
-  --card-foreground: 213 55% 18%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 213 55% 18%;
-  --primary: 213 55% 18%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 210 20% 95%;
-  --secondary-foreground: 213 55% 18%;
-  --muted: 210 20% 95%;
-  --muted-foreground: 213 18% 40%;
-  --accent: 36 45% 41%;
-  --accent-foreground: 0 0% 100%;
-  --success: 142 36% 25%;
-  --success-foreground: 0 0% 100%;
-  --warning: 36 65% 34%;
-  --warning-foreground: 0 0% 100%;
-  --destructive: 0 62% 42%;
-  --destructive-foreground: 0 0% 100%;
-  --border: 214 18% 86%;
-  --input: 214 18% 82%;
-  --ring: 36 45% 41%;
-
-  --gradient-gold: linear-gradient(135deg, #98733a 0%, #b18c51 100%);
-  --gradient-dark: linear-gradient(180deg, #ffffff 0%, #f3f5f7 100%);
-  --gradient-card: linear-gradient(145deg, #ffffff 0%, #f7f8fa 100%);
-  --gradient-hero: linear-gradient(135deg, #f3f5f7 0%, #ffffff 55%, #f8f5ef 100%);
-  --shadow-gold: 0 5px 18px -7px rgba(152, 115, 58, .38);
-  --shadow-card: 0 2px 8px rgba(20, 44, 70, .06), 0 8px 24px -16px rgba(20, 44, 70, .2);
-  --shadow-elevated: 0 12px 30px -16px rgba(20, 44, 70, .28);
 }
 
-body, main { background: #f3f5f7; color: #142c46; }
-h1, h2, h3, h4, h5, h6 { color: #142c46; letter-spacing: -0.025em; }
+/* Cartões: superfícies claras, discretas e consistentes */
+.glass-card,
+.surface-solid,
+.service-card,
+.task-card {
+  background: #ffffff;
+  border: 1px solid #d9dfe6;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(20, 44, 70, .06);
+  backdrop-filter: none;
+}
 
-.glass-card, .surface-solid {
-  background: #fff !important;
-  border: 1px solid #d9dfe6 !important;
-  border-radius: 12px !important;
-  box-shadow: 0 2px 8px rgba(20,44,70,.05), 0 10px 24px -18px rgba(20,44,70,.22) !important;
-  backdrop-filter: none !important;
+.glass-card:hover,
+.surface-solid:hover,
+.service-card:hover,
+.task-card:hover {
+  border-color: rgba(152, 115, 58, .55);
+  box-shadow: 0 6px 18px rgba(20, 44, 70, .09);
 }
-.glass-card:hover, .surface-solid:hover {
-  border-color: #c5ad82 !important;
-  box-shadow: 0 8px 22px -16px rgba(20,44,70,.3) !important;
-}
+
+/* Cartões de saldo e indicadores financeiros */
+.wallet-card,
 .stat-card {
-  color: #fff;
+  color: #ffffff;
   background: linear-gradient(145deg, #142c46 0%, #203f5e 100%);
-  border: 1px solid rgba(152,115,58,.55);
-  box-shadow: 0 8px 22px -14px rgba(20,44,70,.45);
+  border: 1px solid #98733a;
+  border-radius: 12px;
+  box-shadow: 0 8px 22px rgba(20, 44, 70, .14);
 }
-.stat-card :is(p, span, h2, h3) { color: inherit; }
+
+.wallet-card :is(p, span, h2, h3, strong),
+.stat-card :is(p, span, h2, h3, strong) {
+  color: inherit;
+}
+
+.wallet-card .wallet-card-accent {
+  color: #e3c58d;
+}
+
+/* Realce dourado apenas em elementos que já usam estas classes */
 .text-gradient-gold {
   background-image: linear-gradient(110deg, #98733a 0%, #bd9b62 55%, #98733a 100%);
 }
-.btn-glow { box-shadow: 0 5px 16px -8px rgba(152,115,58,.55); }
-.btn-glow:hover { box-shadow: 0 8px 20px -8px rgba(152,115,58,.6); }
 
-.status-pending {
-  color: #805516 !important;
-  background: #fff1d8 !important;
-  border-color: #e7c98f !important;
-}
-.status-progress {
-  color: #142c46 !important;
-  background: #e8eef5 !important;
-  border-color: #c4d0de !important;
-}
-.status-completed {
-  color: #245b39 !important;
-  background: #e5f2e9 !important;
-  border-color: #b9d8c2 !important;
-}
-.status-cancelled {
-  color: #8b2929 !important;
-  background: #fbe8e8 !important;
-  border-color: #e8bcbc !important;
+.btn-glow {
+  box-shadow: 0 4px 14px -8px rgba(152, 115, 58, .5);
 }
 
-/* Distinct card families for financial, service and task information */
-.wallet-card {
-  color: #fff;
-  background: linear-gradient(135deg, #142c46 0%, #203f5e 100%);
-  border: 1px solid #98733a;
-  border-radius: 14px;
-  box-shadow: 0 12px 28px -16px rgba(20,44,70,.5);
+.btn-glow:hover {
+  box-shadow: 0 7px 18px -8px rgba(152, 115, 58, .58);
 }
-.wallet-card :is(p, span, h2, h3, strong) { color: inherit; }
-.wallet-card .wallet-card-accent { color: #e3c58d; }
-.service-card {
-  background: linear-gradient(145deg, #fff 0%, #faf9f6 100%);
-  border: 1px solid #e1d7c5;
-  border-radius: 12px;
-  box-shadow: var(--shadow-card);
-}
-.task-card {
-  background: #fff;
-  border: 1px solid #d9dfe6;
-  border-radius: 10px;
-}
-.notice-success { color: #245b39; background: #e5f2e9; border: 1px solid #b9d8c2; }
-.notice-pending { color: #805516; background: #fff1d8; border: 1px solid #e7c98f; }
-.notice-error { color: #8b2929; background: #fbe8e8; border: 1px solid #e8bcbc; }
-
-input, textarea, select, [role="combobox"] {
-  background: #fff !important;
-  border-color: #cbd3dd !important;
-  border-radius: 8px !important;
-  color: #142c46;
-}
-input:focus, textarea:focus, select:focus, [role="combobox"]:focus {
-  border-color: #98733a !important;
-  box-shadow: 0 0 0 2px rgba(152,115,58,.14) !important;
-}
-.mobile-menu-drawer {
-  color: #fff;
-  background: linear-gradient(155deg, #142c46 0%, #0e2238 100%);
-  border-color: #98733a;
-}
-.mobile-menu-heading { color: #e3c58d; border-bottom-color: rgba(152,115,58,.5); }
-.mobile-menu-logo { color: #142c46; background: linear-gradient(135deg, #f0dfbd, #98733a); border-color: #f6ead4; }
-.mobile-menu-item { border-color: rgba(227,197,141,.32); }
-.mobile-menu-item svg { color: #d6b77f; }
-.mobile-menu-item.is-active {
-  color: #142c46;
-  background: linear-gradient(110deg, #f3e5c9, #d9bd8d);
-  border-color: #fff3dc;
-}
-.mobile-menu-item.is-active svg { color: #142c46; }
-.mobile-menu-footer { color: rgba(243,229,201,.72); border-top-color: rgba(152,115,58,.35); }
 
 @media (prefers-reduced-motion: reduce) {
-  .glass-card, .surface-solid, .btn-glow { transition: none !important; }
+  .glass-card,
+  .surface-solid,
+  .service-card,
+  .task-card,
+  .btn-glow {
+    transition: none !important;
+  }
 }
