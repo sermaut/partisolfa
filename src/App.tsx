@@ -31,6 +31,7 @@ const SolicitacoesRecentes = lazy(() => import("./pages/SolicitacoesRecentes"));
 const Perfil = lazy(() => import("./pages/Perfil"));
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 const AdminTarefas = lazy(() => import("./pages/admin/AdminTarefas"));
+const AdminAvaliacoes = lazy(() => import("./pages/admin/AdminAvaliacoes"));
 const AdminDepositos = lazy(() => import("./pages/admin/AdminDepositos"));
 const AdminUsuarios = lazy(() => import("./pages/admin/AdminUsuarios"));
 const AdminReferrals = lazy(() => import("./pages/admin/AdminReferrals"));
@@ -114,6 +115,7 @@ const AppContent = () => SITE_BLOCKED ? <SiteBlocked /> : (
         <Route path="/perfil" element={<Perfil />} />
         <Route path="/admin" element={<AdminDashboard />} />
         <Route path="/admin/tarefas" element={<AdminTarefas />} />
+        <Route path="/admin/avaliacoes" element={<AdminAvaliacoes />} />
         <Route path="/admin/depositos" element={<AdminDepositos />} />
         <Route path="/admin/usuarios" element={<AdminUsuarios />} />
         <Route path="/admin/referrals" element={<AdminReferrals />} />
