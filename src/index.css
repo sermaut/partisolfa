@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 /*
   PARTISOLFA Design System
@@ -12,32 +12,32 @@
 @layer base {
   :root {
     /* Background - warm cream */
-    --background: 42 45% 96%;
-    --foreground: 0 0% 10%;
+    --background: 165 35% 97%;
+    --foreground: 205 35% 16%;
 
     /* Card - pure white surface */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 205 35% 16%;
 
     /* Popover */
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
     /* Primary - Deep green */
-    --primary: 146 71% 19%;
-    --primary-foreground: 42 45% 96%;
+    --primary: 173 66% 32%;
+    --primary-foreground: 0 0% 100%;
 
     /* Secondary - Warm cream deeper */
-    --secondary: 42 40% 91%;
-    --secondary-foreground: 0 0% 15%;
+    --secondary: 165 35% 93%;
+    --secondary-foreground: 205 35% 18%;
 
     /* Muted - darker for WCAG AA */
-    --muted: 42 35% 93%;
-    --muted-foreground: 0 0% 28%;
+    --muted: 165 25% 94%;
+    --muted-foreground: 205 16% 39%;
 
     /* Accent - Gold */
-    --accent: 43 71% 47%;
-    --accent-foreground: 0 0% 10%;
+    --accent: 151 72% 45%;
+    --accent-foreground: 205 35% 12%;
 
     /* Destructive - Terracotta red */
     --destructive: 8 65% 38%;
@@ -52,17 +52,17 @@
     --warning-foreground: 42 45% 96%;
 
     /* Borders & inputs - solid warm gray */
-    --border: 42 22% 72%;
-    --input: 42 22% 72%;
-    --ring: 146 71% 19%;
+    --border: 165 18% 82%;
+    --input: 165 18% 78%;
+    --ring: 173 66% 32%;
 
     --radius: 0.625rem;
 
     /* Gradients (kept var names for compatibility) */
-    --gradient-gold: linear-gradient(135deg, hsl(146, 71%, 19%) 0%, hsl(43, 71%, 47%) 100%);
-    --gradient-dark: linear-gradient(180deg, hsl(42, 45%, 97%) 0%, hsl(42, 40%, 92%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(42, 40%, 96%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(42, 50%, 95%) 0%, hsl(43, 45%, 92%) 50%, hsl(42, 50%, 95%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(173, 66%, 32%) 0%, hsl(151, 72%, 45%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(165, 35%, 98%) 0%, hsl(165, 35%, 93%) 100%);
+    --gradient-card: linear-gradient(145deg, #ffffff 0%, #f1faf8 100%);
+    --gradient-hero: linear-gradient(135deg, #f3fbfa 0%, #e5f5f1 50%, #f7fcfb 100%);
 
     /* Shadows - unified elevation scale */
     --shadow-gold: 0 4px 16px -6px hsla(146, 71%, 19%, 0.28);
@@ -146,11 +146,11 @@
   
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Noto Serif', serif;
+    font-family: 'Inter', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Noto Serif', serif;
+    font-family: 'Inter', sans-serif;
     @apply font-semibold tracking-tight;
   }
 }
@@ -159,7 +159,7 @@
   /* Gold gradient text */
   .text-gradient-gold {
     @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, hsl(146, 71%, 19%) 0%, hsl(43, 71%, 47%) 50%, hsl(146, 71%, 19%) 100%);
+    background-image: linear-gradient(135deg, hsl(173, 66%, 32%) 0%, hsl(151, 72%, 45%) 50%, hsl(173, 66%, 32%) 100%);
   }
 
   /* Standard surface card - solid, unified border & shadow */
@@ -189,7 +189,7 @@
 
   .music-wave span {
     width: 3px;
-    background: linear-gradient(to top, hsl(146, 71%, 19%), hsl(43, 71%, 47%));
+    background: linear-gradient(to top, hsl(173, 66%, 32%), hsl(151, 72%, 45%));
     border-radius: 2px;
     animation: wave 1s ease-in-out infinite;
   }
@@ -225,7 +225,7 @@
   .animated-border {
     position: relative;
     background: linear-gradient(var(--card), var(--card)) padding-box,
-                linear-gradient(135deg, hsl(146, 71%, 19%), hsl(43, 71%, 47%), hsl(146, 71%, 19%)) border-box;
+                linear-gradient(135deg, hsl(173, 66%, 32%), hsl(151, 72%, 45%), hsl(173, 66%, 32%)) border-box;
     border: 1px solid transparent;
   }
 
@@ -381,12 +381,12 @@ body *::after,
 body *::placeholder,
 body *::file-selector-button,
 body *::marker {
-  font-family: 'Noto Serif', serif !important;
+  font-family: 'Inter', sans-serif !important;
 }
 
 /* Solid, vivid PARTISOLFA surfaces */
-@layer base { body, main { background-color: hsl(42 38% 94%); } .glass-card { background:#fffdf7 !important; border:1px solid hsl(43 35% 78%) !important; box-shadow:0 8px 24px -14px rgba(25,55,35,.28),0 2px 7px rgba(25,55,35,.08) !important; backdrop-filter:none !important; } input,textarea,select,[role=combobox] { background-color:#fffdf7 !important; border-color:hsl(43 28% 68%) !important; } }
-@layer components { .btn-glow { box-shadow:0 7px 18px -8px rgba(20,95,55,.55),0 3px 8px -4px rgba(185,139,20,.45); } .notification-premium { border:1px solid hsl(43 55% 70%); background:linear-gradient(135deg,#fffdf7 0%,#f3f7e9 55%,#fff4d6 100%); color:hsl(146 55% 16%); box-shadow:0 16px 40px -18px rgba(20,60,35,.55); border-radius:16px; } .surface-solid { background:#fffdf7; border:1px solid hsl(43 30% 78%); box-shadow:0 5px 18px -12px rgba(0,0,0,.28); } }
+@layer base { body, main { background-color: hsl(165 35% 97%); } .glass-card { background:#ffffff !important; border:1px solid hsl(43 35% 78%) !important; box-shadow:0 8px 24px -14px rgba(25,55,35,.28),0 2px 7px rgba(25,55,35,.08) !important; backdrop-filter:none !important; } input,textarea,select,[role=combobox] { background-color:#ffffff !important; border-color:hsl(43 28% 68%) !important; } }
+@layer components { .btn-glow { box-shadow:0 7px 18px -8px rgba(20,95,55,.55),0 3px 8px -4px rgba(185,139,20,.45); } .notification-premium { border:1px solid hsl(43 55% 70%); background:linear-gradient(135deg,#ffffff 0%,#f3f7e9 55%,#fff4d6 100%); color:hsl(146 55% 16%); box-shadow:0 16px 40px -18px rgba(20,60,35,.55); border-radius:16px; } .surface-solid { background:#ffffff; border:1px solid hsl(43 30% 78%); box-shadow:0 5px 18px -12px rgba(0,0,0,.28); } }
 
 
 /* Modern global mobile navigation */
@@ -527,3 +527,44 @@ body *::marker {
 @media (prefers-reduced-motion: reduce) {
   .mobile-menu-item, .mobile-menu-close { transition: none; }
 }
+
+
+/* PARTISOLFA modern brand system: navy, teal, fresh green and clean surfaces */
+:root {
+  --brand-navy: #17364d;
+  --brand-teal: #1c9189;
+  --brand-green: #20c978;
+  --brand-mint: #e9f7f4;
+  --brand-ink: #18313b;
+}
+body { font-family: 'Inter', sans-serif; background: #f4faf9; color: var(--brand-ink); }
+h1, h2, h3, h4, h5, h6 { font-family: 'Inter', sans-serif; letter-spacing: -0.035em; }
+.glass-card, .surface-solid {
+  background: #fff !important;
+  border: 1px solid #d6e8e4 !important;
+  border-radius: 18px !important;
+  box-shadow: 0 8px 28px -18px rgba(23,54,77,.32), 0 2px 8px rgba(23,54,77,.05) !important;
+  backdrop-filter: none !important;
+}
+input, textarea, select, [role="combobox"] {
+  background: #fff !important;
+  border-color: #c9ded9 !important;
+  border-radius: 11px !important;
+}
+.mobile-menu-drawer {
+  background: linear-gradient(160deg, #17364d 0%, #124b58 100%);
+  border-color: #4cc9ad;
+  border-left-color: #20c978;
+}
+.mobile-menu-heading { color: #d9fff2; border-bottom-color: rgba(98,223,189,.45); }
+.mobile-menu-logo { color: #fff; background: linear-gradient(135deg,#1c9189,#20c978); border-color: #a9f5dc; }
+.mobile-menu-item { border-color: rgba(151,226,210,.3); }
+.mobile-menu-item svg { color: #7be3c3; }
+.mobile-menu-item.is-active {
+  color: #103b43;
+  background: linear-gradient(110deg,#b9f2df,#65d9b1);
+  border-color: #e3fff4;
+}
+.mobile-menu-item.is-active svg { color: #103b43; }
+.mobile-menu-footer { color: rgba(224,255,244,.7); border-top-color: rgba(151,226,210,.3); }
+.mobile-menu-drawer, .mobile-menu-backdrop { animation: none !important; transition: none !important; }
