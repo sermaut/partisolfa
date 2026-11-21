@@ -612,6 +612,7 @@ input, textarea, select, [role="combobox"] {
   --section-users: 267 62% 56%;
   --section-support: 188 72% 38%;
   --section-alert: 5 72% 52%;
+  --section-success: 151 58% 42%;
   --section-neutral: 210 24% 42%;
 }
 .section-card {
@@ -641,6 +642,7 @@ input, textarea, select, [role="combobox"] {
 .section-card--users { --section-color: var(--section-users); }
 .section-card--support { --section-color: var(--section-support); }
 .section-card--alert { --section-color: var(--section-alert); }
+.section-card--success { --section-color: var(--section-success); }
 .section-card--neutral { --section-color: var(--section-neutral); }
 .section-icon {
   color: hsl(var(--section-color));
