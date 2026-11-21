@@ -319,7 +319,7 @@ export default function AdminDepositos() {
 
           {/* Deposits List */}
           {deposits.length === 0 ? (
-            <div className="glass-card rounded-xl p-12 text-center">
+            <div className="section-card section-card--finance glass-card rounded-xl p-12 text-center">
               <CreditCard className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">
                 Nenhum depósito encontrado
@@ -337,7 +337,7 @@ export default function AdminDepositos() {
                 return (
                   <div
                     key={deposit.id}
-                    className="glass-card rounded-xl p-5"
+                    className="section-card section-card--finance glass-card rounded-xl p-5"
                   >
                     <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                       <div className="flex items-start gap-4">
@@ -503,7 +503,7 @@ export default function AdminDepositos() {
                     Rejeitar
                   </Button>
                   <Button
-                    variant="premium"
+                    variant="success"
                     onClick={() => processDeposit('approve')}
                     disabled={isProcessing}
                   >
