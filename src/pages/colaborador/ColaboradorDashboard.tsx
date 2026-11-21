@@ -147,7 +147,7 @@ export default function ColaboradorDashboard() {
           </div>
 
           {/* Balance Card */}
-          <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl border border-primary/20 p-6 mb-8">
+          <div className="section-card section-card--finance rounded-2xl p-6 mb-8">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-muted-foreground mb-1">Teu Saldo</p>
@@ -173,7 +173,7 @@ export default function ColaboradorDashboard() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-card rounded-xl border border-border p-4">
+            <div className="section-card section-card--tasks rounded-xl p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-yellow-500/20">
                   <Clock className="w-5 h-5 text-yellow-500" />
@@ -185,7 +185,7 @@ export default function ColaboradorDashboard() {
               </div>
             </div>
             
-            <div className="bg-card rounded-xl border border-border p-4">
+            <div className="section-card section-card--tasks rounded-xl p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-blue-500/20">
                   <ClipboardList className="w-5 h-5 text-blue-500" />
@@ -197,7 +197,7 @@ export default function ColaboradorDashboard() {
               </div>
             </div>
             
-            <div className="bg-card rounded-xl border border-border p-4 col-span-2 md:col-span-1">
+            <div className="section-card section-card--success rounded-xl p-4 col-span-2 md:col-span-1">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-green-500/20">
                   <CheckCircle className="w-5 h-5 text-green-500" />
@@ -217,7 +217,7 @@ export default function ColaboradorDashboard() {
               <Link
                 key={link.title}
                 to={link.href}
-                className="bg-card rounded-xl border border-border p-4 hover:border-primary/50 transition-colors group relative"
+                className="section-card section-card--support rounded-xl p-4 hover:border-primary/50 transition-colors group relative"
               >
                 <link.icon className="w-8 h-8 text-primary mb-3 group-hover:scale-110 transition-transform" />
                 <p className="font-medium">{link.title}</p>
