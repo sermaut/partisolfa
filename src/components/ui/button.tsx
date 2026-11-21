@@ -9,15 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-emerald-800 via-green-700 to-yellow-600 text-white hover:brightness-110 btn-glow",
+        default: "bg-[#167f79] text-white border border-[#167f79] shadow-sm hover:bg-[#126c68] hover:border-[#126c68] btn-glow",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-emerald-800/30 bg-white text-emerald-950 shadow-sm hover:bg-emerald-50",
-        secondary: "bg-gradient-to-r from-amber-100 to-emerald-100 text-emerald-950 border border-amber-300 hover:brightness-105",
-        ghost: "bg-white text-emerald-950 border border-emerald-900/10 hover:bg-emerald-50",
-        link: "bg-emerald-50 text-emerald-900 underline-offset-4 hover:bg-emerald-100",
-        premium: "bg-gradient-gold text-primary-foreground font-semibold btn-glow hover:scale-[1.02] active:scale-[0.98]",
-        hero: "bg-gradient-gold text-primary-foreground font-semibold text-base px-8 py-6 btn-glow hover:scale-[1.02] active:scale-[0.98]",
-        glass: "bg-white border border-emerald-900/20 text-emerald-950 hover:bg-emerald-50 shadow-sm",
+        outline: "border border-[#2b8f88]/40 bg-white text-[#153b49] shadow-sm hover:bg-[#eaf8f5] hover:border-[#2b8f88]",
+        secondary: "bg-[#e3f5ef] text-[#17444b] border border-[#b7ded4] hover:bg-[#d2eee5]",
+        ghost: "bg-transparent text-[#17444b] border border-transparent hover:bg-[#e8f5f2]",
+        link: "bg-transparent text-[#167f79] underline-offset-4 hover:bg-[#e8f5f2]",
+        premium: "bg-gradient-to-r from-[#167f79] to-[#54cda9] text-[#083b40] font-semibold border border-[#b9f4df] btn-glow hover:brightness-105 active:scale-[0.98]",
+        hero: "bg-gradient-to-r from-[#167f79] to-[#54cda9] text-white font-semibold text-base px-8 py-6 border border-[#b9f4df] btn-glow hover:brightness-105 active:scale-[0.98]",
+        glass: "bg-[#17384b] border border-[#4a9d9a] text-white hover:bg-[#204b5d] shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",
