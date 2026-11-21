@@ -9,15 +9,15 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-[#1c9189] text-white border border-[#167a73] shadow-md hover:bg-[#167a73] hover:shadow-lg active:scale-[0.98]",
+        default: "bg-[#142c46] text-white border border-[#142c46] shadow-sm hover:bg-[#203f5e] hover:border-[#203f5e] active:scale-[0.98]",
         destructive: "bg-rose-600 text-white border border-rose-700 shadow-sm hover:bg-rose-700 active:scale-[0.98]",
-        outline: "border-2 border-[#1c9189] bg-white text-[#17364d] shadow-sm hover:bg-[#e9f7f4] active:scale-[0.98]",
-        secondary: "bg-[#e9f7f4] text-[#17364d] border border-[#c9e4dc] shadow-sm hover:bg-[#d8f1e9] active:scale-[0.98]",
-        ghost: "bg-transparent text-[#17364d] border border-transparent hover:bg-[#e9f7f4]",
-        link: "bg-transparent text-[#168b80] underline-offset-4 hover:underline",
-        premium: "bg-[#20c978] text-[#103b32] border border-[#16a960] font-bold shadow-md hover:bg-[#19b96b] hover:shadow-lg active:scale-[0.98]",
-        hero: "bg-[#1c9189] text-white border border-[#167a73] font-bold text-base px-8 py-6 shadow-lg hover:bg-[#167a73] hover:shadow-xl active:scale-[0.98]",
-        glass: "bg-white border border-[#c9ded9] text-[#17364d] hover:bg-[#e9f7f4] shadow-sm",
+        outline: "border border-[#142c46] bg-white text-[#142c46] shadow-sm hover:bg-[#f3f5f7] hover:border-[#98733a] active:scale-[0.98]",
+        secondary: "bg-[#f3f5f7] text-[#142c46] border border-[#d9dfe6] shadow-sm hover:bg-[#e9edf2] active:scale-[0.98]",
+        ghost: "bg-transparent text-[#142c46] border border-transparent hover:bg-[#f3f5f7]",
+        link: "bg-transparent text-[#142c46] underline-offset-4 hover:underline",
+        premium: "bg-[#98733a] text-white border border-[#876331] font-semibold shadow-md hover:bg-[#876331] hover:shadow-lg active:scale-[0.98]",
+        hero: "bg-[#142c46] text-white border border-[#142c46] font-semibold text-base px-8 py-6 shadow-lg hover:bg-[#203f5e] hover:shadow-xl active:scale-[0.98]",
+        glass: "bg-white border border-[#d9dfe6] text-[#142c46] hover:bg-[#f3f5f7] shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",
