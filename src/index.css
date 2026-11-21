@@ -623,3 +623,23 @@ body *::marker {
 }
 .mobile-menu-item.is-active svg { color: #2463b5 !important; }
 .mobile-menu-footer { color: rgba(235,244,255,.72) !important; border-top-color: rgba(220,236,255,.22) !important; }
+
+/* Replace remaining legacy gold accents with the Corporate Blue identity */
+.bg-gradient-gold {
+  background: linear-gradient(135deg, #2f78ca 0%, #174b83 100%) !important;
+}
+.text-gradient-gold {
+  background: linear-gradient(90deg, #2463b5 0%, #168a9b 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+.icon-container-premium {
+  background: linear-gradient(135deg, #e4f0ff 0%, #d5e9ff 100%) !important;
+  box-shadow: 0 4px 15px -3px rgba(36, 99, 181, .22) !important;
+}
+.stat-card {
+  background: linear-gradient(145deg, #ffffff 0%, #edf5ff 100%) !important;
+  border: 1.5px solid #c6d9ed !important;
+}
+.mobile-menu-profile .text-amber-300 { color: #c9e2ff !important; }
