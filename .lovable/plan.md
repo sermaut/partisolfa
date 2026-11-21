@@ -1,31 +1,16 @@
-## 1. Correção do layout — botão "Descarregar" sempre visível
+# Assistente de IA para orientar solicitações musicais
 
-**Problema:** em `src/pages/TarefaDetalhe.tsx` (linhas 269–297 e o bloco equivalente dos ficheiros enviados em ~370–390), a linha do ficheiro usa `flex items-center justify-between` sem quebra e sem truncagem do `file_name`. Em ecrãs pequenos, um nome de ficheiro longo empurra o botão para fora do cartão. O mesmo padrão existe no cabeçalho (`h1` + badge de estado) em ~229–252.
+## O que será criado
+- Na Nova Solicitação, incluir uma acção para gerar sugestões de orientações a partir do serviço, título e descrição preenchidos.
+- Mostrar a sugestão para revisão antes de a aplicar ao campo de recomendações; manter edição manual, estados de carregamento e erros acessíveis.
+- Usar o modelo OpenAI padrão do Lovable AI Gateway, com chamadas e instruções mantidas no servidor. Não expor chaves no navegador.
 
-**Alterações (apenas UI, sem lógica):**
+## Implementação
+- Criar uma função do Lovable Cloud para validar a sessão e os dados de entrada, chamar o OpenAI via AI SDK Responses em fluxo e devolver a sugestão final.
+- Ligar a função à Nova Solicitação e acrescentar os auxiliares do gateway necessários, seguindo as regras de CORS, autenticação e erros.
+- Manter o site bloqueado como está; não alterar preços, saldo, upload nem o processo de envio.
+- Registar em `AGENTS.md` a decisão técnica de alojar chamadas de IA em funções server-side.
 
-- **Cartão "Resultado Disponível"** (e cartão dos ficheiros enviados, mesmo padrão):
-  - Trocar o container por `flex flex-col sm:flex-row sm:items-center gap-3` com `sm:justify-between`, para que em mobile o botão desça para baixo do nome em vez de sair do ecrã.
-  - Envolver o bloco de metadados (ícone + nome + tamanho) em `min-w-0 flex-1` e aplicar `truncate` (com `title={file.file_name}`) ao `<p>` do nome, para o nome encolher sem esmagar o botão.
-  - Botão "Descarregar" recebe `w-full sm:w-auto shrink-0` e mantém o spinner de estado.
-
-- **Cabeçalho da tarefa** (título + badge de estado):
-  - `min-w-0` no wrapper do título e `flex-shrink-0` explícito no badge.
-  - Em mobile, o badge alinha à esquerda por baixo do título (`self-start`), evitando corte.
-
-- Nenhuma mudança em Supabase, upload, ou noutras páginas.
-
-## 2. Resposta — notificações externas para o admin no plano gratuito
-
-Isto é uma pergunta, não vou implementar nada. Resposta curta:
-
-- **Dentro da app (grátis):** o admin já recebe notificações em tempo real na campainha (`notifications` do Lovable Cloud) para novas solicitações e depósitos — sem custo.
-- **Email (grátis, recomendado):** o Lovable Cloud tem envio de email transacional integrado. Dá para disparar um email ao admin em cada nova tarefa/depósito sem chaves externas nem custos adicionais.
-- **WhatsApp / SMS / Facebook:** exigem sempre um fornecedor externo (Twilio, GatewayAPI, Meta Cloud API…). Todos são pagos por mensagem — não há via 100% gratuita e sustentável para produção. WhatsApp Business API exige ainda verificação de número.
-- **PWA push (grátis):** como já é PWA, dá para adicionar notificações push no telemóvel do admin (via Service Worker), sem custos.
-
-Se quiser, no próximo passo posso planear "email + push PWA ao admin" como solução gratuita completa.
-
----
-
-**Ficheiros a alterar (apenas fase 1):** `src/pages/TarefaDetalhe.tsx`
+## Verificação
+- Confirmar compilação e verificar a interface se o bloqueio actual permitir; não desactivar o bloqueio para testar.
+- A chamada real depende de a função e a chave do Lovable AI Gateway estarem disponíveis no ambiente Cloud.
