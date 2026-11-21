@@ -170,7 +170,7 @@ export default function AdminReferrals() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div className="glass-card rounded-xl p-4 md:p-6">
+            <div className="section-card section-card--users glass-card rounded-xl p-4 md:p-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
                   <Users className="w-5 h-5 text-primary" />
@@ -182,7 +182,7 @@ export default function AdminReferrals() {
               </div>
             </div>
 
-            <div className="glass-card rounded-xl p-4 md:p-6">
+            <div className="section-card section-card--users glass-card rounded-xl p-4 md:p-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-success/20 flex items-center justify-center">
                   <CheckCircle className="w-5 h-5 text-success" />
@@ -194,7 +194,7 @@ export default function AdminReferrals() {
               </div>
             </div>
 
-            <div className="glass-card rounded-xl p-4 md:p-6">
+            <div className="section-card section-card--users glass-card rounded-xl p-4 md:p-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-warning/20 flex items-center justify-center">
                   <Clock className="w-5 h-5 text-warning" />
@@ -206,7 +206,7 @@ export default function AdminReferrals() {
               </div>
             </div>
 
-            <div className="glass-card rounded-xl p-4 md:p-6">
+            <div className="section-card section-card--users glass-card rounded-xl p-4 md:p-6">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-accent/20 flex items-center justify-center">
                   <Wallet className="w-5 h-5 text-accent" />
@@ -220,7 +220,7 @@ export default function AdminReferrals() {
           </div>
 
           {/* Search */}
-          <div className="glass-card rounded-xl p-4 mb-6">
+          <div className="section-card section-card--users glass-card rounded-xl p-4 mb-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
               <Input
@@ -234,7 +234,7 @@ export default function AdminReferrals() {
 
           {/* Referrals List */}
           {filteredReferrals.length === 0 ? (
-            <div className="glass-card rounded-xl p-12 text-center">
+            <div className="section-card section-card--users glass-card rounded-xl p-12 text-center">
               <Gift className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
               <h3 className="font-display text-lg font-semibold mb-2">
                 Nenhuma referência encontrada
@@ -250,7 +250,7 @@ export default function AdminReferrals() {
                   key={referral.id}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="glass-card rounded-xl p-4 md:p-6"
+                  className="section-card section-card--users glass-card rounded-xl p-4 md:p-6"
                 >
                   <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div className="flex-1">
