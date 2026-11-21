@@ -70,7 +70,7 @@ export default function NovaSolicitacao() {
   const [uploadProgress, setUploadProgress] = useState<FileProgress[]>([]);
 
   const getServiceCost = () => {
-    if (serviceType === 'arranjo') return { credits: 3, kz: 450 };
+    if (serviceType === 'arranjo') return { credits: 395 / 150, kz: 395 };
     if (serviceType === 'transposicao') return { credits: 250 / 150, kz: 250 };
     return { credits: 0, kz: 0 };
   };
@@ -297,7 +297,7 @@ export default function NovaSolicitacao() {
             <Label className="text-base">Tipo de Serviço *</Label>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {([
-                { key: 'arranjo' as const, label: 'Arranjo Musical', desc: 'Arranjo profissional com correcção harmónica', cost: '450 Kz (3 créditos)', icon: FileMusic },
+                { key: 'arranjo' as const, label: 'Arranjo Musical', desc: 'Arranjo profissional com correcção harmónica', cost: '395 Kz (≈ 2,6333 créditos)', icon: FileMusic },
                 { key: 'transposicao' as const, label: 'Transposição Musical', desc: 'Cópia fiel sem intervenção no arranjo', cost: '250 Kz (≈ 1,6667 créditos)', icon: Music },
               ]).map((service) => (
                 <button
