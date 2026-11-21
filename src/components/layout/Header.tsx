@@ -154,7 +154,7 @@ export function Header() {
                     <p className="font-semibold text-base">{profile?.full_name}</p>
                     <p className="text-sm text-muted-foreground">{profile?.email}</p>
                     <p className="text-base text-primary font-bold mt-2">
-                      {profile?.credits?.toFixed(1)} créditos
+                      {profile?.credits?.toFixed(4)} créditos
                     </p>
                   </div>
                   <DropdownMenuSeparator className="bg-border" />
