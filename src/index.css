@@ -590,3 +590,15 @@ input, textarea, select, [role="combobox"] {
     padding-right: max(20px, env(safe-area-inset-right));
   }
 }
+
+
+/* Requested refinements: focused cards and a clean full-screen drawer edge */
+.glass-card, .surface-solid {
+  background: linear-gradient(145deg, #f5fcfb 0%, #e7f5f2 100%) !important;
+  border: 1px solid #b9dcd4 !important;
+  box-shadow: 0 10px 28px -16px rgba(23,54,77,.34), 0 3px 10px rgba(28,145,137,.09) !important;
+}
+.mobile-menu-drawer { border-left: 0 !important; }
+@media (max-width: 767px) {
+  .mobile-menu-drawer { border-left: 0 !important; }
+}
