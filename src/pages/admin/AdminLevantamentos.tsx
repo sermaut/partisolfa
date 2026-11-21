@@ -373,7 +373,7 @@ export default function AdminLevantamentos() {
             <Button 
               onClick={handleProcess} 
               disabled={isProcessing}
-              variant={processAction === 'approved' ? 'default' : 'destructive'}
+              variant={processAction === 'approved' ? 'success' : 'destructive'}
             >
               {isProcessing && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               {processAction === 'approved' ? 'Aprovar' : 'Rejeitar'}
