@@ -14,9 +14,9 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ['"Noto Serif"', 'serif'],
-        sans: ['"Noto Serif"', 'serif'],
-        mono: ['"Noto Serif"', 'serif'],
+        display: ["ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["ui-sans-serif", "system-ui", "sans-serif"],
+        mono: ["ui-monospace", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -43,6 +43,14 @@ export default {
         warning: {
           DEFAULT: "hsl(var(--warning))",
           foreground: "hsl(var(--warning-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
+        },
+        report: {
+          DEFAULT: "hsl(var(--report))",
+          foreground: "hsl(var(--report-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -116,9 +124,9 @@ export default {
         "glow-pulse": "glow-pulse 2s ease-in-out infinite",
       },
       backgroundImage: {
-        "gradient-gold": "linear-gradient(135deg, hsl(213, 78%, 42%) 0%, hsl(195, 72%, 48%) 100%)",
-        "gradient-dark": "linear-gradient(180deg, hsl(140, 30%, 98%) 0%, hsl(145, 38%, 93%) 100%)",
-        "gradient-card": "linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(140, 30%, 97%) 100%)",
+        "gradient-gold": "linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--info)) 100%)",
+        "gradient-dark": "linear-gradient(180deg, hsl(var(--background)) 0%, hsl(var(--secondary)) 100%)",
+        "gradient-card": "linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--secondary)) 100%)",
         "gradient-radial": "radial-gradient(ellipse at center, var(--tw-gradient-stops))",
       },
     },

@@ -27,10 +27,6 @@ export default function Index() {
       {/* Hero Section */}
       <section className="relative min-h-[90vh] flex items-center overflow-hidden">
         {/* Background Elements */}
-        <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-slow" />
-        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse-slow" />
-        
         {/* Music Notes Decoration */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <motion.div 
@@ -165,7 +161,7 @@ export default function Index() {
               transition={{ delay: 0.1 }}
               className="glass-card surface-blue rounded-2xl p-6 hover:shadow-md transition-all duration-300 group"
             >
-              <div className="w-12 h-12 rounded-xl bg-blue-700 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-md bg-primary flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <FileMusic className="w-6 h-6 text-primary-foreground" />
               </div>
               <h3 className="font-display text-xl font-semibold mb-3">
@@ -188,7 +184,7 @@ export default function Index() {
               transition={{ delay: 0.2 }}
               className="glass-card surface-green rounded-2xl p-6 hover:shadow-md transition-all duration-300 group"
             >
-              <div className="w-12 h-12 rounded-xl bg-emerald-700 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+              <div className="w-12 h-12 rounded-md bg-success flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
                 <Music className="w-6 h-6 text-primary-foreground" />
               </div>
               <h3 className="font-display text-xl font-semibold mb-3">

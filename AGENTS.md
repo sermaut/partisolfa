@@ -1,0 +1,1 @@
+- Render authenticated primary navigation through `AppSidebar` in the shared `Layout`, while `Header` retains account controls and the mobile drawer; this keeps navigation consistent across roles without changing route permissions.

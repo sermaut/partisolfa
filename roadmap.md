@@ -1,0 +1,3 @@
+- [ ] Apply the professional-blue palette to shared tokens, controls, forms, tables, and surfaces.
+- [ ] Add role-aware navy navigation and color-coded dashboard indicators.
+- [ ] Validate desktop and mobile previews, check diagnostics, and keep the update unpublished for visual approval.

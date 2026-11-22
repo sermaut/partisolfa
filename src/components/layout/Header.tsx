@@ -83,7 +83,7 @@ export function Header() {
   const avatarUrl = (profile as any)?.avatar_url;
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-[100] bg-[#173b68] text-white border-b border-[#315b87] shadow-md">
+    <header className="fixed top-0 left-0 right-0 z-[100] border-b border-sidebar-border bg-sidebar text-sidebar-foreground shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
@@ -91,7 +91,7 @@ export function Header() {
             <motion.div
               whileHover={{ rotate: 360 }}
               transition={{ duration: 0.5 }}
-              className="w-10 h-10 rounded-xl bg-gradient-gold flex items-center justify-center"
+              className="w-10 h-10 rounded-md bg-primary flex items-center justify-center"
             >
               <Music2 className="w-5 h-5 text-primary-foreground" />
             </motion.div>
@@ -105,21 +105,21 @@ export function Header() {
             {!user && (
               <Link
                 to="/"
-                className="text-base text-white/85 hover:text-[#62dfbd] transition-colors py-2"
+                className="text-base text-sidebar-foreground/85 hover:text-sidebar-primary transition-colors py-2"
               >
                 Início
               </Link>
             )}
             <Link
               to="/servicos"
-              className="text-base text-white/85 hover:text-sky-200 transition-colors py-2"
+              className="text-base text-sidebar-foreground/85 hover:text-sidebar-primary transition-colors py-2"
             >
               Nossos Serviços
             </Link>
             {!user && (
               <Link
                 to="/termos-uso"
-                className="text-base text-muted-foreground hover:text-foreground transition-colors py-2"
+                className="text-base text-sidebar-foreground/85 hover:text-sidebar-primary transition-colors py-2"
               >
                 Termos
               </Link>
@@ -128,7 +128,7 @@ export function Header() {
 
 
           {/* Auth Buttons */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4">
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -263,7 +263,7 @@ export function Header() {
           {/* Mobile Menu Button */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="md:hidden p-2.5 text-white rounded-xl border-2 border-white/30 bg-white/10 hover:bg-white/20 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#62dfbd] focus-visible:ring-offset-2"
+            className="lg:hidden p-2.5 text-sidebar-foreground rounded-md border border-sidebar-foreground/30 bg-sidebar-accent hover:bg-sidebar-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
             aria-label={isMenuOpen ? 'Fechar menu' : 'Abrir menu'}
             aria-expanded={isMenuOpen}
           >
