@@ -1,325 +1,140 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { Music, FileMusic, Headphones, Sparkles, ArrowRight, Shield, Clock, Award } from 'lucide-react';
+import { Music, FileMusic, Sparkles, ArrowRight, Shield, Clock, Award, Headphones, AudioWaveform, Music2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Layout } from '@/components/layout/Layout';
 import { useAuth } from '@/contexts/AuthContext';
 
-const fadeInUp = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5 }
-};
+const services = [
+  {
+    title: 'Arranjo Musical',
+    description: 'Arranjos profissionais personalizados, com correcção harmónica e melhoria de vozes.',
+    price: '450 Kz',
+    credits: '3 créditos',
+    icon: FileMusic,
+    tone: 'blue',
+  },
+  {
+    title: 'Transposição Musical',
+    description: 'Transposição fiel do arranjo original, sem alterações harmónicas ou criativas.',
+    price: '250 Kz',
+    credits: '~1,67 créditos',
+    icon: Music,
+    tone: 'gold',
+  },
+];
 
-const staggerContainer = {
-  animate: {
-    transition: {
-      staggerChildren: 0.1
-    }
-  }
-};
+const benefits = [
+  { icon: Shield, title: 'Ficheiros protegidos', text: 'As suas solicitações e ficheiros ficam associados à sua conta.' },
+  { icon: Clock, title: 'Prazos claros', text: 'Prazo de entrega previsto até 3 dias.' },
+  { icon: Award, title: 'Trabalho especializado', text: 'Serviços orientados para partituras, arranjos e música.' },
+];
 
 export default function Index() {
   const { user } = useAuth();
 
   return (
     <Layout>
-      {/* Hero Section */}
-      <section className="relative min-h-[90vh] flex items-center overflow-hidden">
-        {/* Background Elements */}
-        <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse-slow" />
-        <div className="absolute bottom-1/4 right-1/4 w-72 h-72 bg-accent/10 rounded-full blur-3xl animate-pulse-slow" />
-        
-        {/* Music Notes Decoration */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <motion.div 
-            animate={{ y: [0, -20, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[20%] left-[10%] text-primary/20 text-6xl font-display"
-          >
-            ♪
-          </motion.div>
-          <motion.div 
-            animate={{ y: [0, 20, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute top-[40%] right-[15%] text-primary/15 text-8xl font-display"
-          >
-            ♫
-          </motion.div>
-          <motion.div 
-            animate={{ y: [0, -15, 0] }}
-            transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute bottom-[30%] left-[20%] text-accent/20 text-5xl font-display"
-          >
-            ♩
-          </motion.div>
-        </div>
+      <section className="relative isolate overflow-hidden bg-[#061a31] text-white">
+        <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_78%_38%,rgba(22,111,190,.38),transparent_34%),linear-gradient(120deg,#061a31_0%,#092b50_58%,#061a31_100%)]" />
+        <div className="absolute -right-24 top-10 -z-10 h-80 w-80 rounded-full border border-white/10 md:h-[34rem] md:w-[34rem]" />
+        <div className="absolute right-10 top-24 -z-10 h-64 w-64 rounded-full border border-[#f6b91a]/20 md:right-28 md:top-28 md:h-96 md:w-96" />
 
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            variants={staggerContainer}
-            initial="initial"
-            animate="animate"
-            className="max-w-4xl mx-auto text-center"
-          >
-            <motion.div variants={fadeInUp} className="mb-6">
-              <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 text-primary text-sm font-medium">
-                <Sparkles className="w-4 h-4" />
-                Plataforma de Serviços Musicais
-              </span>
-            </motion.div>
-
-            <motion.h1 
-              variants={fadeInUp}
-              className="font-display text-4xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight"
-            >
-              Transforma a sua{' '}
-              <span className="text-gradient-gold">música</span>
-            </motion.h1>
-
-            <motion.p 
-              variants={fadeInUp}
-              className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto"
-            >
-              A PARTISOLFA oferece serviços profissionais de aperfeiçoamento de músicas, 
-              partituras e criação de arranjos musicais. Envie os seus ficheiros e receba 
-              resultados de qualidade directamente na sua conta.
-            </motion.p>
-
-            <motion.div 
-              variants={fadeInUp}
-              className="flex flex-col sm:flex-row gap-4 justify-center"
-            >
-              {user ? (
-                <Button variant="hero" asChild size="xl">
-                  <Link to="/dashboard">
-                    Ir para o Painel
-                    <ArrowRight className="w-5 h-5" />
-                  </Link>
-                </Button>
-              ) : (
-                <>
-                  <Button variant="hero" asChild size="xl">
-                    <Link to="/login">
-                      Entrar
-                      <ArrowRight className="w-5 h-5" />
-                    </Link>
-                  </Button>
-                  <Button variant="outline" asChild size="xl">
-                    <Link to="/servicos">
-                      Ver Serviços
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </motion.div>
-
-            {/* Stats */}
-            <motion.div 
-              variants={fadeInUp}
-              className="mt-16 grid grid-cols-3 gap-8 max-w-lg mx-auto"
-            >
-              <div className="text-center">
-                <p className="text-3xl md:text-4xl font-display font-bold text-gradient-gold">1.5</p>
-                <p className="text-sm text-muted-foreground">Créditos de bónus</p>
-              </div>
-              <div className="text-center">
-                <p className="text-3xl md:text-4xl font-display font-bold text-gradient-gold">2</p>
-                <p className="text-sm text-muted-foreground">Serviços</p>
-              </div>
-
-              <div className="text-center">
-                <p className="text-3xl md:text-4xl font-display font-bold text-gradient-gold">3</p>
-                <p className="text-sm text-muted-foreground">Dias máximo</p>
-              </div>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Services Section */}
-      <section className="py-20 md:py-32 bg-card">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">
-              Os Nossos <span className="text-gradient-gold">Serviços</span>
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Oferecemos soluções profissionais para as suas necessidades musicais 
-              com entrega garantida em até 3 dias.
+        <div className="container mx-auto grid min-h-[650px] items-center gap-12 px-4 py-16 md:grid-cols-[1.05fr_.95fr] md:py-24">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55 }} className="relative z-10 max-w-2xl">
+            <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#f6b91a]/35 bg-[#f6b91a]/10 px-4 py-2 text-sm font-semibold tracking-wide text-[#ffd45c]">
+              <Sparkles className="h-4 w-4" /> SERVIÇOS MUSICAIS PROFISSIONAIS
+            </span>
+            <h1 className="mb-6 text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+              Damos forma à sua <span className="text-[#ffc629]">música.</span>
+            </h1>
+            <p className="mb-9 max-w-xl text-base leading-7 text-blue-100/80 sm:text-lg">
+              Arranjos e transposições musicais com atenção ao detalhe. Envie a sua partitura ou áudio e acompanhe cada solicitação na sua conta PARTISOLFA.
             </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-            {/* Service 1 - Arranjo */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="glass-card surface-blue rounded-2xl p-6 hover:shadow-md transition-all duration-300 group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-blue-700 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <FileMusic className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <h3 className="font-display text-xl font-semibold mb-3">
-                Arranjo Musical
-              </h3>
-              <p className="text-muted-foreground text-sm mb-4">
-                Arranjos profissionais personalizados para qualquer hino, com correcção harmónica e melhoria de vozes.
-              </p>
-              <div className="flex items-center gap-2 text-primary font-semibold text-sm">
-                <span>450 Kz</span>
-                <span className="text-muted-foreground font-normal">• 3 créditos</span>
-              </div>
-            </motion.div>
-
-            {/* Service 2 - Transposição */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="glass-card surface-green rounded-2xl p-6 hover:shadow-md transition-all duration-300 group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-emerald-700 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
-                <Music className="w-6 h-6 text-primary-foreground" />
-              </div>
-              <h3 className="font-display text-xl font-semibold mb-3">
-                Transposição Musical
-              </h3>
-              <p className="text-muted-foreground text-sm mb-4">
-                Cópia fiel do arranjo anexado, sem ajustes harmónicos nem alterações no original.
-              </p>
-              <div className="flex items-center gap-2 text-primary font-semibold text-sm">
-                <span>250 Kz</span>
-                <span className="text-muted-foreground font-normal">• ~1.67 créditos</span>
-              </div>
-            </motion.div>
-          </div>
-
-        </div>
-      </section>
-
-      {/* Features Section */}
-      <section className="py-20 md:py-32">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="font-display text-3xl md:text-5xl font-bold mb-4">
-              Porquê Escolher a <span className="text-gradient-gold">PARTISOLFA</span>?
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Uma plataforma moderna construída para músicos que valorizam qualidade e simplicidade.
-            </p>
-          </motion.div>
-
-          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.1 }}
-              className="text-center p-6"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-6">
-                <Shield className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="font-display text-xl font-semibold mb-3">Segurança Total</h3>
-              <p className="text-muted-foreground">
-                Os seus ficheiros são protegidos e acessíveis apenas por si. 
-                Privacidade garantida em todas as solicitações.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.2 }}
-              className="text-center p-6"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-6">
-                <Clock className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="font-display text-xl font-semibold mb-3">Processo Simples</h3>
-              <p className="text-muted-foreground">
-                Envie os seus ficheiros, adicione recomendações e aguarde o resultado. 
-                Tudo directamente na sua conta.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.3 }}
-              className="text-center p-6"
-            >
-              <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-6">
-                <Award className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="font-display text-xl font-semibold mb-3">Qualidade Profissional</h3>
-              <p className="text-muted-foreground">
-                Resultados de alta qualidade entregues directamente na sua conta. 
-                Satisfação garantida em cada serviço.
-              </p>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="py-20 md:py-32 bg-card relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-radial from-primary/5 via-transparent to-transparent" />
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="max-w-3xl mx-auto text-center"
-          >
-            <h2 className="font-display text-3xl md:text-5xl font-bold mb-6">
-              Pronto para começar?
-            </h2>
-            <p className="text-lg text-muted-foreground mb-8">
-              Crie a sua conta gratuita hoje e receba 1.5 créditos de bónus para 
-              experimentar os nossos serviços. Sem compromisso.
-            </p>
-            
-            {!user && (
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button variant="hero" asChild size="xl">
-                  <Link to="/registar">
-                    Criar Conta Gratuita
-                    <ArrowRight className="w-5 h-5" />
-                  </Link>
-                </Button>
-              </div>
-            )}
-
-            <div className="mt-8 flex items-center justify-center gap-8 text-sm text-muted-foreground">
-              <span className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-primary" />
-                1.5 créditos grátis
-              </span>
-              <span className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-primary" />
-                100% Seguro
-              </span>
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <Button asChild size="xl" className="h-12 bg-[#ffc629] px-7 font-bold text-[#17243a] shadow-lg shadow-yellow-500/20 hover:bg-[#ffd65b]">
+                <Link to={user ? '/dashboard' : '/registar'}>
+                  {user ? 'Ir para o painel' : 'Começar agora'} <ArrowRight className="h-5 w-5" />
+                </Link>
+              </Button>
+              <Button asChild size="xl" variant="outline" className="h-12 border-white/35 bg-white/5 px-7 font-semibold text-white hover:border-white hover:bg-white/10 hover:text-white">
+                <Link to="/servicos">Explorar serviços</Link>
+              </Button>
+            </div>
+            <div className="mt-12 grid max-w-lg grid-cols-3 gap-4 border-t border-white/15 pt-6">
+              <div><p className="text-2xl font-extrabold text-[#ffc629]">1,5</p><p className="mt-1 text-xs text-blue-100/70 sm:text-sm">Créditos de bónus</p></div>
+              <div><p className="text-2xl font-extrabold text-[#ffc629]">2</p><p className="mt-1 text-xs text-blue-100/70 sm:text-sm">Serviços disponíveis</p></div>
+              <div><p className="text-2xl font-extrabold text-[#ffc629]">3 dias</p><p className="mt-1 text-xs text-blue-100/70 sm:text-sm">Prazo previsto</p></div>
             </div>
           </motion.div>
+
+          <motion.div initial={{ opacity: 0, scale: .94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .7, delay: .12 }} className="relative mx-auto flex w-full max-w-xl items-center justify-center py-8">
+            <div className="absolute h-[min(78vw,390px)] w-[min(78vw,390px)] rounded-full bg-blue-500/20 blur-3xl" />
+            <div className="relative w-full overflow-hidden rounded-[2rem] border border-white/15 bg-gradient-to-br from-[#123d69] via-[#0b2c4e] to-[#071c34] p-7 shadow-2xl shadow-black/30 sm:p-10">
+              <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-[#ffc629]/10 blur-2xl" />
+              <div className="relative flex items-center justify-between">
+                <div className="rounded-2xl border border-white/15 bg-white/10 p-3"><Music2 className="h-7 w-7 text-[#ffc629]" /></div>
+                <span className="text-xs font-semibold uppercase tracking-[.24em] text-blue-100/60">PARTISOLFA</span>
+              </div>
+              <div className="relative my-10 space-y-4">
+                <div className="flex items-center gap-3 text-5xl font-light text-white/90 sm:text-6xl"><span>♪</span><span className="text-[#ffc629]">♫</span><span>♬</span><span className="text-[#ffc629]">♩</span></div>
+                <div className="space-y-3 opacity-80">
+                  {[0,1,2,3,4].map((line) => <div key={line} className="h-px w-full bg-gradient-to-r from-white/50 via-white/20 to-transparent" />)}
+                </div>
+                <div className="flex h-20 items-end justify-center gap-1.5">
+                  {[24,42,31,58,76,45,65,34,55,82,48,30,62,43,72,38,54,28,66,45,76,36].map((height, i) => <span key={i} className="w-2 rounded-t-full bg-gradient-to-t from-blue-400 to-[#ffd45c]" style={{ height: height + '%' }} />)}
+                </div>
+              </div>
+              <div className="relative grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-white/10 bg-white/10 p-4"><FileMusic className="mb-2 h-5 w-5 text-[#ffc629]" /><p className="text-sm font-bold">Arranjos</p><p className="mt-1 text-xs text-blue-100/65">Harmonia e vozes</p></div>
+                <div className="rounded-xl border border-white/10 bg-white/10 p-4"><AudioWaveform className="mb-2 h-5 w-5 text-sky-300" /><p className="text-sm font-bold">Transposição</p><p className="mt-1 text-xs text-blue-100/65">Fidelidade ao original</p></div>
+              </div>
+            </div>
+            <div className="absolute -bottom-1 -left-2 rounded-xl border border-white/15 bg-[#102f50] px-4 py-3 shadow-xl sm:-left-8"><div className="flex items-center gap-2 text-sm font-semibold"><Headphones className="h-4 w-4 text-[#ffc629]" /> Música com precisão</div></div>
+          </motion.div>
+        </div>
+      </section>
+
+      <section className="bg-[#f5f8fc] py-16 text-slate-900 md:py-24">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto mb-12 max-w-2xl text-center">
+            <span className="text-xs font-bold uppercase tracking-[.22em] text-blue-700">O que fazemos</span>
+            <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl">Os nossos <span className="text-blue-700">serviços</span></h2>
+            <p className="mt-4 text-slate-600">Escolha a solução musical adequada ao seu projecto e conheça as condições antes de solicitar.</p>
+          </div>
+          <div className="mx-auto grid max-w-5xl gap-6 md:grid-cols-2">
+            {services.map((service, index) => {
+              const Icon = service.icon;
+              return (
+                <motion.article key={service.title} initial={{ opacity: 0, y: 22 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: index * .12 }} className="group relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-7 shadow-[0_14px_40px_-28px_rgba(15,35,65,.45)] transition-all duration-300 hover:-translate-y-1 hover:shadow-xl sm:p-9">
+                  <div className={`mb-6 flex h-14 w-14 items-center justify-center rounded-2xl ${service.tone === 'blue' ? 'bg-blue-100 text-blue-700' : 'bg-amber-100 text-amber-700'}`}><Icon className="h-7 w-7" /></div>
+                  <h3 className="text-2xl font-extrabold">{service.title}</h3>
+                  <p className="mt-3 min-h-14 leading-7 text-slate-600">{service.description}</p>
+                  <div className="mt-7 flex items-end justify-between border-t border-slate-100 pt-5">
+                    <div><p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Preço</p><p className="mt-1 text-2xl font-extrabold text-[#173b68]">{service.price}</p><p className="text-xs text-slate-500">{service.credits}</p></div>
+                    <Button asChild className="bg-[#173b68] font-semibold text-white hover:bg-blue-800"><Link to={user ? '/nova-solicitacao' : '/registar'}>Saber mais <ArrowRight className="h-4 w-4" /></Link></Button>
+                  </div>
+                </motion.article>
+              );
+            })}
+          </div>
+          <div className="mt-9 text-center"><Button asChild variant="link" className="font-bold text-blue-800"><Link to="/servicos">Ver detalhes de todos os serviços <ArrowRight className="h-4 w-4" /></Link></Button></div>
+        </div>
+      </section>
+
+      <section className="bg-white py-16 md:py-20">
+        <div className="container mx-auto px-4">
+          <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-3">
+            {benefits.map(({ icon: Icon, title, text }) => <div key={title} className="flex gap-4 rounded-2xl border border-slate-200 bg-white p-5"><div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-700"><Icon className="h-5 w-5" /></div><div><h3 className="font-bold text-slate-900">{title}</h3><p className="mt-1 text-sm leading-6 text-slate-600">{text}</p></div></div>)}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-[#071d35] py-16 text-center text-white md:py-20">
+        <div className="container mx-auto max-w-3xl px-4">
+          <h2 className="text-3xl font-extrabold sm:text-4xl">O próximo passo da sua música começa aqui.</h2>
+          <p className="mx-auto mt-4 max-w-xl text-blue-100/75">Crie a sua conta e receba 1,5 créditos de bónus para experimentar os nossos serviços.</p>
+          {!user && <Button asChild size="lg" className="mt-8 bg-[#ffc629] font-bold text-[#17243a] hover:bg-[#ffd65b]"><Link to="/registar">Criar conta gratuita <ArrowRight className="h-4 w-4" /></Link></Button>}
         </div>
       </section>
     </Layout>
