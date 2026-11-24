@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - feat/corporate-blue-visual-2026-11-22
+      - work/partisolfa-continuation-2026-11-24
   workflow_dispatch:
 
 permissions:
@@ -27,4 +28,5 @@ jobs:
       - name: Run lint
         run: npm run lint
       - name: Build production bundle
+        if: always()
         run: npm run build
