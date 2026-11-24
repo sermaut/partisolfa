@@ -147,18 +147,18 @@ export default function ColaboradorDashboard() {
           </div>
 
           {/* Balance Card */}
-          <div className="bg-gradient-to-br from-primary/20 to-primary/5 rounded-2xl border border-primary/20 p-6 mb-8">
+          <div className="metric-card metric-card--blue p-6 mb-8">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-muted-foreground mb-1">Teu Saldo</p>
-                <p className="text-4xl font-bold text-primary">
+                <p className="text-primary-foreground/85 mb-1">Teu Saldo</p>
+                <p className="text-4xl font-bold text-primary-foreground">
                   {stats.balance.toFixed(1)} <span className="text-xl">créditos</span>
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-sm text-primary-foreground/85 mt-1">
                   ≈ {(stats.balance * 150).toLocaleString()} Kz
                 </p>
               </div>
-              <Wallet className="w-16 h-16 text-primary/30" />
+              <Wallet className="w-16 h-16 text-primary-foreground/35" />
             </div>
             
             {stats.pendingWithdrawals > 0 && (
@@ -173,38 +173,38 @@ export default function ColaboradorDashboard() {
 
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
-            <div className="bg-card rounded-xl border border-border p-4">
+            <div className="metric-card metric-card--orange p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-yellow-500/20">
-                  <Clock className="w-5 h-5 text-yellow-500" />
+                <div className="p-2 rounded-md bg-warning-foreground/15">
+                  <Clock className="w-5 h-5 text-warning-foreground" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.pendingAssignments}</p>
-                  <p className="text-sm text-muted-foreground">Pendentes</p>
+                  <p className="text-sm text-warning-foreground/85">Pendentes</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-card rounded-xl border border-border p-4">
+            <div className="metric-card metric-card--blue p-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-blue-500/20">
-                  <ClipboardList className="w-5 h-5 text-blue-500" />
+                <div className="p-2 rounded-md bg-primary-foreground/15">
+                  <ClipboardList className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.acceptedAssignments}</p>
-                  <p className="text-sm text-muted-foreground">Em Progresso</p>
+                  <p className="text-sm text-primary-foreground/85">Em Progresso</p>
                 </div>
               </div>
             </div>
             
-            <div className="bg-card rounded-xl border border-border p-4 col-span-2 md:col-span-1">
+            <div className="metric-card metric-card--green p-4 col-span-2 md:col-span-1">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-green-500/20">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
+                <div className="p-2 rounded-md bg-success-foreground/15">
+                  <CheckCircle className="w-5 h-5 text-success-foreground" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{stats.completedAssignments}</p>
-                  <p className="text-sm text-muted-foreground">Concluídas</p>
+                  <p className="text-sm text-success-foreground/85">Concluídas</p>
                 </div>
               </div>
             </div>

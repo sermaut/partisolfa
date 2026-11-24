@@ -178,57 +178,57 @@ export default function AdminDashboard() {
 
           {/* Stats Cards */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
-            <div className="glass-card rounded-xl p-6">
+            <div className="metric-card metric-card--orange p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-lg bg-warning/20 flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-warning" />
+                <div className="w-10 h-10 rounded-md bg-primary-foreground/15 flex items-center justify-center">
+                  <Clock className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <span className="text-3xl font-display font-bold">{stats.pendingTasks}</span>
               </div>
-              <p className="text-sm text-muted-foreground">Tarefas Pendentes</p>
+              <p className="text-sm text-primary-foreground/85">Tarefas Pendentes</p>
             </div>
 
-            <div className="glass-card rounded-xl p-6">
+            <div className="metric-card metric-card--blue p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-lg bg-primary/20 flex items-center justify-center">
-                  <AlertCircle className="w-5 h-5 text-primary" />
+                <div className="w-10 h-10 rounded-md bg-primary-foreground/15 flex items-center justify-center">
+                  <AlertCircle className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <span className="text-3xl font-display font-bold">{stats.inProgressTasks}</span>
               </div>
-              <p className="text-sm text-muted-foreground">Em Progresso</p>
+              <p className="text-sm text-primary-foreground/85">Em Progresso</p>
             </div>
 
-            <div className="glass-card rounded-xl p-6">
+            <div className="metric-card metric-card--green p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-lg bg-success/20 flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-success" />
+                <div className="w-10 h-10 rounded-md bg-success-foreground/15 flex items-center justify-center">
+                  <CheckCircle className="w-5 h-5 text-success-foreground" />
                 </div>
                 <span className="text-3xl font-display font-bold">{stats.completedTasks}</span>
               </div>
-              <p className="text-sm text-muted-foreground">Concluídas</p>
+              <p className="text-sm text-success-foreground/85">Concluídas</p>
             </div>
 
-            <div className="glass-card rounded-xl p-6">
+            <div className="metric-card metric-card--violet p-6">
               <div className="flex items-center justify-between mb-4">
-                <div className="w-10 h-10 rounded-lg bg-accent/20 flex items-center justify-center">
-                  <CreditCard className="w-5 h-5 text-accent" />
+                <div className="w-10 h-10 rounded-md bg-report-foreground/15 flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-report-foreground" />
                 </div>
                 <span className="text-3xl font-display font-bold">{stats.pendingDeposits}</span>
               </div>
-              <p className="text-sm text-muted-foreground">Depósitos Pendentes</p>
+              <p className="text-sm text-report-foreground/85">Depósitos Pendentes</p>
             </div>
           </div>
 
           {/* Quick Links */}
-          <Link to="/admin/avaliacoes" className="glass-card rounded-xl p-5 mb-5 flex items-center justify-between hover:border-primary/50"><span className="flex items-center gap-3"><MessageSquare className="text-amber-700" /><span><strong>Avaliações dos clientes</strong><span className="block text-sm text-muted-foreground">Gerir comentários e satisfação</span></span></span><ArrowRight className="text-primary" /></Link>
+          <Link to="/admin/avaliacoes" className="glass-card surface-violet p-5 mb-5 flex items-center justify-between hover:border-primary/50"><span className="flex items-center gap-3"><MessageSquare className="text-report" /><span><strong>Avaliações dos clientes</strong><span className="block text-sm text-muted-foreground">Gerir comentários e satisfação</span></span></span><ArrowRight className="text-primary" /></Link>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <Link
               to="/admin/tarefas"
-              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+              className="glass-card surface-blue p-6 hover:border-primary/50 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center group-hover:bg-primary/30 transition-colors">
+                  <div className="w-12 h-12 rounded-md bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                     <ClipboardList className="w-6 h-6 text-primary" />
                   </div>
                   <div>
@@ -244,12 +244,12 @@ export default function AdminDashboard() {
 
             <Link
               to="/admin/depositos"
-              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+              className="glass-card surface-orange p-6 hover:border-primary/50 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center group-hover:bg-accent/30 transition-colors">
-                    <CreditCard className="w-6 h-6 text-accent" />
+                  <div className="w-12 h-12 rounded-md bg-warning/10 flex items-center justify-center group-hover:bg-warning/20 transition-colors">
+                    <CreditCard className="w-6 h-6 text-warning" />
                   </div>
                   <div>
                     <h3 className="font-semibold">Gerir Depósitos</h3>
@@ -264,11 +264,11 @@ export default function AdminDashboard() {
 
             <Link
               to="/admin/usuarios"
-              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+              className="glass-card surface-green p-6 hover:border-primary/50 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-success/20 flex items-center justify-center group-hover:bg-success/30 transition-colors">
+                  <div className="w-12 h-12 rounded-md bg-success/10 flex items-center justify-center group-hover:bg-success/20 transition-colors">
                     <Users className="w-6 h-6 text-success" />
                   </div>
                   <div>
@@ -284,12 +284,12 @@ export default function AdminDashboard() {
 
             <Link
               to="/admin/referrals"
-              className="glass-card rounded-xl p-6 hover:border-primary/50 transition-colors group"
+              className="glass-card surface-violet p-6 hover:border-primary/50 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-warning/20 flex items-center justify-center group-hover:bg-warning/30 transition-colors">
-                    <Gift className="w-6 h-6 text-warning" />
+                  <div className="w-12 h-12 rounded-md bg-report/10 flex items-center justify-center group-hover:bg-report/20 transition-colors">
+                    <Gift className="w-6 h-6 text-report" />
                   </div>
                   <div>
                     <h3 className="font-semibold">Referências</h3>
@@ -308,8 +308,8 @@ export default function AdminDashboard() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center group-hover:bg-purple-500/30 transition-colors">
-                    <UserCog className="w-6 h-6 text-purple-500" />
+                  <div className="w-12 h-12 rounded-md bg-info/10 flex items-center justify-center group-hover:bg-info/20 transition-colors">
+                    <UserCog className="w-6 h-6 text-info" />
                   </div>
                   <div>
                     <h3 className="font-semibold">Colaboradores</h3>
@@ -328,8 +328,8 @@ export default function AdminDashboard() {
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center group-hover:bg-orange-500/30 transition-colors">
-                    <Wallet className="w-6 h-6 text-orange-500" />
+                  <div className="w-12 h-12 rounded-md bg-warning/10 flex items-center justify-center group-hover:bg-warning/20 transition-colors">
+                    <Wallet className="w-6 h-6 text-warning" />
                   </div>
                   <div>
                     <h3 className="font-semibold">Levantamentos</h3>

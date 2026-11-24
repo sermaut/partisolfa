@@ -205,15 +205,15 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
-            className="glass-card rounded-xl p-4 md:p-6"
+            className="metric-card metric-card--blue p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                <Wallet className="w-5 h-5 md:w-6 md:h-6 text-primary" />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-md bg-primary-foreground/15 flex items-center justify-center">
+                <Wallet className="w-5 h-5 md:w-6 md:h-6 text-primary-foreground" />
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Saldo</p>
-                <p className="text-lg md:text-2xl font-display font-bold text-primary">
+                <p className="text-xs md:text-sm text-primary-foreground/85">Saldo</p>
+                <p className="text-lg md:text-2xl font-display font-bold text-primary-foreground">
                   {profile?.credits?.toFixed(1)}
                 </p>
               </div>
@@ -224,14 +224,14 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="glass-card rounded-xl p-4 md:p-6"
+            className="metric-card metric-card--violet p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-accent/20 flex items-center justify-center">
-                <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-accent" />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-md bg-report-foreground/15 flex items-center justify-center">
+                <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-report-foreground" />
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Total Gasto</p>
+                <p className="text-xs md:text-sm text-report-foreground/85">Total Gasto</p>
                 <p className="text-lg md:text-2xl font-display font-bold">{totalCreditsUsed.toFixed(1)}</p>
               </div>
             </div>
@@ -241,14 +241,14 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="glass-card rounded-xl p-4 md:p-6"
+            className="metric-card metric-card--orange p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-warning/20 flex items-center justify-center">
-                <Clock className="w-5 h-5 md:w-6 md:h-6 text-warning" />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-md bg-warning-foreground/15 flex items-center justify-center">
+                <Clock className="w-5 h-5 md:w-6 md:h-6 text-warning-foreground" />
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Pendentes</p>
+                <p className="text-xs md:text-sm text-warning-foreground/85">Pendentes</p>
                 <p className="text-lg md:text-2xl font-display font-bold">{pendingTasks + inProgressTasks}</p>
               </div>
             </div>
@@ -258,14 +258,14 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="glass-card rounded-xl p-4 md:p-6"
+            className="metric-card metric-card--green p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-success/20 flex items-center justify-center">
-                <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-success" />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-md bg-success-foreground/15 flex items-center justify-center">
+                <CheckCircle className="w-5 h-5 md:w-6 md:h-6 text-success-foreground" />
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Concluídas</p>
+                <p className="text-xs md:text-sm text-success-foreground/85">Concluídas</p>
                 <p className="text-lg md:text-2xl font-display font-bold">{completedTasks}</p>
               </div>
             </div>
@@ -275,14 +275,14 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="glass-card rounded-xl p-4 md:p-6 col-span-2 md:col-span-1"
+            className="metric-card metric-card--red p-4 md:p-6 col-span-2 md:col-span-1"
           >
             <div className="flex items-center gap-3 md:gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-destructive/20 flex items-center justify-center">
-                <Bell className="w-5 h-5 md:w-6 md:h-6 text-destructive" />
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-md bg-destructive-foreground/15 flex items-center justify-center">
+                <Bell className="w-5 h-5 md:w-6 md:h-6 text-destructive-foreground" />
               </div>
               <div>
-                <p className="text-xs md:text-sm text-muted-foreground">Notificações</p>
+                <p className="text-xs md:text-sm text-destructive-foreground/85">Notificações</p>
                 <p className="text-lg md:text-2xl font-display font-bold">{notifications.length}</p>
               </div>
             </div>
