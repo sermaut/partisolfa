@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig, type Plugin } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { componentTagger } from "lovable-tagger";
@@ -6,7 +6,7 @@ import { VitePWA } from "vite-plugin-pwa";
 
 const buildVersion = new Date().toISOString();
 
-const emitBuildVersion = () => ({
+const emitBuildVersion = (): Plugin => ({
   name: "partisolfa-build-version",
   generateBundle() {
     this.emitFile({
@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => ({
             options: {
               cacheName: "partisolfa-pages",
               networkTimeoutSeconds: 10,
-              fetchOptions: { cache: "no-store" },
+              fetchOptions: { cache: "no-store" } as RequestInit & { cache: "no-store" },
               expiration: { maxEntries: 30, maxAgeSeconds: 60 * 60 * 24 },
             },
           },
