@@ -59,11 +59,11 @@ const ResponsiveDialogContent = React.forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "fixed left-[50%] top-[50%] z-50 grid w-[95vw] translate-x-[-50%] translate-y-[-50%] gap-0 border bg-card shadow-2xl duration-300",
+          "fixed left-[50%] top-[50%] z-50 grid w-[calc(100vw-2rem)] translate-x-[-50%] translate-y-[-50%] gap-0 border bg-card shadow-2xl duration-300",
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
           "rounded-xl sm:rounded-xl overflow-hidden",
           // Max height for scroll
-          "max-h-[90vh] sm:max-h-[85vh]",
+          "max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-4rem)]",
           // Top gradient overlay
           "before:absolute before:inset-x-0 before:top-0 before:h-32 before:bg-gradient-to-b before:pointer-events-none before:z-0",
           gradientClasses[variant],
@@ -72,7 +72,7 @@ const ResponsiveDialogContent = React.forwardRef<
         )}
         {...props}
       >
-        <div className="relative z-10 flex flex-col max-h-[90vh] sm:max-h-[85vh]">
+        <div className="relative z-10 flex min-h-0 flex-col max-h-[calc(100dvh-2rem)] sm:max-h-[calc(100dvh-4rem)]">
           {children}
         </div>
         <DialogPrimitive.Close className="absolute right-3 top-3 sm:right-4 sm:top-4 rounded-full p-1.5 opacity-70 ring-offset-background transition-all hover:opacity-100 hover:bg-secondary focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none z-20">
@@ -108,7 +108,7 @@ interface ResponsiveDialogBodyProps {
 }
 
 const ResponsiveDialogBody = ({ className, children }: ResponsiveDialogBodyProps) => (
-  <ScrollArea className={cn("flex-1 px-4 sm:px-6 overflow-y-auto", className)}>
+  <ScrollArea className={cn("min-h-0 flex-1 px-4 sm:px-6 overflow-y-auto", className)}>
     <div className="pb-4">
       {children}
     </div>

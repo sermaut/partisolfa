@@ -787,7 +787,7 @@ export default function AdminTarefas() {
 
               <div className="flex flex-wrap items-center gap-3">
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[160px] bg-secondary">
+                  <SelectTrigger className="w-full bg-secondary sm:w-[160px]">
                     <SelectValue placeholder="Estado" />
                   </SelectTrigger>
                   <SelectContent>
@@ -800,7 +800,7 @@ export default function AdminTarefas() {
                 </Select>
 
                 <Select value={serviceFilter} onValueChange={setServiceFilter}>
-                  <SelectTrigger className="w-[160px] bg-secondary">
+                  <SelectTrigger className="w-full bg-secondary sm:w-[160px]">
                     <SelectValue placeholder="Serviço" />
                   </SelectTrigger>
                   <SelectContent>

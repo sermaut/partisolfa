@@ -40,8 +40,8 @@ export default function Index() {
         <div className="absolute -right-24 top-10 -z-10 h-80 w-80 rounded-full border border-white/10 md:h-[34rem] md:w-[34rem]" />
         <div className="absolute right-10 top-24 -z-10 h-64 w-64 rounded-full border border-[#f6b91a]/20 md:right-28 md:top-28 md:h-96 md:w-96" />
 
-        <div className="container mx-auto grid min-h-[650px] items-center gap-12 px-4 py-16 md:grid-cols-[1.05fr_.95fr] md:py-24">
-          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55 }} className="relative z-10 max-w-2xl">
+        <div className="container mx-auto grid min-h-[650px] min-w-0 grid-cols-1 items-center gap-12 px-4 py-16 md:grid-cols-[minmax(0,1.05fr)_minmax(0,.95fr)] md:py-24">
+          <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: .55 }} className="relative z-10 w-full min-w-0 max-w-2xl">
             <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#f6b91a]/35 bg-[#f6b91a]/10 px-4 py-2 text-sm font-semibold tracking-wide text-[#ffd45c]">
               <Sparkles className="h-4 w-4" /> SERVIÇOS MUSICAIS PROFISSIONAIS
             </span>
@@ -68,9 +68,9 @@ export default function Index() {
             </div>
           </motion.div>
 
-          <motion.div initial={{ opacity: 0, scale: .94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .7, delay: .12 }} className="relative mx-auto flex w-full max-w-xl items-center justify-center py-8">
+          <motion.div initial={{ opacity: 0, scale: .94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: .7, delay: .12 }} className="relative mx-auto flex w-full min-w-0 max-w-xl items-center justify-center py-8">
             <div className="absolute h-[min(78vw,390px)] w-[min(78vw,390px)] rounded-full bg-blue-500/20 blur-3xl" />
-            <div className="relative w-full overflow-hidden rounded-[2rem] border border-white/15 bg-gradient-to-br from-[#123d69] via-[#0b2c4e] to-[#071c34] p-7 shadow-2xl shadow-black/30 sm:p-10">
+            <div className="relative w-full min-w-0 overflow-hidden rounded-[2rem] border border-white/15 bg-gradient-to-br from-[#123d69] via-[#0b2c4e] to-[#071c34] p-5 shadow-2xl shadow-black/30 sm:p-7 lg:p-10">
               <div className="absolute -right-8 -top-8 h-40 w-40 rounded-full bg-[#ffc629]/10 blur-2xl" />
               <div className="relative flex items-center justify-between">
                 <div className="rounded-2xl border border-white/15 bg-white/10 p-3"><Music2 className="h-7 w-7 text-[#ffc629]" /></div>

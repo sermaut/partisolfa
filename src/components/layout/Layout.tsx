@@ -17,7 +17,7 @@ export function Layout({ children, showFooter = true }: LayoutProps) {
       <Header />
       <div className="flex flex-1 pt-16 md:pt-20">
         {user && <AppSidebar />}
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="app-main-content flex min-w-0 flex-1 flex-col">
           <main className="min-w-0 flex-1 bg-background">
             {children}
           </main>

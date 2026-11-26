@@ -1,1 +1,2 @@
 - Render authenticated primary navigation through `AppSidebar` in the shared `Layout`, while `Header` retains account controls and the mobile drawer; this keeps navigation consistent across roles without changing route permissions.
+- Keep responsive behavior in shared layout/component styles and use content-width breakpoints for authenticated pages, so the approved visual design remains consistent as available space changes.

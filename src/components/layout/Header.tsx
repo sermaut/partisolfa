@@ -60,6 +60,17 @@ export function Header() {
     setIsMenuOpen(false);
   }, [location.pathname]);
 
+  useEffect(() => {
+    const desktopNavigation = window.matchMedia('(min-width: 1024px)');
+    const closeDrawerOnDesktop = () => {
+      if (desktopNavigation.matches) setIsMenuOpen(false);
+    };
+
+    desktopNavigation.addEventListener('change', closeDrawerOnDesktop);
+    closeDrawerOnDesktop();
+    return () => desktopNavigation.removeEventListener('change', closeDrawerOnDesktop);
+  }, []);
+
   const fetchUnreadCount = async () => {
     if (!user) return;
     try {

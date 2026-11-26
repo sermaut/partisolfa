@@ -305,7 +305,7 @@ export default function AdminDepositos() {
             </h1>
 
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[180px] bg-secondary">
+              <SelectTrigger className="w-full bg-secondary sm:w-[180px]">
                 <SelectValue placeholder="Filtrar por estado" />
               </SelectTrigger>
               <SelectContent>

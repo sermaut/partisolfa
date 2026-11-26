@@ -177,7 +177,7 @@ export default function AdminDashboard() {
           </div>
 
           {/* Stats Cards */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
+          <div className="admin-dashboard-stats-grid grid gap-3 sm:gap-4 mb-8">
             <div className="metric-card metric-card--orange p-6">
               <div className="flex items-center justify-between mb-4">
                 <div className="w-10 h-10 rounded-md bg-primary-foreground/15 flex items-center justify-center">
@@ -221,7 +221,7 @@ export default function AdminDashboard() {
 
           {/* Quick Links */}
           <Link to="/admin/avaliacoes" className="glass-card surface-violet p-5 mb-5 flex items-center justify-between hover:border-primary/50"><span className="flex items-center gap-3"><MessageSquare className="text-report" /><span><strong>Avaliações dos clientes</strong><span className="block text-sm text-muted-foreground">Gerir comentários e satisfação</span></span></span><ArrowRight className="text-primary" /></Link>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="admin-dashboard-actions grid gap-4">
             <Link
               to="/admin/tarefas"
               className="glass-card surface-blue p-6 hover:border-primary/50 transition-colors group"

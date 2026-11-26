@@ -7,9 +7,9 @@ export function Footer() {
   return (
     <footer className="bg-card border-t border-border">
       <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="site-footer-columns gap-8">
           {/* Brand */}
-          <div className="col-span-1 md:col-span-2">
+          <div className="site-footer-brand">
             <Link to="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-gold flex items-center justify-center">
                 <Music2 className="w-5 h-5 text-primary-foreground" />

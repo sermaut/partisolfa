@@ -172,7 +172,7 @@ export default function ColaboradorDashboard() {
           </div>
 
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
+          <div className="collaborator-dashboard-stats-grid grid gap-4 mb-8">
             <div className="metric-card metric-card--orange p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-md bg-warning-foreground/15">
@@ -197,7 +197,7 @@ export default function ColaboradorDashboard() {
               </div>
             </div>
             
-            <div className="metric-card metric-card--green p-4 col-span-2 md:col-span-1">
+            <div className="metric-card metric-card--green p-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 rounded-md bg-success-foreground/15">
                   <CheckCircle className="w-5 h-5 text-success-foreground" />
@@ -212,7 +212,7 @@ export default function ColaboradorDashboard() {
 
           {/* Quick Links */}
           <h2 className="text-xl font-semibold mb-4">Acesso Rápido</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="collaborator-dashboard-actions grid gap-4">
             {quickLinks.map((link) => (
               <Link
                 key={link.title}

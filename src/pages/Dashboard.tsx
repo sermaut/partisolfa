@@ -200,7 +200,7 @@ export default function Dashboard() {
         </motion.div>
 
         {/* Stats Cards */}
-        <div className="dashboard-stats-grid grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+        <div className="dashboard-stats-grid grid gap-4 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -275,7 +275,7 @@ export default function Dashboard() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
-            className="metric-card metric-card--red p-4 md:p-6 col-span-2 md:col-span-1"
+            className="metric-card metric-card--red p-4 md:p-6"
           >
             <div className="flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 rounded-md bg-destructive-foreground/15 flex items-center justify-center">
@@ -344,7 +344,7 @@ export default function Dashboard() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
+          className="dashboard-quick-actions-grid grid gap-4 mb-8"
         >
           <Button 
             variant="premium" 
