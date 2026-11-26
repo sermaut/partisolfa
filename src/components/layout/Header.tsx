@@ -80,7 +80,7 @@ export function Header() {
     navigate('/');
   };
 
-  const avatarUrl = profile?.avatar_url;
+  const avatarUrl = (profile as any)?.avatar_url;
 
   return (
     <header className="fixed top-0 left-0 right-0 z-[100] border-b border-sidebar-border bg-sidebar text-sidebar-foreground shadow-md">
@@ -95,7 +95,7 @@ export function Header() {
             >
               <Music2 className="w-5 h-5 text-primary-foreground" />
             </motion.div>
-            <span className="font-display text-xl md:text-2xl font-bold text-sidebar-foreground">
+            <span className="font-display text-xl md:text-2xl font-bold text-white">
               PARTISOLFA
             </span>
           </Link>
@@ -319,7 +319,7 @@ export function Header() {
                 {user && (
                   <>
                     <div className="mobile-menu-profile">
-                      <Avatar className="w-12 h-12 border border-sidebar-primary/70">
+                      <Avatar className="w-12 h-12 border-2 border-amber-400/70">
                         <AvatarImage src={avatarUrl} alt={profile?.full_name} />
                         <AvatarFallback className="bg-primary text-primary-foreground">
                           {profile?.full_name?.charAt(0)?.toUpperCase() || 'U'}
@@ -327,7 +327,7 @@ export function Header() {
                       </Avatar>
                       <div className="min-w-0">
                         <p className="font-bold truncate">{profile?.full_name || 'Minha Conta'}</p>
-                        <p className="text-sm font-semibold text-sidebar-primary">{profile?.credits?.toFixed(1)} créditos</p>
+                        <p className="text-sm font-semibold text-amber-300">{profile?.credits?.toFixed(1)} créditos</p>
                       </div>
                     </div>
 

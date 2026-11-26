@@ -436,7 +436,7 @@
 .app-sidebar {
   position: sticky;
   top: 5rem;
-  display: none;
+  display: flex;
   width: 15rem;
   height: calc(100vh - 5rem);
   flex: 0 0 15rem;
@@ -477,7 +477,6 @@
 .app-sidebar-footer { display: flex; align-items: center; gap: 0.5rem; margin-top: auto; padding: 0.875rem 0.625rem 0; color: hsl(var(--sidebar-foreground) / 0.7); font-size: 0.75rem; border-top: 1px solid hsl(var(--sidebar-border)); }
 
 @media (min-width: 1024px) {
-  .app-sidebar { display: flex; }
   .mobile-menu-backdrop,
   .mobile-menu-drawer { display: none; }
 }
