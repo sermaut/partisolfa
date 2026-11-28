@@ -1,4 +1,5 @@
 - [x] Apply the professional-blue palette to shared tokens, controls, forms, tables, and surfaces.
 - [x] Add role-aware navy navigation and color-coded dashboard indicators.
-- [ ] Optimise the existing layout from 320 px to 1920 px without changing its approved visual identity.
-- [ ] Validate smartphone, tablet, laptop, and desktop layouts; check diagnostics and keep the update unpublished.
+- [x] Optimise the existing layout from 320 px to 1920 px without changing its approved visual identity.
+- [x] Validate public pages and the signed-in user dashboard at 13 widths, confirm no horizontal overflow, and keep the update unpublished.
+- [ ] Live-check admin and collaborator dashboards with authorized sessions — blocked because the available session has no access to those roles.
